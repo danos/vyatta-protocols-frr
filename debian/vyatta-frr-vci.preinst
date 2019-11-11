@@ -1,0 +1,22 @@
+#!/bin/bash -e
+
+# creating routeadm group if it isn't already there
+if ! getent group routeadm >/dev/null; then
+        addgroup --system routeadm >/dev/null
+fi
+
+# creating Routing group if it isn't already there
+if ! getent group routing >/dev/null; then
+        addgroup --system routing >/dev/null
+fi
+
+# creating routing user if he isn't already there
+if ! getent passwd routing >/dev/null; then
+        adduser \
+          --system \
+          --ingroup routing \
+          --home /var/run/routing/ \
+          --gecos "Frr vyatta routing suite" \
+          --shell /bin/false \
+          routing  >/dev/null
+fi

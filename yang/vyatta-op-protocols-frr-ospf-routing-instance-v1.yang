@@ -1,0 +1,112 @@
+module vyatta-op-protocols-frr-ospf-routing-instance-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-protocols-frr-ospf-routing-instance:1";
+    prefix vyatta-op-protocols-frr-ospf-routing-instance;
+
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-routing-instance-v1 {
+        prefix op-routing-instance;
+    }
+    import vyatta-op-show-v1 {
+        prefix op-show;
+    }
+    import vyatta-op-show-protocols-v1 {
+        prefix op-show-protocols;
+    }
+    import vyatta-op-protocols-frr-ospf-v1 {
+        prefix op-protocols-ospf;
+    }
+    import vyatta-routing-v1 {
+        prefix routing;
+    }
+
+    organization "AT&T, Inc.";
+    contact
+        "AT&T
+         Postal: 208 S. Akard Street
+                 Dallas, TX 25202
+         Web: www.att.com";
+
+    description
+        "Copyright (c) 2018-2019, AT&T Intellectual Property.
+         All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+         This module implements the OSPF routing instance operational CLI";
+
+    revision 2018-10-22 {
+        description "Initial revision";
+    }
+
+    opd:augment /op-show:show/op-show-protocols:protocols/op-protocols-ospf:ospf {
+        opd:option routing-instance {
+            opd:help "Show OSPF routing instance";
+            type routing:routing-instance-name;
+            opd:allowed "allowed-nodes routing routing-instance";
+            opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5"';
+            opd:privileged true;
+
+            opd:command border-routers {
+                opd:help "Show OSPF routing instance border routers";
+                opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 border-routers"';
+                opd:privileged true;
+            }
+            opd:command database {
+                opd:help "Show OSPF routing instance database";
+                opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 database"';
+                opd:privileged true;
+            }
+            opd:command interface {
+                opd:help "Show OSPF routing instance interface";
+                opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 interface"';
+                opd:privileged true;
+                opd:argument interface {
+                    opd:help "Show OSPF routing instance interface";
+                    opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 interface $7"';
+                    opd:allowed "allowed-nodes interfaces dataplane";
+                    opd:privileged true;
+                    type string;
+                }
+            }
+            opd:command neighbor {
+                opd:help "Show OSPF routing instance neighbor";
+                opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 neighbor"';
+                opd:privileged true;
+            }
+            opd:command route {
+                opd:help "Show OSPF routing instance route";
+                opd:on-enter 'vtysh -c "show ip ospf vrf vrf$5 route"';
+                opd:privileged true;
+            }
+        }
+    }
+}

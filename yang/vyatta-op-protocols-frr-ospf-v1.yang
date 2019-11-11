@@ -1,0 +1,463 @@
+module vyatta-op-protocols-frr-ospf-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-protocols-frr-ospf:1";
+    prefix vyatta-op-protocols-frr-ospf-v1;
+
+    import vyatta-types-v1 {
+        prefix types;
+    }
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-show-v1 {
+        prefix op-show;
+    }
+    import vyatta-op-show-protocols-v1 {
+        prefix op-show-protocols;
+    }
+    import vyatta-op-reset-v1 {
+        prefix op-reset;
+    }
+    import vyatta-op-reset-protocols-v1 {
+        prefix op-reset-protocols;
+    }
+    import vyatta-op-monitor-v1 {
+        prefix op-monitor;
+    }
+    import vyatta-op-monitor-protocols-v1 {
+        prefix op-monitor-protocols;
+    }
+
+    organization "AT&T, Inc.";
+    contact
+        "AT&T
+         Postal: 208 S. Akard Street
+         Dallas, TX 25202
+         Web: www.att.com";
+
+    description
+        "Copyright (c) 2018-2019, AT&T Intellectual Property.
+         All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+         This module implements the OSPF operational CLI.";
+
+    revision 2018-11-22 {
+        description "Initial revision";
+    }
+    opd:augment /op-show:show/op-show-protocols:protocols {
+        opd:command ospf {
+            opd:help "Show OSPF information";
+            opd:on-enter 'vtysh -c "show ip ospf"';
+            opd:privileged true;
+
+            opd:command database {
+                opd:help "Show OSPF database information";
+                opd:on-enter 'vtysh -c "show ip ospf database"';
+                opd:privileged true;
+
+                opd:command asbr-summary {
+                    opd:help "Show OSPF ASBR summary link states";
+                    opd:on-enter 'vtysh -c "show ip ospf database asbr-summary"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database asbr-summary $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database asbr-summary adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database ASBR self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database asbr-summary self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command external {
+                    opd:help "Show OSPF database External link states";
+                    opd:on-enter 'vtysh -c "show ip ospf database external"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database external $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database external adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originated link states";
+                        opd:on-enter 'vtysh -c "show ip ospf database external self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command max-age {
+                    opd:help "Show OSPF Max age information";
+                    opd:on-enter 'vtysh -c "show ip ospf database max-age"';
+                    opd:privileged true;
+                }
+                opd:command network {
+                    opd:help "Show OSPF network link states";
+                    opd:on-enter 'vtysh -c "show ip ospf database network"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database network $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database network adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database network self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command nssa-external {
+                    opd:help "Show OSPF database NSSA external link states";
+                    opd:on-enter 'vtysh -c "show ip ospf database nssa-external"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database nssa-external $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database nssa-external adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database nssa-external self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command opaque-area {
+                    opd:help "Show OSPF database Link area Opaque LSA";
+                    opd:on-enter 'vtysh -c "show ip ospf database opaque-area"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-area $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database opaque-area adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-area self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command opaque-as {
+                    opd:help "Show OSPF database Link AS Opaque LSA";
+                    opd:on-enter 'vtysh -c "show ip ospf database opaque-as"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-as $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database opaque-as adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-as self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command opaque-link {
+                    opd:help "Show OSPF database Link local Opaque LSA";
+                    opd:on-enter 'vtysh -c "show ip ospf database opaque-link"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-link $6"';
+                        opd:privileged true;
+                        type types:ipv4-address;
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPF database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ip ospf database opaque-link adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originate {
+                        opd:help "Show OSPF database self originate information";
+                        opd:on-enter 'vtysh -c "show ip ospf database opaque-link self-originate"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command self-originate {
+                    opd:help "Show self originated link states";
+                    opd:on-enter 'vtysh -c "show ip ospf database self-originate"';
+                    opd:privileged true;
+                }
+            }
+            opd:command interface {
+                opd:help "Show OSPF interface information";
+                opd:on-enter 'vtysh -c "show ip ospf interface"';
+                opd:privileged true;
+
+                opd:argument interface {
+                    opd:help "Show OSPF interface";
+                    opd:on-enter 'vtysh -c "show ip ospf interface $5"';
+                    opd:allowed "allowed-nodes interfaces dataplane";
+                    opd:privileged true;
+                    type string;
+                }
+            }
+            opd:command json {
+                opd:help "Show OSPF json information";
+                opd:on-enter 'vtysh -c "show ip ospf json"';
+                opd:privileged true;
+            }
+            opd:command neighbor {
+                opd:help "Show OSPF neighbor information";
+                opd:on-enter 'vtysh -c "show ip ospf neighbor"';
+                opd:privileged true;
+
+                opd:argument interface {
+                    opd:help "Show OSPF database neighbor interface information";
+                    opd:on-enter 'vtysh -c "show ip ospf neighbor $5"';
+                    opd:allowed "allowed-nodes interfaces dataplane";
+                    opd:privileged true;
+                    type string;
+                }
+                opd:command all {
+                    opd:help "Show OSPF neighbor information";
+                    opd:on-enter 'vtysh -c "show ip ospf neighbor all"';
+                    opd:privileged true;
+                }
+                opd:command detail {
+                    opd:help "Show OSPF neighbor detail information";
+                    opd:on-enter 'vtysh -c "show ip ospf neighbor detail"';
+                    opd:privileged true;
+                }
+            }
+            opd:command route {
+                opd:help "Show OSPF route information";
+                opd:on-enter 'vtysh -c "show ip ospf route"';
+                opd:privileged true;
+            }
+        }
+    }
+    opd:augment /op-reset:reset/op-reset-protocols:protocols {
+        opd:command ospf {
+            opd:help "Reset OSPF information";
+            opd:on-enter 'vtysh -c "clear ip ospf interface"';
+            opd:privileged true;
+
+            opd:argument interface {
+                opd:help "Reset OSPF information";
+                opd:on-enter 'vtysh -c "clear ip ospf interface $4"';
+                opd:allowed "allowed-nodes interfaces dataplane";
+                opd:privileged true;
+                type string;
+            }
+        }
+    }
+    opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
+        opd:command ospf {
+            opd:help "Monitor OSPF information";
+            opd:inherit "Using vtysh requires raised privileges" {
+                opd:privileged true;
+            }
+
+            opd:command enable {
+                opd:help "Enable OSPF monitor";
+
+                opd:command event {
+                    opd:help "Monitor OSPF events";
+                    opd:on-enter 'vtysh -c "debug ospf event"';
+                }
+                opd:command ism {
+                    opd:help "Monitor OSPF Interface State Machine";
+                    opd:on-enter 'vtysh -c "debug ospf ism"';
+                }
+                opd:command lsa {
+                    opd:help "Monitor OSPF Link State Advertisements";
+                    opd:on-enter 'vtysh -c "debug ospf lsa"';
+                }
+                opd:command nsm {
+                    opd:help "Monitor OSPF Neighbor State Machine";
+                    opd:on-enter 'vtysh -c "debug ospf nsm"';
+                }
+                opd:command nssa {
+                    opd:help "Monitor OSPF NSSA information";
+                    opd:on-enter 'vtysh -c "debug ospf nssa"';
+                }
+                opd:command packet {
+                    opd:help "Monitor OSPF packets";
+
+                    opd:command all {
+                        opd:help "Monitor all OSPF packet types";
+                        opd:on-enter 'vtysh -c "debug ospf packet all"';
+                    }
+                    opd:command dd {
+                        opd:help "Monitor OSPF Database Description packets";
+                        opd:on-enter 'vtysh -c "debug ospf packet dd"';
+                    }
+                    opd:command hello {
+                        opd:help "Monitor OSPF Hello packets";
+                        opd:on-enter 'vtysh -c "debug ospf packet hello"';
+                    }
+                    opd:command ls-ack {
+                        opd:help "Monitor OSPF Link State Acknowledgement packets";
+                        opd:on-enter 'vtysh -c "debug ospf packet ls-ack"';
+                    }
+                    opd:command ls-request {
+                        opd:help "Monitor OSPF Link State Request packets";
+                        opd:on-enter 'vtysh -c "debug ospf packet ls-request"';
+                    }
+                    opd:command ls-update {
+                        opd:help "Monitor OSPF Link State Update packets";
+                        opd:on-enter 'vtysh -c "debug ospf packet ls-update"';
+                    }
+                }
+                opd:command zebra {
+                    opd:help "Monitor OSPF zebra";
+                    opd:on-enter 'vtysh -c "debug ospf zebra"';
+                }
+            }
+            opd:command disable {
+                opd:help "Disable OSPF monitor";
+
+                opd:command event {
+                    opd:help "Monitor OSPF events";
+                    opd:on-enter 'vtysh -c "no debug ospf event"';
+                }
+                opd:command ism {
+                    opd:help "Monitor OSPF Interface State Machine";
+                    opd:on-enter 'vtysh -c "no debug ospf ism"';
+                }
+                opd:command lsa {
+                    opd:help "Monitor OSPF Link State Advertisements";
+                    opd:on-enter 'vtysh -c "no debug ospf lsa"';
+                }
+                opd:command nsm {
+                    opd:help "Monitor OSPF Neighbor State Machine";
+                    opd:on-enter 'vtysh -c "no debug ospf nsm"';
+                }
+                opd:command nssa {
+                    opd:help "Monitor OSPF NSSA information";
+                    opd:on-enter 'vtysh -c "no debug ospf nssa"';
+                }
+                opd:command packet {
+                    opd:help "Monitor OSPF packets";
+
+                    opd:command all {
+                        opd:help "Monitor all OSPF packet types";
+                        opd:on-enter 'vtysh -c "no debug ospf packet all"';
+                    }
+                    opd:command dd {
+                        opd:help "Monitor OSPF Database Description packets";
+                        opd:on-enter 'vtysh -c "no debug ospf packet dd"';
+                    }
+                    opd:command hello {
+                        opd:help "Monitor OSPF Hello packets";
+                        opd:on-enter 'vtysh -c "no debug ospf packet hello"';
+                    }
+                    opd:command ls-ack {
+                        opd:help "Monitor OSPF Link State Acknowledgement packets";
+                        opd:on-enter 'vtysh -c "no debug ospf packet ls-ack"';
+                    }
+                    opd:command ls-request {
+                        opd:help "Monitor OSPF Link State Request packets";
+                        opd:on-enter 'vtysh -c "no debug ospf packet ls-request"';
+                    }
+                    opd:command ls-update {
+                        opd:help "Monitor OSPF Link State Update packets";
+                        opd:on-enter 'vtysh -c "no debug ospf packet ls-update"';
+                    }
+                }
+                opd:command zebra {
+                    opd:help "Monitor OSPF zebra";
+                    opd:on-enter 'vtysh -c "no debug ospf zebra"';
+                }
+            }
+        }
+    }
+}

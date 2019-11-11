@@ -1,0 +1,21 @@
+[Vyatta Component]
+Name=net.vyatta.vci.frr
+Description=FRR VCI Component
+ExecName=/opt/vyatta/sbin/frr -user routing
+ConfigFile=/etc/vyatta-routing/frr.json
+
+[Model net.vyatta.vci.frr.v1]
+Modules=vyatta-protocols-frr-bgp-v1,                      \
+    vyatta-protocols-frr-bgp-routing-instance-v1,         \
+    vyatta-protocols-frr-ldp-v1,                          \
+    vyatta-protocols-frr-ospf-v1,                         \
+    vyatta-protocols-frr-ospf-routing-instance-v1,        \
+    vyatta-protocols-frr-switch-vif-ospf-v1,              \
+    vyatta-protocols-frr-ospfv3-v1,                       \
+    vyatta-protocols-frr-switch-vif-ospfv3-v1,            \
+    vyatta-policy-route-v1,                               \
+    vyatta-protocols-static-v1,                           \
+    vyatta-protocols-static-routing-instance-v1,          \
+    vyatta-protocols-static-routing-instance-inter-vrf-v1
+
+ModelSets=vyatta-v1

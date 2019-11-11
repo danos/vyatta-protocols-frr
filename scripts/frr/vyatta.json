@@ -1,0 +1,202 @@
+{
+    "protocols": {
+        "ospf": {
+            "area": [
+                {
+                    "network": [
+                        "192.168.122.0/24",
+                        "10.2.1.0/24"
+                    ],
+                    "tagnode": "0"
+                }
+            ],
+            "passive-interface": [
+                "dp0s4",
+                "dp0s5"
+            ],
+            "neighbor": [
+                {
+                    "poll-interval": 1,
+                    "priority": 2,
+                    "tagnode": "1.1.1.1"
+                }
+            ],
+            "parameters": {
+                "abr-type": "cisco",
+                "router-id": "1.1.1.1"
+            },
+            "redistribute": {
+                "static": {
+                    "metric": 2,
+                    "metric-type": 1
+                },
+                "bgp": {
+                    "metric": 2,
+                    "metric-type": 1
+                }
+            },
+            "timers": {
+                "lsa": {
+                    "arrival": 1000
+                },
+                "throttle": {
+                    "lsa": {
+                        "delay": 0,
+                        "max-wait": 5000,
+                        "min-wait": 5000
+                    },
+                    "spf": {
+                        "delay": 500,
+                        "max-wait": 50000,
+                        "min-wait": 500
+                    }
+                }
+            }
+        },
+        "static": {
+            "interface-route": [
+                {
+                    "next-hop-interface": [
+                        {
+                            "distance": 1,
+                            "tagnode": "dp0s4"
+                        }
+                    ],
+                    "tagnode": "90.1.1.0/24"
+                }
+            ],
+            "interface-route6": [
+                {
+                    "next-hop-interface": [
+                        {
+                            "distance": 1,
+                            "tagnode": "dp0s4"
+                        }
+                    ],
+                    "tagnode": "9000::/64"
+                }
+            ],
+            "route": [
+                {
+                    "next-hop": [
+                        {
+                            "distance": 1,
+                            "tagnode": "10.0.1.21"
+                        }
+                    ],
+                    "tagnode": "10.1.1.0/24"
+                },
+                {
+                    "blackhole": {
+                        "distance": 1
+                    },
+                    "tagnode": "22.1.1.0/24"
+                },
+                {
+                    "tagnode": "54.23.4.0/24",
+                    "unreachable": {
+                        "distance": 1
+                    }
+                }
+            ],
+            "route6": [
+                {
+                    "blackhole": {
+                        "distance": 1
+                    },
+                    "tagnode": "8800::/64"
+                },
+                {
+                    "tagnode": "8900::/64",
+                    "unreachable": {
+                        "distance": 1
+                    }
+                },
+                {
+                    "next-hop": [
+                        {
+                            "distance": 1,
+                            "tagnode": "6001::1"
+                        }
+                    ],
+                    "tagnode": "9800::/64"
+                }
+            ]
+        },
+        "bgp": [
+            {
+                "address-family": {
+                    "ipv4-unicast": {
+                        "network": [
+                            {
+                                "route-map": "EXPORT-SET",
+                                "tagnode": "20.1.1.0/24"
+                            }
+                        ],
+                        "redistribute": {
+                            "static": {}
+                        }
+                    }
+                },
+                "neighbor": [
+                    {
+                        "address-family": {
+                            "ipv4-unicast": {}
+                        },
+                        "remote-as": 200,
+                        "tagnode": "3.3.3.3",
+                        "update-source": "1.1.1.1"
+                    },
+                    {
+                        "address-family": {
+                            "ipv4-unicast": {
+                                "route-map": {
+                                    "import": "IMPORT-SET"
+                                }
+                            }
+                        },
+                        "remote-as": 100,
+                        "tagnode": "20.1.1.10"
+                    }
+                ],
+                "parameters": {
+                    "maximum-as-limit": 254,
+                    "router-id": "20.3.6.30"
+                },
+                "tagnode": 200
+            }
+        ]
+    },
+    "policy": {
+        "route": {
+            "route-map": [
+                {
+                    "rule": [
+                        {
+                            "action": "permit",
+                            "set": {
+                                "add-community": "no-export"
+                            },
+                            "tagnode": 10
+                        }
+                    ],
+                    "tagnode": "EXPORT-SET"
+                },
+                {
+                    "rule": [
+                        {
+                            "action": "permit",
+                            "set": {
+                                "add-extcommunity": {
+                                    "rt": "100:1"
+                                }
+                            },
+                            "tagnode": 10
+                        }
+                    ],
+                    "tagnode": "IMPORT-SET"
+                }
+            ]
+        }
+    }
+}

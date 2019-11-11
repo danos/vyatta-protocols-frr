@@ -1,0 +1,1050 @@
+module vyatta-protocols-frr-ospf-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-ospf:1";
+	prefix vyatta-protocols-frr-ospf-v1;
+
+	import vyatta-protocols-v1 {
+		prefix protocols;
+	}
+	import vyatta-services-v1 {
+		prefix service;
+	}
+	import vyatta-service-snmp-v1 {
+		prefix service-snmp;
+	}
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-interfaces-v1 {
+		prefix if;
+	}
+	import vyatta-interfaces-bridge-v1 {
+		prefix interfaces-bridge;
+	}
+	import vyatta-interfaces-dataplane-v1 {
+		prefix interfaces-dataplane;
+	}
+	import vyatta-interfaces-dataplane-unnumbered-v1 {
+		prefix interfaces-dataplane-unnumbered;
+	}
+	import vyatta-interfaces-l2tpeth-v1 {
+		prefix interfaces-l2tpeth;
+	}
+	import vyatta-interfaces-loopback-v1 {
+		prefix interfaces-loopback;
+	}
+	import vyatta-interfaces-openvpn-v1 {
+		prefix interfaces-openvpn;
+	}
+	import vyatta-interfaces-tunnel-v1 {
+		prefix interfaces-tunnel;
+	}
+	import vyatta-interfaces-vti-v1 {
+		prefix interfaces-vti;
+	}
+	import vyatta-interfaces-bonding-v1 {
+		prefix interfaces-bonding;
+	}
+	import vyatta-policy-v1 {
+		prefix policy;
+	}
+	import vyatta-policy-route-v1 {
+		prefix policy-route;
+	}
+	import vyatta-protocols-interface-validation-v1 {
+		prefix if-validation;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		Postal: 208 S. Akard Street
+		        Dallas, TX 25202
+		Web: www.att.com";
+	
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module package for vyatta-protocols-frr-ospf-v1";
+
+	revision 2018-11-15 {
+		description "Initial revision of version 1";
+	}
+
+	typedef metric {
+		type uint32 {
+			range 0..16777214;
+		}
+	}
+
+	typedef metric-type {
+		type enumeration {
+			enum "1";
+			enum "2";
+		}
+	}
+
+	typedef distance {
+		type uint32 {
+			range 1..255;
+		}
+	}
+
+	typedef timer-val {
+		type uint32 {
+			range 1..65535;
+		}
+	}
+
+	typedef cost {
+		type uint32 {
+			range 0..16777214;
+		}
+	}
+
+	typedef abr-type {
+		type enumeration {
+			enum "cisco" {
+				configd:help "Cisco ABR type (default)";
+				description "Cisco ABR type (default)";
+			}
+			enum "ibm" {
+				configd:help "IBM ABR type";
+				description "IBM ABR type";
+			}
+			enum "shortcut" {
+				configd:help "Shortcut ABR type";
+				description "Shortcut ABR type";
+			}
+			enum "standard" {
+				configd:help "Standard ABR type";
+				description "Standard ABR type";
+			}
+		}
+	}
+
+	typedef network-type {
+		type enumeration {
+			enum "broadcast" {
+				configd:help "Broadcast network type";
+				description "Broadcast network type";
+			}
+			enum "non-broadcast" {
+				configd:help "Non-broadcast network type";
+				description "Non-broadcast network type";
+			}
+			enum "point-to-multipoint" {
+				configd:help "Point-to-multipoint network type";
+				description "Point-to-multipoint network type";
+			}
+			enum "point-to-point" {
+				configd:help "Point-to-point network type";
+				description "Point-to-point network type";
+			}
+		}
+	}
+	
+	typedef nssa-translate-role {
+		type enumeration {
+			enum "always" {
+				configd:help "NSSA-ABR to always translate";
+				description "NSSA-ABR to always translate";
+			}
+			enum "candidate" {
+				configd:help "NSSA-ABR for translate election (default)";
+				description "NSSA-ABR for translate election (default)";
+			}
+			enum "never" {
+				configd:help "NSSA-ABR do not translate";
+				description "NSSA-ABR do not translate";
+			}
+		}
+	}
+
+	grouping parameters-redistribute {
+		leaf metric-type {
+			type uint32 {
+				range 1..2;
+			}
+			configd:help "Metric type for redistributed routes";
+			description "Metric type for redistributed routes";
+			default "2";
+		}
+		leaf route-map {
+			type leafref {
+				path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+			}
+			configd:help "Route map reference";
+			description "Route map reference";
+		}
+		leaf metric {
+			type metric;
+			configd:help "Metric for redistributed routes";
+			description "Metric for redistributed routes";
+		}
+	}
+
+	grouping ospf-redistribute {
+		container redistribute {
+			configd:help "Redistribute information from another routing protocol";
+			description "Redistribute information from another routing protocol";
+			container bgp {
+				presence "true";
+				configd:help "Redistribute bgp routes";
+				description "Redistribute bgp routes";
+				uses parameters-redistribute;
+			}
+			container kernel {
+				presence "true";
+				configd:help "Redistribute kernel routes";
+				description "Redistribute kernel routes";
+				uses parameters-redistribute;
+			}
+			container rip {
+				presence "true";
+				configd:help "Redistribute RIPNG routes";
+				description "Redistribute RIPNG routes";
+				uses parameters-redistribute;
+			}
+			container connected {
+				presence "true";
+				configd:help "Redistribute connected routes";
+				description "Redistribute connected routes";
+				uses parameters-redistribute;
+			}
+			container static {
+				presence "true";
+				configd:help "Redistribute static routes";
+				description "Redistribute static routes";
+				uses parameters-redistribute;
+			}
+		}
+	}
+
+	grouping ospf-parameters {
+		container parameters {
+			presence "true";
+			configd:help "OSPF specific parameters";
+			leaf opaque-lsa {
+				type empty;
+				configd:help "Enable the Opaque-LSA capability (rfc2370)";
+				description "Enable the Opaque-LSA capability (rfc2370)";
+			}
+			leaf abr-type {
+				type abr-type;
+				configd:help "OSPF ABR type";
+				description "OSPF ABR type";
+				default "cisco";
+			}
+			leaf router-id {
+				type types:ipv4-address;
+				configd:help "Override the default router identifier";
+				description "Override the default router identifier";
+				must "(not(current() = '0.0.0.0'))" {
+					error-message "Invalid Router-ID";
+				}
+			}
+			leaf rfc1583-compatibility {
+				type empty;
+				configd:help "Enable rfc1583 criteria for handling AS external routes";
+				description "Enable rfc1583 criteria for handling AS external routes";
+			}
+		}
+	}
+
+	typedef access-list-ref {
+		type leafref {
+			path "/policy:policy/policy-route:route/policy-route:access-list/policy-route:tagnode";
+		}
+	}
+
+	grouping ospf-distribute-list {
+		container distribute-list {
+			configd:help "Filter networks in routing updates using access lists";
+			description "Filter networks in routing updates using access lists";
+			container export {
+				configd:help "Filter for outgoing routing updates";
+				description "Filter for outgoing routing updates";
+				leaf bgp {
+					type access-list-ref;
+					configd:help "Filter for outgoing routing updates for BGP routes";
+					description "Filter for outgoing routing updates for BGP routes";
+				}
+				leaf connected {
+					type access-list-ref;
+					configd:help "Filter for outgoing routing updates for connected routes";
+					description "Filter for outgoing routing updates for connected routes";
+				}
+				leaf kernel {
+					type access-list-ref;
+					configd:help "Filter for outgoing routing updates for kernel routes";
+					description "Filter for outgoing routing updates for kernel routes";
+				}
+				leaf rip {
+					type access-list-ref;
+					configd:help "Filter for outgoing routing updates for RIP routes";
+					description "Filter for outgoing routing updates for RIP routes";
+				}
+				leaf static {
+					type access-list-ref;
+					configd:help "Filter for outgoing routing updates for static routes";
+					description "Filter for outgoing routing updates for static routes";
+				}
+			}
+		}
+	}
+
+	grouping ospf-generic-parameters {
+		leaf default-metric {
+			type uint32 {
+				range 1..16777214;
+			}
+			configd:help "Metric of redistributed routes";
+			description "Metric of redistributed routes";
+		}
+		container refresh {
+			presence "true";
+			configd:help "Adjust refresh parameters";
+			description "Adjust refresh parameters";
+			leaf timers {
+				type uint32 {
+					range 10..1800;
+				}
+				default 10;
+				configd:help "Refresh timer";
+				description "Refresh timer";
+			}
+		}
+		container timers {
+			configd:help "Adjust timer parameters";
+			description "Adjust timer parameters";
+			container lsa {
+				configd:help "Adjust lsa timers";
+				description "Adjust lsa timers";
+				leaf arrival {
+					configd:help "Minimum delay that must pass between acceptance of the same LSA arriving from neighbors";
+					description "Minimum delay that must pass between acceptance of the same LSA arriving from neighbors";
+					default 1000;
+					type uint32 {
+						range 0..600000;
+					}
+					units "milliseconds";
+				}
+			}
+			container throttle {
+				configd:help "Adjust throttling parameters";
+				description "Adjust throttling parameters";
+				container lsa {
+					configd:help "Adjust LSA throttling parameters";
+					description "Adjust LSA throttling parameters";
+					leaf delay {
+						default 0;
+						type uint32 {
+							range 0..600000;
+						}
+						units "milliseconds";
+						configd:help "Initial delay";
+						description "Initial delay";
+					}
+				}
+				container spf {
+					configd:help "Adjust SPF throttling parameters";
+					description "Adjust SPF throttling parameters";
+					leaf delay {
+						default 500;
+						type uint32 {
+							range 0..600000;
+						}
+						units "milliseconds";
+						configd:help "Initial delay to schedule an SPF calculation after a topology change";
+						description "Initial delay to schedule an SPF calculation after a topology change";
+					}
+					leaf min-wait {
+						default 500;
+						type uint32 {
+							range 1..600000;
+						}
+						units "milliseconds";
+						configd:help "Minimum wait time between two SPF calculations";
+						description "Minimum wait time between two SPF calculations";
+					}
+					leaf max-wait {
+						default 50000;
+						type uint32 {
+							range 1..600000;
+						}
+						units "milliseconds";
+						configd:help "Maximum wait time between two SPF calculations";
+						description "Maximum wait time between two SPF calculations";
+					}
+					must "max-wait >= delay and max-wait >= min-wait" {
+						error-message "max-wait must be greater than or equal to both delay and min-wait";
+					}
+				}
+			}
+		}
+	}
+
+	grouping ospf-auto-cost {
+		container auto-cost {
+			presence "true";
+			configd:help "Calculate OSPF interface cost according to bandwidth";
+			description "Calculate OSPF interface cost according to bandwidth";
+			leaf reference-bandwidth {
+				type uint32 {
+					range 1..4294967;
+				}
+				configd:help "Reference bandwidth method to assign OSPF cost";
+				description "Reference bandwidth method to assign OSPF cost";
+				default "100";
+			}
+		}
+	}
+
+	grouping ospf-neighbor {
+		list neighbor {
+			configd:help "Neighbor IP address";
+			description "Neighbor IP address";
+			key "tagnode";
+			leaf tagnode {
+				type types:ipv4-address;
+				configd:help "Neighbor IP address";
+				description "Neighbor IP address";
+			}
+			leaf priority {
+				type uint32 {
+					range 0..255;
+				}
+				configd:help "Neighbor priority in seconds";
+				description "Neighbor priority in seconds";
+				default "0";
+			}
+			leaf poll-interval {
+				type timer-val;
+				configd:help "Dead neighbor polling interval";
+				description "Dead neighbor polling interval";
+				default "120";
+			}
+		}
+	}
+
+	grouping ospf-distance {
+		container distance {
+			presence "true";
+			configd:help "Administrative distance";
+			description "Administrative distance";
+			leaf global {
+				type distance;
+				configd:help "OSPF administrative distance";
+				description "OSPF administrative distance";
+			}
+			container ospf {
+				presence "true";
+				configd:help "OSPF administrative distance";
+				description "OSPF administrative distance";
+				leaf external {
+					type distance;
+					configd:help "Distance for external routes";
+					description "Distance for external routes";
+				}
+				leaf inter-area {
+					type distance;
+					configd:help "Distance for inter-area routes";
+					description "Distance for inter-area routes";
+				}
+				leaf intra-area {
+					type distance;
+					configd:help "Distance for intra-area routes";
+					description "Distance for intra-area routes";
+				}
+			}
+		}
+	}
+
+	grouping ospf-summary-address {
+		list summary-address {
+			configd:help "Summary network and mask";
+			description "Summary network and mask";
+			key "tagnode";
+			leaf tagnode {
+				type types:ipv4-prefix;
+				configd:help "Summary network and mask";
+				description "Summary network and mask";
+			}
+			container advertise {
+				presence "true";
+				configd:help "Summary address to be advertised.";
+				description "Summary address to be advertised.";
+				leaf tag {
+					type uint32;
+					configd:help "OSPF tag identifier for summary address.";
+					description "OSPF tag identifier for summary address.";
+				}
+				must "not(../not-advertise)" {
+					error-message "Can't configure both advertise and not-advertise for summary-address";
+				}
+			}
+			leaf not-advertise {
+				type empty;
+				configd:help "Summary address which shouldn't be advertised.";
+				description "Summary address which shouldn't be advertised.";
+				must "not(../advertise)" {
+					error-message "Can't configure both advertise and not-advertise for summary-address";
+				}
+			}
+		}
+	}
+
+	grouping ospf-default-information {
+		container default-information {
+			configd:help "Control distribution of default information";
+			description "Control distribution of default information";
+			container originate {
+				presence "true";
+				configd:help "Distribute a default route";
+				description "Distribute a default route";
+				leaf metric-type {
+					type metric-type;
+					default "2";
+					configd:help "OSPF metric type for default routes";
+					description "OSPF metric type for default routes";
+				}
+				leaf always {
+					type empty;
+					configd:help "Always advertise default route";
+					description "Always advertise default route";
+				}
+				leaf route-map {
+					type leafref {
+						path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+					}
+					configd:help "Route map reference";
+					description "Route map reference";
+				}
+				leaf metric {
+					type metric;
+					configd:help "OSPF default metric";
+					description "OSPF default metric";
+				}
+			}
+		}
+	}
+
+	grouping ospf-authentication {
+		container authentication {
+			presence "true";
+			configd:help "OSPF area or interface Authentication";
+			description "OSPF area or interface Authentication";
+			leaf plaintext-password {
+				type string {
+					length "1..8";
+					pattern '[^\t\n\r ]+' {
+						error-message "Plain-text key should not contain whitespace characters";
+					}
+				}
+				configd:secret "true";
+				configd:help "Plain text password";
+				description "Plain text password";
+			}
+			leaf plaintext {
+				type empty;
+				configd:help "Plain text authentication";
+				description "Plain text authentication";
+			}
+			leaf md5 {
+				type empty;
+				configd:help "MD5 key id";
+				description "MD5 key id";
+			}
+			list md5-key-id {
+				configd:help "MD5 key id";
+				description "MD5 key id";
+				key "tagnode";
+				leaf tagnode {
+					type uint32 {
+						range 1..255;
+					}
+					configd:help "MD5 key id";
+					description "MD5 key id";
+				}
+				leaf md5-key {
+					mandatory true;
+					type string {
+						length "1..16";
+						pattern '[^\t\n\r ]+' {
+							error-message "MD5 key should not contain whitespace characters";
+						}
+					}
+					configd:secret "true";
+					configd:help "MD5 key";
+					description "MD5 key";
+				}
+			}
+		}
+	}
+
+	grouping ospf-timers {
+		leaf dead-interval {
+			type timer-val;
+			configd:help "Interval after which a neighbor is declared dead";
+			description "Interval after which a neighbor is declared dead";
+			default "40";
+		}
+		leaf hello-interval {
+			type timer-val;
+			configd:help "Interval between hello packets";
+			description "Interval between hello packets";
+			default "10";
+		}
+		leaf retransmit-interval {
+			type timer-val;
+			configd:help "Interval between retransmitting lost link state advertisements";
+			description "Interval between retransmitting lost link state advertisements";
+			default "5";
+		}
+		leaf transmit-delay {
+			type timer-val;
+			configd:help "Link state transmit delay";
+			description "Link state transmit delay";
+			default "1";
+		}
+	}
+
+	grouping ospf-stub {
+		container stub {
+			presence "true";
+			configd:help "Stub OSPF area";
+			description "Stub OSPF area";
+			leaf default-cost {
+				type cost;
+				configd:help "Summary-default cost of stub area";
+				description "Summary-default cost of stub area";
+			}
+			leaf no-summary {
+				type empty;
+				configd:help "Do not inject inter-area routes into stub";
+				description "Do not inject inter-area routes into stub";
+			}
+		}
+	}
+
+	grouping ospf-nssa {
+		container nssa {
+			presence "true";
+			configd:help "Nssa OSPF area";
+			description "Nssa OSPF area";
+			leaf default-cost {
+				type cost;
+				configd:help "Summary-default cost of nssa area";
+				description "Summary-default cost of nssa area";
+			}
+			leaf translate {
+				type nssa-translate-role;
+				default "candidate";
+				configd:help "Nssa-abr";
+				description "Nssa-abr";
+			}
+			leaf no-summary {
+				type empty;
+				configd:help "Do not inject inter-area routes into stub";
+				description "Do not inject inter-area routes into stub";
+			}
+		}
+	}
+
+	grouping ospf-area {
+		list area {
+			configd:help "OSPF Area";
+			description "OSPF Area";
+			key "tagnode";
+			leaf tagnode {
+				type union {
+					type types:ipv4-address;
+					type uint32;
+				}
+				configd:help "OSPF Area";
+				description "OSPF Area";
+			}
+			must "not((virtual-link or area-type/*) and ((tagnode = '0') or (tagnode = '0.0.0.0')))" {
+				error-message "Cannot configure area 0 (0.0.0.0) with virtual link, nor as nssa or stub area type";
+			}
+
+			must "(count(area-type/* | virtual-link) <= 1) or (count(area-type/*) = 0)" {
+				error-message "Can only specify one of nssa, stub, or virtual-link";
+			}
+			leaf authentication {
+				type enumeration {
+					enum "plaintext" {
+						configd:help "Use plain-text authentication";
+						description "Use plain-text authentication";
+					}
+					enum "md5" {
+						configd:help "Use md5 authentication";
+						description "Use md5 authentication";
+					}
+				}
+				configd:help "OSPF area authentication type";
+				description "OSPF area authentication type";
+			}
+			list virtual-link {
+				configd:help "Virtual link";
+				description "Virtual link";
+				key "tagnode";
+				leaf tagnode {
+					type types:ipv4-address;
+					configd:help "Virtual link";
+					description "Virtual link";
+				}
+				uses ospf-authentication {
+					refine authentication/plaintext-password {
+						must "not(../md5)" {
+							error-message "md5 password is already set";
+						}
+					}
+					refine authentication/plaintext {
+						must "not(../md5)" {
+							error-message "md5 password is already set";
+						}
+					}
+					refine authentication/md5 {
+						must "not(../plaintext-password)" {
+							error-message "plaintext-password is already set";
+						}
+					}
+				}
+				uses ospf-timers;
+			}
+			container area-type {
+				presence "true";
+				configd:help "Area type";
+				description "Area type";
+				uses ospf-stub;
+				uses ospf-nssa;
+			}
+			leaf shortcut {
+				type enumeration {
+					enum "default" {
+						configd:help "Set default";
+						description "Set default";
+					}
+					enum "disable" {
+						configd:help "Disable shortcutting mode";
+						description "Disable shortcutting mode";
+					}
+					enum "enable" {
+						configd:help "Enable shortcutting mode";
+						description "Enable shortcutting mode";
+					}
+				}
+				configd:help "Area's shortcut mode";
+				description "Area's shortcut mode";
+			}
+			list range {
+				configd:help "Summarize routes matching prefix (border routers only)";
+				description "Summarize routes matching prefix (border routers only)";
+				key "tagnode";
+				leaf tagnode {
+					type types:ipv4-prefix {
+						configd:normalize "normalize ipv4-prefix";
+					}
+					configd:help "Summarize routes matching prefix (border routers only)";
+					description "Summarize routes matching prefix (border routers only)";
+				}
+				leaf not-advertise {
+					type empty;
+					configd:help "Do not advertise this range";
+					description "Do not advertise this range";
+					must "not(../metric)" {
+						error-message "Can't configure both not-advertise and metric for range";
+					}
+				}
+				leaf metric {
+					type metric;
+					configd:help "Metric to advertise for range";
+					description "Metric to advertise for range";
+					must "not(../not-advertise)" {
+						error-message "Can't configure both not-advertise and metric for range";
+					}
+				}
+			}
+			leaf-list network {
+				type types:ipv4-prefix {
+					configd:normalize "normalize ipv4-prefix";
+				}
+				ordered-by "user";
+				configd:help "OSPF network [REQUIRED]";
+				description "OSPF network [REQUIRED]";
+				must "count(../../area[network = current()]) <= 1" {
+					error-message "Network enabled in another area";
+				}
+			}
+		}
+	}
+
+	grouping ospf-overflow {
+		container overflow {
+			configd:help "Configure OSPF Overflow handling capabilities.";
+			description "Configure OSPF Overflow handling capabilities.";
+			container database {
+				configd:help "configure type of ospf overflow protection";
+				description "configure type of ospf overflow protection";
+				container hard {
+					configd:help "Hard limit on number of LSAs, instance will shut down if limit exceeded";
+					description "Hard limit on number of LSAs, instance will shut down if limit exceeded";
+					leaf limit {
+						type uint32 {
+							range 0..4294967294;
+						}
+						configd:help "Max LSAs in database.";
+						description "Max LSAs in database.";
+						must "not(../../soft/limit)" {
+							error-message "You cannot configure both a soft limit and hard limit concurrently. Please deconfigure one.";
+						}
+					}
+				}
+				container external {
+					presence "true";
+					configd:help "Max AS-External LSAs in database.";
+					description "Max AS-External LSAs in database.";
+					list limit {
+						configd:help "Max LSAs in database.";
+						description "Max LSAs in database.";
+						max-elements "1";
+						key "tagnode";
+						leaf tagnode {
+							type uint32 {
+								range 0..2147483647;
+							}
+							configd:help "Max LSAs in database.";
+							description "Max LSAs in database.";
+						}
+						leaf recovery {
+							type uint32 {
+								range 0..65535;
+							}
+							configd:help "Time to recover (0 implies no recovery)";
+							description "Time to recover (0 implies no recovery)";
+							default "0";
+						}
+					}
+				}
+				container soft {
+					configd:help "Soft limit on number of LSAs in database, will warn if exceeded";
+					description "Soft limit on number of LSAs in database, will warn if exceeded";
+					leaf limit {
+						type uint32 {
+							range 0..4294967294;
+						}
+						configd:help "Max LSAs in database.";
+						description "Max LSAs in database.";
+						must "not(../../hard/limit)" {
+							error-message "Please unconfigure hard limit first";
+						}
+					}
+				}
+			}
+		}
+	}
+
+	grouping ospf-parameters-all {
+		uses ospf-distribute-list;
+		uses ospf-generic-parameters;
+		uses ospf-auto-cost;
+		uses ospf-neighbor;
+		uses ospf-redistribute;
+		uses ospf-distance;
+		uses ospf-summary-address;
+		uses ospf-default-information;
+		uses ospf-area;
+		uses ospf-overflow;
+	}
+
+	grouping ospf-traffic-engineering {
+		leaf traffic-engineering {
+			type empty;
+			configd:help "Enable traffic engineering (rfc3630)";
+			description "Enable traffic engineering (rfc3630) for this process";
+		}
+	}
+
+	grouping itf-ip-ospf {
+		container ospf {
+			configd:help "Open Shortest Path First (OSPF) parameters";
+			description "Open Shortest Path First (OSPF) parameters";
+			presence "true";
+			must "not(../interfaces-dataplane-unnumbered:unnumbered) or ( network = 'point-to-point')" {
+				error-message "OSPF network type should be configured as point-to-point for unnumbered interfaces";
+			}
+			leaf priority {
+				type uint32 {
+					range 0..255;
+				}
+				configd:help "Router priority";
+				description "Router priority";
+				default "1";
+			}
+			uses ospf-authentication {
+				refine  authentication/plaintext-password {
+				}
+				refine authentication/plaintext {
+				}
+				refine  authentication/md5 {
+				}
+				refine authentication/md5-key-id/md5-key {
+				}
+			}
+			leaf mtu-ignore {
+				type empty;
+				configd:help "Disable Maximum Transmission Unit (MTU) mismatch detection";
+				description "Disable Maximum Transmission Unit (MTU) mismatch detection";
+			}
+			leaf dead-interval {
+				type timer-val;
+				configd:help "Interval after which neighbor is dead";
+				description "Interval after which neighbor is dead";
+				default "40";
+			}
+			leaf hello-interval {
+				type timer-val;
+				configd:help "Interval between hello packets";
+				description "Interval between hello packets";
+			}
+			leaf retransmit-interval {
+				type timer-val;
+				configd:help "Interval between retransmitting lost link state advertisements";
+				description "Interval between retransmitting lost link state advertisements";
+				default "5";
+			}
+			leaf cost {
+				type uint32 {
+					range 1..65535;
+				}
+				configd:help "Interface cost";
+				description "Interface cost";
+			}
+			leaf network {
+				type network-type;
+				configd:help "Network type";
+				description "Network type";
+				must "not(../../../interfaces-loopback:tagnode) or (current() = 'point-to-point')" {
+					error-message "Only point-to-point network is valid for loopback interfaces";
+				}
+			}
+			leaf transmit-delay {
+				type timer-val;
+				configd:help "Link state transmit delay";
+				description "Link state transmit delay";
+				default "1";
+			}
+		}
+	}
+
+	augment /protocols:protocols {
+		container ospf {
+			presence "Enable OSPF";
+			configd:help "Open Shortest Path First protocol (OSPF) parameters";
+			description "Open Shortest Path First protocol (OSPF) parameters";
+			uses ospf-parameters;
+			uses ospf-distribute-list;
+			uses if-validation:igp-passive-interface {
+				refine passive-interface {
+					configd:help "Suppress routing updates on an interface";
+					description "Suppress routing updates on an interface";
+				}
+			}
+			uses ospf-generic-parameters;
+			uses ospf-neighbor;
+			uses ospf-redistribute;
+			uses ospf-distance;
+			uses ospf-summary-address;
+			uses ospf-default-information;
+			uses ospf-area;
+			uses ospf-auto-cost;
+			uses ospf-overflow;
+			uses ospf-traffic-engineering {
+				refine traffic-engineering {
+					description "Enable traffic engineering (rfc3630) for the default process";
+				}
+			}
+		}
+	}
+	
+	/* Augmenting trap notifications */
+	augment /service:service/service-snmp:snmp/service-snmp:notification {
+		container ospf {
+			configd:help "OSPF Notifications";
+			description "OSPF Notifications";
+			leaf all {
+				type empty;
+				configd:help "OSPF Notifications";
+				description "OSPF Notifications";
+			}
+		}
+	}
+
+	augment /if:interfaces/interfaces-bridge:bridge/interfaces-bridge:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-l2tpeth:l2tpeth/interfaces-l2tpeth:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-l2tpeth:l2tpeth/interfaces-l2tpeth:vif/interfaces-l2tpeth:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-loopback:loopback/interfaces-loopback:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-openvpn:openvpn/interfaces-openvpn:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-tunnel:tunnel/interfaces-tunnel:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-vti:vti/interfaces-vti:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:ip {
+		uses itf-ip-ospf;
+	}
+	augment /if:interfaces/interfaces-bonding:bonding/interfaces-bonding:vif/interfaces-bonding:ip {
+		uses itf-ip-ospf;
+	}
+}

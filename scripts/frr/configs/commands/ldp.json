@@ -1,0 +1,19 @@
+{
+    "/protocols/mpls-ldp/@enter": "!",
+    "/protocols/mpls-ldp": "mpls ldp",
+    "/protocols/mpls-ldp/address-family/ipv4/@enter": " address-family ipv4",
+    "/protocols/mpls-ldp/address-family/ipv4/@exit": " exit-address-family",
+    "/protocols/mpls-ldp/address-family/ipv4/label-policy/allocate/for/access-list": "  label local allocate for {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/label-policy/allocate/host-routes": "  label local allocate host-routes",
+    "/protocols/mpls-ldp/address-family/ipv4/label-policy/advertise/for/access-list": "  label local advertise for {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/label-policy/advertise/explicit-null": "  label local advertise explicit-null",
+    "/protocols/mpls-ldp/address-family/ipv4/session-ka-holdtime": "  session holdtime {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/transport-address": "  discovery transport-address {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/discovery/interfaces/interface/@element/@exit": "  !",
+    "/protocols/mpls-ldp/address-family/ipv4/discovery/interfaces/interface/@element/interface": "  interface {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/discovery/interfaces/interface/@element/hello-holdtime": "   discovery hello holdtime {/@text}",
+    "/protocols/mpls-ldp/address-family/ipv4/discovery/interfaces/interface/@element/hello-interval": "   discovery hello interval {/@text}",
+    "/protocols/mpls-ldp/lsr-id": " router-id {/@text}",
+    "/protocols/mpls-ldp/neighbors/neighbor/@element/md5-password": " neighbor {../lsr-id/@text} password {/@text}",
+    "/protocols/mpls-ldp/neighbors/neighbor/@element/session-ka-holdtime": " neighbor {../lsr-id/@text} session holdtime {/@text}"
+}

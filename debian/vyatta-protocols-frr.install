@@ -1,0 +1,2 @@
+scripts/common/vtyshow.pl opt/vyatta/bin/
+scripts/common/vyatta-link-detect opt/vyatta/sbin/

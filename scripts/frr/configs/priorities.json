@@ -1,0 +1,20 @@
+{
+    "/protocols/bgp/@element": {
+        "last": ["neighbor"]
+    },
+    "/protocols/bgp/@element/neighbor/@element": {
+        "first": ["remote-as"]
+    },
+    "/protocols/bgp/@element/peer-group/@element": {
+        "first": ["remote-as"]
+    },
+    "/protocols/mpls-ldp": {
+        "last": ["address-family"]
+    },
+    "/protocols/mpls-ldp/address-family/ipv4": {
+        "last": ["discovery"]
+    },
+    "/protocols/mpls-ldp/address-family/ipv4/discovery/interfaces/interface/@element": {
+        "first": ["interface"]
+    }
+}

@@ -1,0 +1,589 @@
+module vyatta-op-protocols-frr-ospfv3-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-protocols-frr-ospfv3:1";
+    prefix vyatta-op-protocols-frr-ospfv3-v1;
+
+    import vyatta-types-v1 {
+        prefix types;
+    }
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-show-v1 {
+        prefix op-show;
+    }
+    import vyatta-op-show-protocols-v1 {
+        prefix op-show-protocols;
+    }
+    import vyatta-op-reset-v1 {
+        prefix op-reset;
+    }
+    import vyatta-op-reset-protocols-v1 {
+        prefix op-reset-protocols;
+    }
+    import vyatta-op-monitor-v1 {
+        prefix op-monitor;
+    }
+    import vyatta-op-monitor-protocols-v1 {
+        prefix op-monitor-protocols;
+    }
+
+    organization "AT&T, Inc.";
+    contact
+        "AT&T
+         Postal: 208 S. Akard Street
+         Dallas, TX 25202
+         Web: www.att.com";
+
+    description
+        "Copyright (c) 2018-2019, AT&T Intellectual Property.
+         All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+         This module implements the OSPFv3 operational CLI.";
+
+    revision 2018-11-01 {
+        description "Initial revision";
+    }
+    opd:augment /op-show:show/op-show-protocols:protocols {
+        opd:command ospfv3 {
+            opd:help "Show OSPFv3 information";
+            opd:on-enter 'vtysh -c "show ipv6 ospf6"';
+            opd:privileged true;
+
+            opd:command border-routers {
+                opd:help "Show OSPFv3 Border and Boundary Router information";
+                opd:on-enter 'vtysh -c "show ipv6 ospf6 border-routers"';
+                opd:privileged true;
+            }
+            opd:command database {
+                opd:help "Show OSPFv3 database information";
+                opd:on-enter 'vtysh -c "show ipv6 ospf6 database"';
+                opd:privileged true;
+
+                opd:command adv-router {
+                    opd:help "Advertising Router LSA";
+
+                    opd:argument ipv4-address {
+                        opd:help "Advertising router ID";
+                        type types:ipv4-address;
+
+                        opd:command linkstate-id {
+                            opd:help "Search by Link state ID";
+
+                            opd:argument ipv4-address {
+                                opd:help "Link state ID";
+                                opd:on-enter 'vtysh -c "show ipv6 ospf6 database adv-router $6 linkstate-id $8"';
+                                opd:privileged true;
+                                type types:ipv4-address;
+                            }
+                        }
+                    }
+                }
+                opd:command as-external {
+                    opd:help "Show OSPFv3 database AS-external-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database as-external"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database as-external $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database as-external $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database as-external adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originated link states";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database as-external self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command inter-prefix {
+                    opd:help "Show OSPFv3 database Inter-Prefix-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-prefix"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-prefix $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-prefix $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-prefix adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originated link states";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-prefix self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command inter-router {
+                    opd:help "Show OSPFv3 database Inter-Router-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-router"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-router $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-router $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-router adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originated link states";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database inter-router self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command intra-prefix {
+                    opd:help "Show OSPFv3 database Intra-Prefix-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database intra-prefix"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database intra-prefix $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database intra-prefix $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database intra-prefix adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originated link states";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database intra-prefix self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command link {
+                    opd:help "Show OSPFv3 database Link-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database link"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database link $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database link $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database link adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originated link states";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database link self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command network {
+                    opd:help "Show OSPFv3 database Network-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database network"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database network $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database network $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database network adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originate information";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database network self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command router {
+                    opd:help "Show OSPFv3 database router-LSA information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database router"';
+                    opd:privileged true;
+
+                    opd:argument ipv4-address {
+                        opd:help "Link state ID";
+                        type types:ipv4-address;
+                        opd:argument ipv4-address {
+                            opd:help "Advertising Router ID";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database router $6 $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                        opd:command self-originated {
+                            opd:help "Self-originated LSAs";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database router $6 self-originated"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command adv-router {
+                        opd:help "Show OSPFv3 database Advertising Router link states";
+                        opd:argument ipv4-address {
+                            opd:help "Address of advertising router";
+                            opd:on-enter 'vtysh -c "show ipv6 ospf6 database router adv-router $7"';
+                            opd:privileged true;
+                            type types:ipv4-address;
+                        }
+                    }
+                    opd:command self-originated {
+                        opd:help "Show OSPFv3 database self originate information";
+                        opd:on-enter 'vtysh -c "show ipv6 ospf6 database router self-originated"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command self-originated {
+                    opd:help "Show self originated link states";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 database self-originated"';
+                    opd:privileged true;
+                }
+            }
+            opd:command interface {
+                opd:help "Show OSPFv3 interface information";
+                opd:on-enter 'vtysh -c "show ipv6 ospf6 interface"';
+                opd:privileged true;
+
+                opd:argument interface {
+                    opd:help "Show OSPFv3 interface";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 interface $5"';
+                    opd:allowed "allowed-nodes interfaces dataplane";
+                    opd:privileged true;
+                    type string;
+                }
+            }
+            opd:command neighbor {
+                opd:help "Show OSPFv3 neighbor information";
+                opd:on-enter 'vtysh -c "show ipv6 ospf6 neighbor"';
+                opd:privileged true;
+
+                opd:argument ipv4-address {
+                    opd:help "Router-ID of neighbor";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 neighbor $5"';
+                    opd:privileged true;
+                    type types:ipv4-address;
+                }
+                opd:command detail {
+                    opd:help "Show OSPFv3 neighbor detail information";
+                    opd:on-enter 'vtysh -c "show ipv6 ospf6 neighbor detail"';
+                    opd:privileged true;
+                }
+            }
+            opd:command route {
+                opd:help "Show OSPFv3 route information";
+                opd:on-enter 'vtysh -c "show ipv6 ospf6 route"';
+                opd:privileged true;
+            }
+        }
+    }
+    opd:augment /op-reset:reset/op-reset-protocols:protocols {
+        opd:command ospfv3 {
+            opd:help "Reset OSPFv3 information";
+            opd:on-enter 'vtysh -c "clear ipv6 ospf6 interface"';
+            opd:privileged true;
+
+            opd:argument interface {
+                opd:help "Reset OSPFv3 information";
+                opd:on-enter 'vtysh -c "clear ipv6 ospf6 interface $4"';
+                opd:allowed "allowed-nodes interfaces dataplane";
+                opd:privileged true;
+                type string;
+            }
+        }
+    }
+    opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
+        opd:command ospfv3 {
+            opd:help "Monitor OSPFv3 information";
+
+            opd:command enable {
+                opd:help "Enable OSPFv3 monitor";
+
+                opd:command lsa {
+                    opd:help "Monitor OSPFv3 Link State Advertisements";
+                    opd:command as-external {
+                        opd:help "Monitor OSPFv3 as-external Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 as-external"';
+                        opd:privileged true;
+                    }
+                    opd:command inter-prefix {
+                        opd:help "Monitor OSPFv3 inter-prefix Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa inter-prefix"';
+                        opd:privileged true;
+                    }
+                    opd:command inter-router {
+                        opd:help "Monitor OSPFv3 inter-router Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa inter-router"';
+                        opd:privileged true;
+                    }
+                    opd:command intra-prefix {
+                        opd:help "Monitor OSPFv3 intra-prefix Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa intra-prefix"';
+                        opd:privileged true;
+                    }
+                    opd:command link {
+                        opd:help "Monitor OSPFv3 link Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa link"';
+                        opd:privileged true;
+                    }
+                    opd:command network {
+                        opd:help "Monitor OSPFv3 network Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa network"';
+                        opd:privileged true;
+                    }
+                    opd:command router {
+                        opd:help "Monitor OSPFv3 router Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa router"';
+                        opd:privileged true;
+                    }
+                    opd:command unknown {
+                        opd:help "Monitor OSPFv3 unknown Link State Advertisements";
+                        opd:on-enter 'vtysh -c "debug ospf6 lsa unknown"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command interface {
+                    opd:help "Monitor OSPFv3 interface";
+                    opd:on-enter 'vtysh -c "debug ospf6 interface"';
+                    opd:privileged true;
+                }
+                opd:command neighbor {
+                    opd:help "Monitor OSPFv3 Neighbor";
+                    opd:on-enter 'vtysh -c "debug ospf6 neighbor"';
+                    opd:privileged true;
+                }
+                opd:command route {
+                    opd:help "Monitor OSPFv3 route information";
+                    opd:command inter-area {
+                        opd:help "Monitor OSPFv3 inter-area route information";
+                        opd:on-enter 'vtysh -c "debug ospf6 route inter-area"';
+                        opd:privileged true;
+                    }
+                    opd:command intra-area {
+                        opd:help "Monitor OSPFv3 intra-area route information";
+                        opd:on-enter 'vtysh -c "debug ospf6 route intra-area"';
+                        opd:privileged true;
+                    }
+                    opd:command memory {
+                        opd:help "Monitor OSPFv3 route memory information";
+                        opd:on-enter 'vtysh -c "debug ospf6 route memory"';
+                        opd:privileged true;
+                    }
+                    opd:command table {
+                        opd:help "Monitor OSPFv3 route table information";
+                        opd:on-enter 'vtysh -c "debug ospf6 route table"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command zebra {
+                    opd:help "Monitor OSPFv3 zebra";
+                    opd:on-enter 'vtysh -c "debug ospf6 zebra"';
+                    opd:privileged true;
+                }
+            }
+            opd:command disable {
+                opd:help "Disable OSPFv3 monitor";
+
+                opd:command lsa {
+                    opd:help "Disable monitoring OSPFv3 Link State Advertisements";
+                    opd:command as-external {
+                        opd:help "Disable monitor OSPFv3 as-external Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 as-external"';
+                        opd:privileged true;
+                    }
+                    opd:command inter-prefix {
+                        opd:help "Disable monitoring OSPFv3 inter-prefix Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa inter-prefix"';
+                        opd:privileged true;
+                    }
+                    opd:command inter-router {
+                        opd:help "Disable monitoring OSPFv3 inter-router Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa inter-router"';
+                        opd:privileged true;
+                    }
+                    opd:command intra-prefix {
+                        opd:help "Disable monitoring OSPFv3 intra-prefix Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa intra-prefix"';
+                        opd:privileged true;
+                    }
+                    opd:command link {
+                        opd:help "Disable monitoring OSPFv3 link Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa link"';
+                        opd:privileged true;
+                    }
+                    opd:command network {
+                        opd:help "Disable monitoring OSPFv3 network Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa network"';
+                        opd:privileged true;
+                    }
+                    opd:command router {
+                        opd:help "Disable monitoring OSPFv3 router Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa router"';
+                        opd:privileged true;
+                    }
+                    opd:command unknown {
+                        opd:help "Disable monitoring OSPFv3 unknown Link State Advertisements";
+                        opd:on-enter 'vtysh -c "no debug ospf6 lsa unknown"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command interface {
+                    opd:help "Disable monitor OSPFv3 interface";
+                    opd:on-enter 'vtysh -c "no debug ospf6 interface"';
+                    opd:privileged true;
+                }
+                opd:command neighbor {
+                    opd:help "Disable monitor OSPFv3 Neighbor";
+                    opd:on-enter 'vtysh -c "no debug ospf6 neighbor"';
+                    opd:privileged true;
+                }
+                opd:command route {
+                    opd:help "Disable monitor OSPFv3 route information";
+                    opd:command inter-area {
+                        opd:help "Disable monitoring OSPFv3 inter-area route information";
+                        opd:on-enter 'vtysh -c "no debug ospf6 route inter-area"';
+                        opd:privileged true;
+                    }
+                    opd:command intra-area {
+                        opd:help "Disable monitoring OSPFv3 intra-area route information";
+                        opd:on-enter 'vtysh -c "no debug ospf6 route intra-area"';
+                        opd:privileged true;
+                    }
+                    opd:command memory {
+                        opd:help "Disable monitoring OSPFv3 route memory information";
+                        opd:on-enter 'vtysh -c "no debug ospf6 route memory"';
+                        opd:privileged true;
+                    }
+                    opd:command table {
+                        opd:help "Disable monitoring OSPFv3 route table information";
+                        opd:on-enter 'vtysh -c "no debug ospf6 route table"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command zebra {
+                    opd:help "Disable monitor OSPFv3 zebra";
+                    opd:on-enter 'vtysh -c "no debug ospf6 zebra"';
+                    opd:privileged true;
+                }
+            }
+        }
+    }
+}

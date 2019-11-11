@@ -1,0 +1,220 @@
+module vyatta-protocols-frr-bgp-routing-instance-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-bgp-routing-instance:1";
+	prefix vyatta-protocols-frr-bgp-routing-instance-v1;
+
+	import vyatta-protocols-v1 {
+		prefix protocols;
+	}
+	import vyatta-protocols-frr-bgp-v1 {
+		prefix protocols-bgp;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-routing-v1 {
+		prefix routing-instance;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property. All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+		 The YANG module for vyatta-protocols-frr-bgp-routing-instance-v1";
+
+	revision 2018-11-02 {
+		description "Initial revision";
+	}
+
+	typedef rt-rd {
+		type union {
+			type string {
+				//ASN:NN format. Allowing 2-byte:4-byte (65535:4294967295)
+				pattern '([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])'
+					+ ':'
+					+ '([0-9]|[1-9]\d{1,8}|[1-3]\d{9}|4[0-1]\d{8}|42[0-8]\d{7}|429[0-3]\d{6}|4294[0-8]\d{5}|'
+					+ '42949[0-5]\d{4}|429496[0-6]\d{3}|4294967[0-1]\d{2}|42949672[0-8]\d|429496729[0-5])';
+			}
+			type string {
+				//ASN:NN format. Allowing 4-byte:2-byte (4294967295:65535)
+				pattern '([0-9]|[1-9]\d{1,8}|[1-3]\d{9}|4[0-1]\d{8}|42[0-8]\d{7}|429[0-3]\d{6}|4294[0-8]\d{5}|'
+					+ '42949[0-5]\d{4}|429496[0-6]\d{3}|4294967[0-1]\d{2}|42949672[0-8]\d|429496729[0-5])'
+					+ ':'
+					+ '([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])';
+			}
+			type string {
+				//IPAddress:NN format. Allowing IpAddress:2-byte
+				pattern '(([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])\.){3}'
+					+  '([0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])'
+					+ ':'
+					+ '([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-4]\d{3}|65[0-4]\d{2}|655[0-2]\d|6553[0-5])';
+			}
+		}
+	}
+
+	/* Confederation identifier can be configured only in default routing-instance */
+	grouping bgp-params-global-confederation-vrf {
+		container confederation {
+			description "AS confederation parameters for Non-default BGP Routing Instance";
+			presence "BGP Confederation config";
+			configd:help "AS confederation parameters";
+			uses protocols-bgp:bgp-params-global-confederation-peers;
+		} /*confederation*/
+	}
+
+	/* BGP Global parameters supported under routing-instance, limited set */
+	grouping bgp-params-global-vrf {
+		container parameters {
+			description "BGP Global parameters that can be configured under Non-default BGP Routing Instance";
+			presence "Enables BGP parameters";
+			configd:help "BGP parameters";
+			uses protocols-bgp:bgp-params-global-always-compare-med;
+			uses protocols-bgp:bgp-params-global-default;
+			uses protocols-bgp:bgp-params-global-confederation;
+			uses protocols-bgp:bgp-params-global-bestpath;
+			uses protocols-bgp:bgp-params-global-cluster-id;
+			uses protocols-bgp:bgp-params-global-log-neighbor-changes;
+			uses protocols-bgp:bgp-params-global-med-out-delay;
+			uses protocols-bgp:bgp-params-global-no-client-to-client-reflection;
+			uses protocols-bgp:bgp-params-global-deterministic-med;
+			uses protocols-bgp:bgp-params-global-router-id;
+			uses protocols-bgp:bgp-params-global-graceful-restart;
+		}
+		uses protocols-bgp:bgp-params-timers;
+	}
+
+	grouping bgp-routing-instance {
+		list bgp {
+			configd:priority "730";
+			description "BGP configuration parameters under Non-default Routing Instance";
+			configd:help "Border Gateway Protocol (BGP) parameters";
+			must "count(../bgp/tagnode) <= 1" {
+				error-message "Another BGP instance is already running" ;
+			}
+			/* Default BGP configuration is mandatory */
+			must "(/protocols:protocols/protocols-bgp:bgp)" {
+				error-message "Global BGP is not configured";
+			}
+			/*
+				'asnumber' will be a more meaningful name for the key field than
+				'tagnode'. But protocol-bgp module has few groups which are reused here
+				and those groups refer to this field as 'tagnode'. 'list bgp' key field
+				is named as 'tagnode' in protocol-bgp module. We cannot change that name
+				at present because it breaks backward compatibility.
+			*/
+			key "tagnode";
+			leaf tagnode {
+				description "BGP AS Number";
+				type uint32 {
+					range 1..max;
+				}
+				configd:help "Border Gateway Protocol (BGP) parameters";
+
+				//ASN should be same as Global BGP
+				must "(current() = /protocols:protocols/protocols-bgp:bgp/protocols-bgp:tagnode)" {
+					error-message "AS Number must be same as the Global BGP";
+				}
+			}
+
+			uses bgp-params-global-vrf;
+			uses protocols-bgp:bgp-params-peer-group;
+			uses protocols-bgp:bgp-params-neighbor;
+			uses protocols-bgp:bgp-params-address-family;
+		}
+	}
+
+	/* BGP specific routing instance parameters */
+	grouping bgp-routing-instance-params {
+		leaf route-distinguisher {
+			configd:priority "720";
+			type rt-rd;
+			description "Configure Route Distinguisher in ASN:NN or IPAddress:NN format";
+			configd:help "Route Distinguisher in ASN:NN or IPAddress:NN format";
+
+			must "count(/routing-instance:routing/routing-instance:routing-instance[route-distinguisher = current()]) <= 1" {
+				error-message "Route Distinguisher must be unique across the Routing Instances";
+			}
+		}
+		list route-target {
+			configd:priority "720";
+			description "Configure Route-Target in ASN:NN or IPAddress:NN format";
+			configd:help "Route Target in ASN:NN or IPAddress:NN format";
+			key "rt";
+			leaf rt {
+				type rt-rd;
+				description "Configure Route-Target in ASN:NN or IPAddress:NN format";
+				configd:help "Route-target"; 
+			}
+			leaf type {
+				type enumeration {
+					enum "import" {
+						configd:help "import routes with this route-target";
+						description "import routes with this route-target";
+					}
+					enum "export" {
+						configd:help "export routes with this route-target";
+						description "export routes with this route-target";
+					}
+					enum "both" {
+						configd:help "export and import routes with this route-target";
+						description "export and import routes with this route-target";
+					}
+				}
+				mandatory true;
+				description "Configure Route-Target Type";
+				configd:help "Route-target type";
+			}
+		}
+	}
+
+	/* Augmenting to protocols - routing-instance - VRF */
+	augment /routing-instance:routing/routing-instance:routing-instance/routing-instance:protocols {
+		uses bgp-routing-instance;
+	}
+
+	/* Augmenting to routing-instance protocols bgp address-family
+	   ipv4-unicast */
+	augment /routing-instance:routing/routing-instance:routing-instance/routing-instance:protocols/bgp/address-family/ipv4-unicast {
+		uses bgp-routing-instance-params;
+	}
+
+	/* Augmenting to routing-instance protocols bgp address-family
+	   ipv6-unicast */
+	augment /routing-instance:routing/routing-instance:routing-instance/routing-instance:protocols/bgp/address-family/ipv6-unicast {
+		uses bgp-routing-instance-params;
+	}
+
+}

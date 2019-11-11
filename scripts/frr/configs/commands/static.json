@@ -1,0 +1,42 @@
+{
+    "/protocols/static/@enter": "!",
+    "/protocols/static/interface-route/@element/next-hop-interface/@element":"ip route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/interface-route/@element/next-hop-routing-instance/@element/next-hop-interface/@element":"ip route {/../../../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf vrf{/../../routing-instance/@text}",
+    "/protocols/static/route/@element/next-hop/@element":"ip route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route/@element/blackhole":"ip route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route/@element/unreachable": "ip route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route/@element/next-hop-routing-instance/@element/next-hop/@element": "ip route {/../../../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf vrf{/../../routing-instance/@text}",
+
+    "/protocols/static/interface-route6/@element/next-hop-interface/@element":"ipv6 route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/interface-route6/@element/next-hop-routing-instance/@element/next-hop-interface/@element":"ipv6 route {/../../../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf vrf{/../../routing-instance/@text}",
+    "/protocols/static/route6/@element/next-hop/@element":"ipv6 route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route6/@element/blackhole":"ipv6 route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route6/@element/unreachable": "ipv6 route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/protocols/static/route6/@element/next-hop-routing-instance/@element/next-hop/@element": "ipv6 route {/../../../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf vrf{/../../routing-instance/@text}",
+
+    "/protocols/static/table/@element/interface-route/@element/next-hop-interface/@element":"ip route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ table {/../../../../tagnode/@text}",
+    "/protocols/static/table/@element/route/@element/next-hop/@element":"ip route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ table {/../../../../tagnode/@text}",
+    "/protocols/static/table/@element/route/@element/blackhole":"ip route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$  table {/../../../tagnode/@text}",
+    "/protocols/static/table/@element/route/@element/unreachable": "ip route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$  table {/../../../tagnode/@text}",
+
+    "/protocols/static/table/@element/interface-route6/@element/next-hop-interface/@element":"ipv6 route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ table {/../../../../tagnode/@text}",
+    "/protocols/static/table/@element/route6/@element/next-hop/@element":"ipv6 route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ table {/../../../../tagnode/@text}",
+    "/protocols/static/table/@element/route6/@element/blackhole":"ipv6 route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$  table {/../../../tagnode/@text}",
+    "/protocols/static/table/@element/route6/@element/unreachable": "ipv6 route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$  table {/../../../tagnode/@text}",
+    
+    "/routing/routing-instance/@element/protocols/static": "vrf vrf{/../../instance-name/@text}",
+    "/routing/routing-instance/@element/protocols/static/@exit": "exit-vrf",
+    "/routing/routing-instance/@element/protocols/static/interface-route/@element/next-hop-interface/@element":"ip route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/interface-route/@element/next-hop-routing-instance/@element/next-hop-interface/@element":"ip route {/../../../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf $if|Default-IP-Routing-Table,vrf{/../../routing-instance/@text}|{/../../routing-instance/@text}==default,$",
+    "/routing/routing-instance/@element/protocols/static/route/@element/next-hop/@element": "ip route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route/@element/blackhole":"ip route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route/@element/unreachable": "ip route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route/@element/next-hop-routing-instance/@element/next-hop/@element": "ip route {/../../../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf $if|Default-IP-Routing-Table,vrf{/../../routing-instance/@text}|{/../../routing-instance/@text}==default,$",
+
+    "/routing/routing-instance/@element/protocols/static/interface-route6/@element/next-hop-interface/@element":"ipv6 route {/../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/interface-route6/@element/next-hop-routing-instance/@element/next-hop-interface/@element":"ipv6 route {/../../../../tagnode/@text} {/tagnode/@text} [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf $if|Default-IP-Routing-Table,vrf{/../../routing-instance/@text}|{/../../routing-instance/@text}==default,$",
+    "/routing/routing-instance/@element/protocols/static/route6/@element/next-hop/@element": "ipv6 route {/../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route6/@element/blackhole":"ipv6 route {/../tagnode/@text} blackhole [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route6/@element/unreachable": "ipv6 route {/../tagnode/@text} reject [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$",
+    "/routing/routing-instance/@element/protocols/static/route6/@element/next-hop-routing-instance/@element/next-hop/@element": "ipv6 route {/../../../../tagnode/@text} {/tagnode/@text} [{/interface/@text},] [tag {/tag/@text},] $if|{/distance/@text},|{/distance/@text}!=1,$ nexthop-vrf $if|Default-IP-Routing-Table,vrf{/../../routing-instance/@text}|{/../../routing-instance/@text}==default,$"
+}

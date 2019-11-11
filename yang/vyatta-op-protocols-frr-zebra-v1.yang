@@ -1,0 +1,227 @@
+module vyatta-op-protocols-frr-zebra-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-protocols-frr-zebra:1";
+    prefix vyatta-op-protocols-frr-zebra;
+
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-monitor-v1 {
+        prefix op-mon;
+    }
+    import vyatta-op-monitor-protocols-v1 {
+        prefix op-mon-protocols;
+    }
+
+    organization "AT&T, Inc.";
+    contact
+        "AT&T
+         Postal: 208 S. Akard Street
+                 Dallas, TX 25202
+         Web: www.att.com";
+
+    description
+        "Copyright (c) 2018-2019, AT&T Intellectual Property.
+         All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+         This module implements the Zebra operational CLI";
+
+    revision 2018-11-22 {
+        description "Initial revision";
+    }
+
+    opd:augment /op-mon:monitor/op-mon-protocols:protocol {
+        opd:command zebra {
+            opd:help "Monitor Zebra information";
+            opd:inherit "Using vtysh requires raised privileges" {
+                opd:privileged true;
+            }
+
+            opd:command enable {
+                opd:help "Enable Zebra monitoring";
+
+                opd:command events {
+                    opd:help "Monitor Zebra events";
+                    opd:on-enter "vtysh -c 'debug zebra events'";
+                }
+                opd:command fpm {
+                    opd:help "Monitor Zebra FPM";
+                    opd:on-enter "vtysh -c 'debug zebra fpm'";
+                }
+                opd:command kernel {
+                    opd:help "Monitor Zebra kernel interaction";
+                    opd:on-enter "vtysh -c 'debug zebra kernel'";
+
+                    opd:command messages {
+                        opd:help "Monitor netlink messages between Zebra and kernel";
+                        opd:on-enter "vtysh -c 'debug zebra kernel msgdump'";
+
+                        opd:command receive {
+                            opd:help "Monitor netlink messages sent to Zebra";
+                            opd:on-enter "vtysh -c 'debug zebra kernel msgdump recv'";
+                        }
+                        opd:command send {
+                            opd:help "Monitor netlink messages sent from Zebra";
+                            opd:on-enter "vtysh -c 'debug zebra kernel msgdump send'";
+                        }
+                    }
+                }
+                opd:command mpls {
+                    opd:help "Monitor Zebra MPLS operations";
+                    opd:on-enter "vtysh -c 'debug zebra mpls'";
+                }
+                opd:command nht {
+                    opd:help "Monitor Zebra next hop tracking";
+                    opd:on-enter "vtysh -c 'debug zebra nht'";
+                }
+                opd:command packet {
+                    opd:help "Monitor Zebra packet events";
+                    opd:on-enter "vtysh -c 'debug zebra packet'";
+
+                    opd:command detail {
+                        opd:help "Monitor detailed Zebra packet events";
+                        opd:on-enter "vtysh -c 'debug zebra packet detail'";
+                    }
+                    opd:command receive {
+                        opd:help "Monitor packets received by Zebra";
+                        opd:on-enter "vtysh -c 'debug zebra packet recv'";
+
+                        opd:command detail {
+                            opd:help "Monitor detailed Zebra packet events";
+                            opd:on-enter "vtysh -c 'debug zebra packet recv detail'";
+                        }
+                    }
+                    opd:command send {
+                        opd:help "Monitor packets sent by Zebra";
+                        opd:on-enter "vtysh -c 'debug zebra packet send'";
+
+                        opd:command detail {
+                            opd:help "Monitor detailed Zebra packet events";
+                            opd:on-enter "vtysh -c 'debug zebra packet send detail'";
+                        }
+                    }
+                }
+                opd:command pseudowires {
+                    opd:help "Monitor Zebra pseudowires";
+                    opd:on-enter "vtysh -c 'debug zebra pseudowires'";
+                }
+                opd:command rib {
+                    opd:help "Monitor Zebra RIB operations";
+                    opd:on-enter "vtysh -c 'debug zebra rib'";
+
+                    opd:command detail {
+                        opd:help "Monitor detailed Zebra RIB operations";
+                        opd:on-enter "vtysh -c 'debug zebra rib detailed'";
+                    }
+                }
+            }
+
+            opd:command disable {
+                opd:help "Disable Zebra monitoring";
+
+                opd:command events {
+                    opd:help "Monitor Zebra events";
+                    opd:on-enter "vtysh -c 'no debug zebra events'";
+                }
+                opd:command fpm {
+                    opd:help "Monitor Zebra FPM";
+                    opd:on-enter "vtysh -c 'no debug zebra fpm'";
+                }
+                opd:command kernel {
+                    opd:help "Monitor Zebra kernel interaction";
+                    opd:on-enter "vtysh -c 'no debug zebra kernel'";
+
+                    opd:command messages {
+                        opd:help "Monitor netlink messages between Zebra and kernel";
+                        opd:on-enter "vtysh -c 'no debug zebra kernel msgdump'";
+
+                        opd:command receive {
+                            opd:help "Monitor netlink messages sent to Zebra";
+                            opd:on-enter "vtysh -c 'no debug zebra kernel msgdump recv'";
+                        }
+                        opd:command send {
+                            opd:help "Monitor netlink messages sent from Zebra";
+                            opd:on-enter "vtysh -c 'no debug zebra kernel msgdump send'";
+                        }
+                    }
+                }
+                opd:command mpls {
+                    opd:help "Monitor Zebra MPLS operations";
+                    opd:on-enter "vtysh -c 'no debug zebra mpls'";
+                }
+                opd:command nht {
+                    opd:help "Monitor Zebra next hop tracking";
+                    opd:on-enter "vtysh -c 'no debug zebra nht'";
+                }
+                opd:command packet {
+                    opd:help "Monitor Zebra packet events";
+                    opd:on-enter "vtysh -c 'no debug zebra packet'";
+
+                    opd:command detail {
+                        opd:help "Monitor detailed Zebra packet events";
+                        opd:on-enter "vtysh -c 'no debug zebra packet detail'";
+                    }
+                    opd:command receive {
+                        opd:help "Monitor packets received by Zebra";
+                        opd:on-enter "vtysh -c 'no debug zebra packet recv'";
+
+                        opd:command detail {
+                            opd:help "Monitor detailed Zebra packet events";
+                            opd:on-enter "vtysh -c 'no debug zebra packet recv detail'";
+                        }
+                    }
+                    opd:command send {
+                        opd:help "Monitor packets sent by Zebra";
+                        opd:on-enter "vtysh -c 'no debug zebra packet send'";
+
+                        opd:command detail {
+                            opd:help "Monitor detailed Zebra packet events";
+                            opd:on-enter "vtysh -c 'no debug zebra packet send detail'";
+                        }
+                    }
+                }
+                opd:command pseudowires {
+                    opd:help "Monitor Zebra pseudowires";
+                    opd:on-enter "vtysh -c 'no debug zebra pseudowires'";
+                }
+                opd:command rib {
+                    opd:help "Monitor Zebra RIB operations";
+                    opd:on-enter "vtysh -c 'no debug zebra rib'";
+
+                    opd:command detail {
+                        opd:help "Monitor detailed Zebra RIB operations";
+                        opd:on-enter "vtysh -c 'no debug zebra rib detailed'";
+                    }
+                }
+            }
+        }
+    }
+}

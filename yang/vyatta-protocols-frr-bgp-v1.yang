@@ -1,0 +1,1695 @@
+module vyatta-protocols-frr-bgp-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-bgp:1";
+	prefix vyatta-protocols-frr-bgp-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import vyatta-protocols-v1 {
+		prefix protocols;
+	}
+	import vyatta-services-v1 {
+		prefix service;
+	}
+	import vyatta-service-snmp-v1 {
+		prefix service-snmp;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-policy-v1 {
+		prefix policy;
+	}
+	import vyatta-policy-route-v1 {
+		prefix policy-route;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property. All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+		 The YANG module package for vyatta-protocols-frr-bgp-v1";
+
+	revision 2018-10-30 {
+		description "Inital version.";
+	}
+
+	grouping route-map-group {
+		leaf route-map {
+			description "Route-map for filtering";
+			configd:help "Route-map for filtering";
+			type leafref {
+				path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+			}
+		}
+	}
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping neighbor-route-map {
+		container route-map {
+			description "Route-map to filter route updates to/from this entity (neighbor or peer-group)";
+			configd:help "Route-map to filter route updates to/from this entity (neighbor or peer-group)";
+			leaf export {
+				description "Route-map to filter outgoing route updates to this peer-group";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+				}
+				configd:help "Route-map to filter outgoing route updates to this peer-group";
+			}
+			leaf import {
+				description "Route-map to filter incoming route updates from this entity (neighbor or peer-group)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+				}
+				configd:help "Route-map to filter incoming route updates from this entity (neighbor or peer-group)";
+			}
+		}
+	}
+	grouping neighbor-vrrp-failover {
+		list interface {
+			description "This list is added to link the BGP VRRP group with interface VRRP group";
+			max-elements "1";
+			configd:help "VRRP Interface";
+			configd:allowed "/opt/vyatta/sbin/vyatta-interfaces.pl --show all";
+			key "ifname";
+			leaf ifname {
+				description "VRRP Interface Name";
+				configd:help "VRRP Interface Name";
+				type types:interface-ifname;
+			}
+		}
+	}
+	grouping ipv4-aggregate-address {
+		list aggregate-address {
+			description "BGP aggregate network";
+			configd:help "BGP aggregate network";
+			key "tagnode";
+			leaf tagnode {
+				description "BGP aggregate network";
+				type types:ipv4-prefix {
+					configd:normalize "normalize ipv4-prefix";
+				}
+				configd:help "BGP aggregate network";
+			}
+			leaf as-set {
+				description "Generate AS-set path information for this aggregate address";
+				type empty;
+				configd:help "Generate AS-set path information for this aggregate address";
+			}
+			leaf summary-only {
+				description "Announce the aggregate summary network only";
+				type empty;
+				configd:help "Announce the aggregate summary network only";
+			}
+		}
+	}
+	grouping ipv6-aggregate-address {
+		list aggregate-address {
+			description "BGP aggregate network";
+			configd:help "BGP aggregate network";
+			key "tagnode";
+			leaf tagnode {
+				description "IPv6 address";
+				type types:ipv6-prefix {
+					configd:normalize "normalize ipv6-prefix";
+				}
+				configd:help "BGP IPv6 aggregate network";
+			}
+			leaf as-set {
+				description "Generate AS-set path information for this aggregate address";
+				type empty;
+				configd:help "Generate AS-set path information for this aggregate address";
+			}
+			leaf summary-only {
+				description "Announce the aggregate summary network only";
+				type empty;
+				configd:help "Announce the aggregate summary network only";
+			}
+		}
+	}
+
+	grouping parameters-distance {
+		container distance {
+			description "Administrative distance for BGP routes";
+			presence "Enables administrative distance for BGP routes";
+			configd:help "Administrative distance for BGP routes";
+			container global {
+				description "Global administrative distances for BGP routes";
+				presence "Enables global administrative distance for BGP";
+				configd:help "Global administrative distances for BGP routes";
+				leaf local {
+					description "Administrative distance for local BGP routes";
+					type uint32 {
+						range 1..255;
+					}
+					configd:help "Administrative distance for local BGP routes";
+					default "200";
+				}
+				leaf internal {
+					description "Administrative distance for internal BGP routes";
+					type uint32 {
+						range 1..255;
+					}
+					configd:help "Administrative distance for internal BGP routes";
+					default "200";
+				}
+				leaf external {
+					description "Administrative distance for external BGP routes";
+					type uint32 {
+						range 1..255;
+					}
+					configd:help "Administrative distance for external BGP routes";
+					default "20";
+				}
+			}
+		}
+	}
+	grouping parameters-dampening {
+		container dampening {
+			description "Enable route-flap dampening";
+			presence "Enables route-flap dampening";
+			configd:help "Enable route-flap dampening";
+			leaf half-life {
+				description "Half-life time for dampening [REQUIRED]";
+				type uint32 {
+					range 1..45;
+				}
+				default "15";
+				units minutes;
+				configd:help "Half-life time for dampening [REQUIRED]";
+			}
+		}
+	}
+
+	grouping network-ipv4 {
+		list network {
+			description "BGP network";
+			configd:help "BGP network";
+			key "tagnode";
+			leaf tagnode {
+				description "BGP network";
+				type types:ipv4-prefix {
+					configd:normalize "normalize ipv4-prefix";
+				}
+				configd:help "BGP network";
+			}
+			leaf backdoor {
+				description "Network as a backdoor route";
+				type empty;
+				configd:help "Network as a backdoor route";
+			}
+			uses route-map-group {
+				refine route-map {
+					must "not(../backdoor)" {
+						error-message "You may configure route-map or backdoor, not both";
+                                        }
+					configd:help "Route-map to modify route attributes";
+				}
+			}
+		}
+	}
+
+	grouping redistribute-ipv4 {
+		container redistribute {
+			description "Redistribute routes from other protocols into BGP";
+			presence "Enables IPv4 redistribution";
+			configd:help "Redistribute routes from other protocols into BGP";
+			container kernel {
+				description "Redistribute kernel routes into BGP";
+				presence "Enables redistribution of kernel routes into BGP";
+				configd:help "Redistribute kernel routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container rip {
+				description "Redistribute RIP routes into BGP";
+				presence "Enables redistribution of RIP routes into BGP";
+				configd:help "Redistribute RIP routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container connected {
+				description "Redistribute connected routes into BGP";
+				presence "Enables redistribution of connected routes into BGP";
+				configd:help "Redistribute connected routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container static {
+				description "Redistribute static routes into BGP";
+				presence "Enables redistribution of static routes into BGP";
+				configd:help "Redistribute static routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container ospf {
+				description "Redistribute OSPF routes into BGP";
+				presence "Enables redistribution of OSPF routes into BGP";
+				configd:help "Redistribute OSPF routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+		}
+	}
+
+	grouping network-ipv6 {
+		list network {
+			description "BGP IPv6 network";
+			configd:help "BGP IPv6 network";
+			key "tagnode";
+			leaf tagnode {
+				description "BGP IPv6 network";
+				type types:ipv6-prefix {
+					configd:normalize "normalize ipv6-prefix";
+				}
+				configd:help "BGP IPv6 network";
+			}
+			uses route-map-group {
+				refine route-map {
+					configd:help "Route-map to modify route attributes";
+				}
+			}
+		}
+	}
+
+	grouping redistribute-ipv6 {
+		container redistribute {
+			description "Redistribute routes from other protocols into BGP";
+			presence "Enables IPv6 Redistribution";
+			configd:help "Redistribute routes from other protocols into BGP";
+			container kernel {
+				description "Redistribute kernel routes into BGP";
+				presence "Enables redistribution of kernel routes into BGP";
+				configd:help "Redistribute kernel routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container ripng {
+				description "Redistribute RIP routes into BGP";
+				presence "Enables redistribution of RIP routes into BGP";
+				configd:help "Redistribute RIP routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container connected {
+				description "Redistribute connected routes into BGP";
+				presence "Enables redistribution of connected routes into BGP";
+				configd:help "Redistribute connected routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container static {
+				description "Redistribute static routes into BGP";
+				presence "Enables redistribution of static routes into BGP";
+				configd:help "Redistribute static routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+			container ospfv3 {
+				description "Redistribute OSPF routes into BGP";
+				presence "Enables redistribution of OSPF routes into BGP";
+				configd:help "Redistribute OSPF routes into BGP";
+				uses route-map-group {
+					refine route-map {
+						configd:help "Route map to filter redistributed routes";
+					}
+				}
+			}
+		}
+	}
+
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping neigh_peer_grp_ipv4_lists {
+		container prefix-list {
+			description "Prefix-list to filter route updates to/from this entity (neighbor or peer-group)";
+			configd:help "Prefix-list to filter route updates to/from this entity (neighbor or peer-group)";
+			presence "Enables prefix-list";
+			must "count(*) > 0" {
+				error-message "prefix-list cannot be empty";
+			}
+            		/* This and distribute-list are mutually exclusive */
+			leaf export {
+				description "Prefix-list to filter outgoing route updates to this peer-group";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:prefix-list/policy-route:tagnode";
+				}
+				configd:help "Prefix-list to filter outgoing route updates to this peer-group";
+				must "not(../../peer-group)" {
+					error-message "You may not configure prefix-list export for a neighbor in peer-group\n";
+				}
+			}
+			leaf import {
+				description "Prefix-list to filter incoming route updates from this peer-group";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:prefix-list/policy-route:tagnode";
+				}
+				configd:help "Prefix-list to filter incoming route updates from this peer-group";
+			}
+		}
+		container distribute-list {
+			description "Access-list to filter route updates to/from this entity (peer-group or neighbor)";
+			configd:help "Access-list to filter route updates to/from this entity (peer-group or neighbor)";
+			presence "Enables distribute-list";
+			must "count(*) > 0" {
+				error-message "distribute-list cannot be empty";
+			}
+			must "not(../prefix-list)" {
+				error-message "You may not configure both prefix-list and distribute-list";
+			}
+			must "not(../peer-group)" {
+				error-message "You may not configure distribute-list for a neighbor in peer-group\n";
+			}
+			leaf export {
+				description "Access-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:access-list/policy-route:tagnode";
+				}
+				configd:help "Access-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+			}
+			leaf import {
+				description "Access-list to filter incoming route updates from this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:access-list/policy-route:tagnode";
+				}
+				configd:help "Access-list to filter incoming route updates from this entity (peer-group or neighbor)";
+			}
+		}
+	}
+
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping neigh_peer_grp_ipv6_lists {
+		container prefix-list {
+			description "Prefix-list to filter route updates to/from this entity (neighbor or peer-group)";
+			presence "Enables IPv6 prefix-list";
+			configd:help "Prefix-list to filter route updates to/from this entity (neighbor or peer-group)";
+			/* This and distribute-list are mutually exclusive */
+			leaf export {
+				description "Prefix-list to filter outgoing route updates to this peer-group";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:prefix-list6/policy-route:tagnode";
+				}
+				configd:help "Prefix-list to filter outgoing route updates to this peer-group";
+				must "not(../../peer-group)" {
+					error-message "You may not configure prefix-list export for a neighbor in peer-group\n";
+				}
+			}
+			leaf import {
+				description "Prefix-list to filter incoming route updates from this peer-group";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:prefix-list6/policy-route:tagnode";
+				}
+				configd:help "Prefix-list to filter incoming route updates from this peer-group";
+			}
+		}
+		container distribute-list {
+			description "Access-list to filter route updates to/from this entity (peer-group or neighbor)";
+			presence "Enables IPv6 access-list";
+			configd:help "Access-list to filter route updates to/from this entity (peer-group or neighbor)";
+			must "not(../prefix-list)" {
+				error-message "You may not configure both prefix-list and distribute-list";
+			}
+			must "not(../peer-group)" {
+				error-message "You may not configure distribute-list for a neighbor in peer-group\n";
+			}
+			leaf export {
+				description "Access-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:access-list6/policy-route:tagnode";
+				}
+				configd:help "Access-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+			}
+			leaf import {
+				description "Access-list to filter incoming route updates from this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:access-list6/policy-route:tagnode";
+				}
+				configd:help "Access-list to filter incoming route updates from this entity (peer-group or neighbor)";
+			}
+		}
+	}
+
+	grouping neigh_filter_list {
+		container filter-list {
+			description "As-path-list to filter route updates to/from this entity (peer-group or neighbor)";
+			presence "Enables applying as-path-list to filter route updates";
+			configd:help "As-path-list to filter route updates to/from this entity (peer-group or neighbor)";
+			leaf export {
+				description "As-path-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:as-path-list/policy-route:tagnode";
+				}
+				configd:help "As-path-list to filter outgoing route updates to this entity (peer-group or neighbor)";
+			}
+			leaf import {
+				description "As-path-list to filter incoming route updates from this entity (peer-group or neighbor)";
+				type leafref {
+					path "/policy:policy/policy-route:route/policy-route:as-path-list/policy-route:tagnode";
+				}
+				configd:help "As-path-list to filter incoming route updates from this entity (peer-group or neighbor)";
+			}
+		}
+	}
+
+	grouping neigh_maximum_prefix {
+		list maximum-prefix {
+			description "Maximum number of prefixes to accept from this entity (neighbor or peer-group)";
+			max-elements "1";
+			configd:help "Maximum number of prefixes to accept from this entity (neighbor or peer-group)";
+			key "tagnode";
+			leaf tagnode {
+				description "Maximum number of prefixes to accept from this entity (neighbor or peer-group)";
+				type uint32 {
+					range 1..max;
+				}
+				configd:help "Maximum number of prefixes to accept from this entity (neighbor or peer-group)";
+			}
+			list threshold {
+				description "Threshold value (percentage) at which to generate a warning msg";
+				max-elements "1";
+				configd:help "Threshold value (percentage) at which to generate a warning msg";
+				key "tagnode";
+				leaf tagnode {
+					description "Threshold value (percentage) at which to generate a warning msg";
+					type uint32 {
+						range 1..100;
+					}
+					configd:help "Threshold value (percentage) at which to generate a warning msg";
+				}
+				leaf warning-only {
+					description "Only give warning message when limit is exceeded";
+					type empty;
+					configd:help "Only give warning message when limit is exceeded";
+				}
+			}
+		}
+	}
+
+
+	/* BGP Global parameters
+	bgp <as-num> parameters
+	   - cluster-id <text>
+	   - always-compare-med
+	   - default local-pref <0-4294967295>
+	   - confederation  (identifier <1-65535> | peer  <1-65535>)
+	   - graceful-restart [graceful-reset | restart-time <1-3600> | stalepath-time <1-3600>]
+	   - bestpath (as-path (confed | ignore) | compare-routerid |
+	                med (confed | missing-as-worst))
+	   - log-neighbor-changes
+	   - no-client-to-client-reflection
+	   - deterministic-med
+	   - router-id <x.x.x.x>
+	*/
+
+	grouping bgp-params-global-cluster-id {
+		leaf cluster-id {
+			description "Route-reflector cluster-id";
+			type types:ipv4-address;
+			must "(not(starts-with(current(), '127.')))" {
+				error-message "Invalid cluster-id (cannot configure a loopback address) ";
+			}
+			must "(current() != '0.0.0.0')" {
+				error-message "Invalid cluster-id (value cannot be 0.0.0.0)";
+			}
+			configd:help "Route-reflector cluster-id";
+		}
+	}
+
+	grouping bgp-params-global-always-compare-med {
+		leaf always-compare-med {
+			description "Always compare MEDs from different neighbors";
+			type empty;
+			configd:help "Always compare MEDs from different neighbors";
+		}
+	}
+
+	grouping bgp-params-global-default {
+		container default {
+			description "BGP defaults";
+			presence "Enables BGP defaults";
+			configd:help "BGP defaults";
+			leaf local-pref {
+				description "Default local preference (higher=more preferred)";
+				type uint32;
+				configd:help "Default local preference (higher=more preferred)";
+			}
+		}
+	}
+
+	grouping bgp-params-global-confederation-identifier {
+		leaf identifier {
+			description "Confederation AS identifier";
+			type uint32 {
+				range 1..max;
+			}
+			configd:help "Confederation AS identifier";
+		}
+	}
+
+	grouping bgp-params-global-confederation-peers {
+		leaf-list peers {
+			description "Peer ASes in the BGP confederation";
+			type uint32 {
+				range 1..max;
+			}
+			ordered-by "user";
+			configd:help "Peer ASes in the BGP confederation";
+			must "(../identifier)" {
+				error-message "You must set the confederation identifier";
+			}
+			must "(current() != ../../../tagnode)" {
+				error-message "Cannot set confederation peer ASN to local ASN";
+			}
+			must "(current() != (../identifier))" {
+				error-message "Confederation peer ASN cannot be equal to Confederation identifier";
+			}
+		}
+	}
+
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping bgp-params-global-confederation {
+		container confederation {
+			description "AS confederation parameters";
+			presence "BGP Confederation config";
+			configd:help "AS confederation parameters";
+			uses bgp-params-global-confederation-identifier;
+			uses bgp-params-global-confederation-peers;
+		} /*confederation*/
+	}
+
+	grouping bgp-params-global-graceful-restart {
+		container graceful-restart {
+			description "Graceful restart capability parameters";
+			presence "Enables BGP Graceful-restart";
+			configd:help "Graceful restart capability parameters";
+			leaf graceful-reset {
+				description "Enable graceful reset capability";
+				type empty;
+				configd:help "Enable graceful reset capability";
+			}
+			leaf restart-time {
+				description "Max time needed for Neighbor(s) to restart";
+				type uint32 {
+					range 1..3600;
+				}
+				default "90";
+				configd:help "Max time needed for Neighbor(s) to restart";
+			}
+			leaf stalepath-time {
+				description "Maximum time to hold onto restarting peer's stale paths";
+				type uint32 {
+					range 1..3600;
+				}
+				default "360";
+				configd:help "Maximum time to hold onto restarting peer's stale paths";
+			}
+		} /*graceful-restart*/
+	}
+
+	grouping bgp-params-global-bestpath {
+		container bestpath {
+			description "Default bestpath selection mechanism";
+			presence "Enables bestpath selection mechanism";
+			configd:help "Default bestpath selection mechanism";
+			container med {
+				description "MED attribute comparison parameters";
+				presence "Enables MED attribute comparison";
+				configd:help "MED attribute comparison parameters";
+				container confed {
+					description "Compare MEDs among confederation paths";
+					presence "Compare MEDs among confederation paths";
+					configd:help "Compare MEDs among confederation paths";
+					leaf missing-as-worst {
+						description "Treat missing route as a MED as the least preferred one";
+						type empty;
+						configd:help "Treat missing route as a MED as the least preferred one";
+					}
+				}
+				leaf missing-as-worst {
+					description "Treat missing route as a MED as the least preferred one";
+					type empty;
+					configd:help "Treat missing route as a MED as the least preferred one";
+				}
+			}
+			container as-path {
+				description "AS-path attribute comparison parameters";
+				presence "Enables AS-path attribute comparison";
+				configd:help "AS-path attribute comparison parameters";
+				leaf ignore {
+					description "Ignore AS-path length in selecting a route";
+					type empty;
+					configd:help "Ignore AS-path length in selecting a route";
+				}
+				leaf confed {
+					description "Compare AS-path lengths including confederation sets & sequences";
+					type empty;
+					configd:help "Compare AS-path lengths including confederation sets & sequences";
+				}
+			}
+			leaf compare-routerid {
+				description "Compare the router-id for identical eBGP paths";
+				type empty;
+				configd:help "Compare the router-id for identical eBGP paths";
+			}
+		} /*bestpath*/
+	}
+
+	grouping bgp-params-global-log-neighbor-changes {
+		leaf log-neighbor-changes {
+			description "Log neighbor up/down changes and reset reason";
+			type empty;
+			configd:help "Log neighbor up/down changes and reset reason";
+		}
+	}
+
+	grouping bgp-params-global-med-out-delay {
+		leaf med-out-delay {
+			description "Max time to defer MED updates";
+			type uint32 {
+				range 10..600;
+			}
+			configd:help "Max time to defer MED updates";
+		}
+	}
+
+	grouping bgp-params-global-no-client-to-client-reflection {
+		container no-client-to-client-reflection {
+			description "Disable client to client route reflection";
+			configd:help "Disable client to client route reflection";
+			leaf all {
+				description "Disable all client to client route reflection";
+				type empty;
+				configd:help "Disable all client to client route reflection";
+			}
+			leaf-list cluster-id {
+				description "Configure intra-cluster reflection";
+				configd:help "Configure intra-cluster reflection";
+				type union {
+					type types:ipv4-address;
+					type enumeration {
+						enum "any";
+						configd:help "Configure intra-cluster reflection for any cluster id";
+					}
+				}
+				must "(not(starts-with(current(), '127.')))" {
+					error-message "Invalid cluster-id (cannot configure a loopback address) ";
+				}
+				must "(current() != '0.0.0.0')" {
+					error-message "Invalid cluster-id (value cannot be 0.0.0.0)";
+				}
+			}
+		}
+	}
+
+	grouping bgp-params-global-deterministic-med {
+		leaf deterministic-med {
+			description "Compare MEDs between different peers in the same AS";
+			type empty;
+			configd:help "Compare MEDs between different peers in the same AS";
+		}
+	}
+
+	grouping bgp-params-global-router-id {
+		leaf router-id {
+			description "BGP router id";
+			type types:ipv4-address;
+			must "(not((substring-before(., '.') >= 224) and " +
+				"(substring-before(string(current()), '.') <= 239)))" {
+				error-message "Invalid router-id (cannot be a multicast address)";
+			}
+			must "(not((substring-before(., '.') >= 240) and " +
+				"(substring-before(string(current()), '.') <= 255)))" {
+				error-message "Invalid router-id";
+			}
+			must "(not(starts-with(current(), '127.')))" {
+				error-message "Invalid router-id (cannot configure a loopback address) ";
+			}
+			must "(current() != '0.0.0.0')" {
+				error-message "Invalid router-id (value cannot be 0.0.0.0)";
+			}
+			configd:help "BGP router id";
+		}
+	}
+
+	grouping bgp-params-timers {
+		container timers {
+			description "BGP protocol timers";
+			presence "Enables BGP protocol timers";
+			configd:help "BGP protocol timers";
+			must "((holdtime = 0) or ((holdtime != 0) and (holdtime > keepalive)))" {
+				error-message "Hold time can be 0; or should be greater than keepalive time";
+			}
+			leaf holdtime {
+				description "BGP holdtime interval";
+				type uint32 {
+					range "0 | 3..65535";
+				}
+				configd:help "BGP holdtime interval";
+				default "90";
+			}
+			leaf keepalive {
+				description "Keepalive interval";
+				type uint32 {
+					range 0..65535;
+				}
+				default "30";
+				configd:help "Keepalive interval";
+			}
+		}
+	}
+
+	/*Peer-group and neighbor common settings (no families)
+	   - advertisement-interval <0-65535>
+	   - capability dynamic
+	   - disable-capability-negotiation
+	   - description <text>
+	   - ebgp-multihop [ max-hop <1-255>]
+	   - enforce-multihop
+           - enforce-first-as
+	   - local-as <1-4294967295>
+	   - passive
+	   - port <1-65535>
+	   - remote-as <1-4294967295>
+	   - shutdown
+	   - timers (holdtime <0|3-65535>  keepalive <0-65535>)
+	   - ttl-security <1-255>
+	   - update-source <text>
+	   - override-capability
+	   - password
+	   - strict-capability-match
+	   - vrrp-failover
+	   - cluster-id*/
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping peer-grp-neighbor-common-options {
+		uses neighbor-vrrp-failover;
+		leaf strict-capability-match {
+			description "Enable strict capability negotiation";
+			type empty;
+			configd:help "Enable strict capability negotiation";
+			must "not(../override-capability)" {
+				error-message "You may not configure both strict-capability-match and override-capability";
+			}
+		}
+		leaf password {
+			description "BGP MD5 password";
+			type string {
+				length 1..80;
+			}
+			configd:secret "true";
+			configd:help "BGP MD5 password";
+		}
+		leaf override-capability {
+			description "Ignore capability negotiation with specified neighbor";
+            		/* This and strict-capability-match are mutually exclusive */
+			type empty;
+			configd:help "Ignore capability negotiation with specified neighbor";
+		}
+		list local-as {
+			max-elements "1";
+			description "Local AS to allow customization of AS number";
+			configd:help "Local AS to allow customization of AS number";
+			key "tagnode";
+			leaf tagnode {
+				type uint32 {
+					range 1..max;
+				}
+			}
+			must "not(../remote-as = ../../tagnode)" {
+				error-message "You may not configure local-as for an iBGP neighbor/peer-group";
+			}
+			must "not(tagnode = ../../tagnode)" {
+				error-message "You may not configure local-as the same as the true local AS";
+			}
+		}
+		container ttl-security {
+			description "Ttl security mechanism for this entity (neighbor or peer-group)";
+			presence "Enables TTL security";
+			configd:help "Ttl security mechanism for this entity (neighbor or peer-group)";
+			leaf hops {
+				description "Number of the maximum number of hops to the BGP peer";
+				type uint32 {
+					range 1..254;
+				}
+				configd:help "Number of the maximum number of hops to the BGP peer";
+			}
+			must "not(../remote-as = ../../tagnode)" {
+				error-message "You may not configure ttl-security for an iBGP neighbor/peer-group";
+			}
+		}
+		container capability {
+			description "Advertise capabilities to this entity (neighbor or peer-group)";
+			presence "Enables BGP capabilities";
+			configd:help "Advertise capabilities to this entity (neighbor or peer-group)";
+			leaf dynamic {
+				description "Advertise dynamic capability to this entity (neighbor or peer-group)";
+				type empty;
+				configd:help "Advertise dynamic capability to this entity (neighbor or peer-group)";
+			}
+		}
+		leaf disable-capability-negotiation {
+			description "Disable capability negotiation with this entity (neighbor or peer-group)";
+			type empty;
+			configd:help "Disable capability negotiation with this entity (neighbor or peer-group)";
+		}
+		leaf enforce-first-as {
+			description "Enforce first AS for eBGP neighbors";
+			type empty;
+			configd:help "Enforce that the first ASN belongs to the eBGP neighbor";
+			must "not(../remote-as = ../../tagnode)" {
+				error-message "You may not configure enforce-first-as for an iBGP neighbor/peer-group";
+			}
+		}
+		leaf enforce-multihop {
+			description "Enforce multihop for eBGP neighbors";
+			type empty;
+			configd:help "Enforce multihop for eBGP neighbors";
+			must "not(../remote-as = ../../tagnode)" {
+				error-message "You may not configure enforce-multihop for an iBGP neighbor/peer-group";
+			}
+		}
+		leaf description {
+			description "Description for this entity (neighbor or peer-group)";
+			type string {
+				length 1..80;
+			}
+			configd:help "Description for this entity (neighbor or peer-group)";
+		}
+		leaf update-source {
+			description "Source address or interface of routing updates";
+			type union {
+				type types:ipv4-address;
+				type types:ipv6-address;
+				type types:interface-ifname;
+			}
+			configd:help "Source address or interface of routing updates";
+		}
+		leaf advertisement-interval {
+			description "Minimum interval for sending routing updates";
+			type uint32 {
+				range 0..65535;
+			}
+			configd:help "Minimum interval for sending routing updates";
+		}
+		leaf passive {
+			description "Do not initiate a session with this entity (neighbor or peer-group)";
+			type empty;
+			configd:help "Do not initiate a session with this entity (neighbor or peer-group)";
+		}
+		leaf port {
+			description "Neighbor's/Peer-group's BGP port";
+			type uint32 {
+				range 1..65535;
+			}
+			configd:help "Neighbor's/Peer-group's BGP port";
+		}
+		leaf shutdown {
+			description "Administratively shut down neighbor";
+			type empty;
+			configd:help "Administratively shut down neighbor";
+		}
+		container timers {
+			description "Neighbor/Peer-group timers";
+			presence "Enables BGP timers";
+			configd:help "Neighbor/Peer-group timers";
+			must "((holdtime = 0) or ((holdtime != 0) and (holdtime > keepalive)))" {
+				error-message "Hold time can be 0; or should be greater than keepalive time";
+			}
+			leaf connect {
+				description "BGP connect timer for this entity (neighbor or peer-group)";
+				type uint32 {
+					range 1..65535;
+				}
+				configd:help "BGP connect timer for this entity (neighbor or peer-group)";
+			}
+			leaf holdtime {
+				description "BGP hold timer for this entity (neighbor or peer-group)";
+				type uint32 {
+					range "0 | 3..65535";
+				}
+				default "90";
+				configd:help "BGP hold timer for this entity (neighbor or peer-group)";
+			}
+			leaf keepalive {
+				description "BGP keepalive interval for this neighbor";
+				type uint32 {
+					range 0..65535;
+				}
+				default "30";
+				configd:help "BGP keepalive interval for this neighbor";
+			}
+		}
+		leaf ebgp-multihop {
+			description "Allow this eBGP neighbor to not be on a directly connected network";
+			type uint32 {
+				range 1..255;
+			}
+			configd:help "Allow this eBGP neighbor to not be on a directly connected network";
+			must "not(../remote-as = ../../tagnode)" {
+				error-message "You may not configure ebgp-multihop for an iBGP neighbor/peer-group";
+			}
+			must "not(../ttl-security)" {
+				error-message "You may not configure both ttl-security hops and ebgp-multihop";
+			}
+		}
+		leaf remote-as {
+			description "BGP AS number of neighbor or peer-group";
+			type uint32 {
+				range 1..max;
+			}
+			configd:help "Entity (peer-group or neighbor) BGP AS number [REQUIRED]";
+		}
+	}
+
+	/*Peer-group & neighbor common parameters
+	neighbor (<x.x.x.x>| <h:h:h:h:h:h:h:h>) | peer-group <text> [address-family (ipv4-unicast| ipv6-unicast)
+	   - allowas-in [number <1-10>]
+	   - attribute-unchanged [as-path]|[next-hop]|[med]
+	   - filter-list (import <text> | export <text>)
+	   - maximum-prefix <1-4294967295> [threshold | warning-only]
+	   - remove-private-as
+	   - route-reflector-client
+	   - disable-send-community (extended | standard)
+	   - weight <1-65535>
+	   - route-map (import <text> | export <text>)
+	   - default-originate [route-map <text>]
+	   - soft-reconfiguration inbound
+	   - unsuppress-map
+	   - capability orf prefix-list (both|receive|send))
+	   - route-server-client
+	   - nexthop-self*/
+	/*
+       This grouping contains relative path to nodes outside the group scope.
+       It can only be used at a specific config level matching the relative path.
+       Also, there are few config nodes like 'route-reflector-client' which is
+       referring to bgp AS number as 'tagnode'. So if this group has to be used in a
+       bgp instance model, we have to make sure that the instance model uses 'tagnode'
+       as the name for AS number. Please see comment in bgp routing-instance specific
+       Yang file in this regard.
+	*/
+	grouping peer-grp-neighbor-afi-common-settings {
+		uses neighbor-route-map;
+		uses neigh_filter_list;
+		container attribute-unchanged {
+			description "BGP attributes are sent unchanged";
+			configd:help "BGP attributes are sent unchanged";
+			presence "Enables attribute-unchanged";
+			must "count(*) > 0" {
+				error-message "attribute-unchanged cannot be empty";
+			}
+			leaf next-hop {
+				description "Send nexthop unchanged";
+				type empty;
+				must "(../../../../ebgp-multihop)" {
+					error-message "Nexthop unchanged can be configured only on multihop eBGP peers";
+				}
+				configd:help "Send nexthop unchanged";
+			}
+			leaf med {
+				description "Send multi-exit discriminator unchanged";
+				type empty;
+				configd:help "Send multi-exit discriminator unchanged";
+			}
+			leaf as-path {
+				description "Send AS path unchanged";
+				type empty;
+				configd:help "Send AS path unchanged";
+			}
+		}
+		leaf remove-private-as {
+			description "Remove private AS numbers from AS path in outbound route updates";
+			type empty;
+			configd:help "Remove private AS numbers from AS path in outbound route updates";
+			must "not(../../../remote-as = ../../../../tagnode)" {
+				error-message "You may not configure remove-private-as for an iBGP neighbor/peer-group";
+			}
+		}
+		leaf route-reflector-client {
+			description "Peer-group as a route reflector client";
+			type empty;
+			configd:help "Peer-group as a route reflector client";
+			must "not(../../../remote-as) or (../../../remote-as) = (../../../../tagnode)" {
+				error-message "You may not configure route-reflector-client for an eBGP neighbor/peer-group";
+			}
+		}
+		uses neigh_maximum_prefix;
+		container allowas-in {
+			description "Accept a route that contains the local-AS in the as-path";
+			presence "Enables allowas-in feature";
+			configd:help "Accept a route that contains the local-AS in the as-path";
+			leaf number {
+				description "Number of occurrences of AS number";
+				type uint32 {
+					range 1..10;
+				}
+				configd:help "Number of occurrences of AS number";
+			}
+		}
+
+		leaf weight {
+			description "Default weight for routes from this entity (neighbor or peer-group)";
+			type uint32 {
+				range 1..65535;
+			}
+			configd:help "Default weight for routes from this entity (neighbor or peer-group)";
+		}
+
+		container disable-send-community {
+			description "Disable sending community attributes to this peer-group";
+			configd:help "Disable sending community attributes to this peer-group";
+			presence "Enables disable-send-community";
+			must "count(*) > 0" {
+				error-message "disable-send-community cannot be empty";
+			}
+			leaf extended {
+				description "Disable sending extended community attributes to this entity (neighbor or peer-group)";
+				type empty;
+				configd:help "Disable sending extended community attributes to this entity (neighbor or peer-group)";
+			}
+			leaf standard {
+				description "Disable sending standard community attributes to this entity (neighbor or peer-group)";
+				type empty;
+				configd:help "Disable sending standard community attributes to this entity (neighbor or peer-group)";
+			}
+		}
+
+		container capability {
+			description "Advertise capabilities to this entity (neighbor or peer-group)";
+			presence "Enables BGP neighbor/peer-group AFI capabilities";
+			configd:help "Advertise capabilities to this entity (neighbor or peer-group)";
+			container orf {
+				description "Advertise ORF capability to this neighbor";
+				presence "Enables ORF capability at neighbor/peer-group AFI level";
+				configd:help "Advertise ORF capability to this neighbor";
+				container prefix-list {
+					description "Advertise prefix-list ORF capability to this entity (neighbor or peer-group)";
+					presence "Enables advertising prefix-list ORF capability";
+					configd:help "Advertise prefix-list ORF capability to this entity (neighbor or peer-group)";
+					leaf receive {
+						description "Capability to receive the ORF";
+						type empty;
+						configd:help "Capability to receive the ORF";
+					}
+					leaf send {
+						description "Capability to send the ORF";
+						type empty;
+						configd:help "Capability to send the ORF";
+					}
+				}
+			}
+		}
+
+		container soft-reconfiguration {
+			description "Soft reconfiguration for neighbor";
+			configd:help "Soft reconfiguration for neighbor";
+			leaf inbound {
+				description "Inbound soft reconfiguration for this entity (neighbor or peer-group) [REQUIRED]";
+				type empty;
+				configd:help "Inbound soft reconfiguration for this entity (neighbor or peer-group) [REQUIRED]";
+			}
+		}
+
+		container default-originate {
+			description "Send default route to this neighbor";
+			presence "Enables default-originate at neighbor/peer-group AFI level";
+			configd:help "Send default route to this neighbor";
+			uses route-map-group {
+				refine route-map {
+					configd:help "Route-map to specify criteria of the default";
+				}
+			}
+		}
+
+		leaf unsuppress-map {
+			description "Route-map to selectively unsuppress suppressed routes";
+			type leafref {
+				path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+			}
+			configd:help "Route-map to selectively unsuppress suppressed routes";
+		}
+
+		leaf nexthop-self {
+			description "Nexthop for routes sent to this peer-group to be the local router";
+			type empty;
+			configd:help "Nexthop for routes sent to this peer-group to be the local router";
+		}
+
+		leaf route-server-client {
+			description "Peer-group as route server client";
+			type empty;
+			configd:help "Peer-group as route server client";
+		}
+	}
+
+	/* BGP Global parameters supported under default VRF */
+	grouping bgp-params-global-default-vrf {
+		container parameters {
+			description "BGP Global parameters that can be configured under Default BGP Routing Instance";
+			presence "Enables BGP parameters";
+			configd:help "BGP parameters";
+			uses bgp-params-global-cluster-id;
+			uses bgp-params-global-always-compare-med;
+			uses bgp-params-global-default;
+			uses bgp-params-global-confederation;
+			uses bgp-params-global-graceful-restart;
+			uses bgp-params-global-bestpath;
+			uses bgp-params-global-log-neighbor-changes;
+			uses bgp-params-global-med-out-delay;
+			uses bgp-params-global-no-client-to-client-reflection;
+			uses bgp-params-global-deterministic-med;
+			uses bgp-params-global-router-id;
+		}
+		uses bgp-params-timers;
+	}
+
+
+	grouping bgp-params-peer-group {
+			list peer-group {
+				description "BGP Peer-group parameters";
+				configd:help "BGP peer-group";
+				key "tagnode";
+				leaf tagnode {
+					description "BGP peer-group";
+					type string;
+					configd:help "BGP peer-group";
+				}
+				uses peer-grp-neighbor-common-options {
+					refine local-as {
+						must "not(../../neighbor[address-family/*/peer-group = current()/../tagnode]/remote-as = ../../tagnode)" {
+							error-message "You may not configure local-as for a peer-group with iBGP member";
+						}
+						must "not(../../neighbor[address-family/*/peer-group = current()/../tagnode]/remote-as = current())" {
+							error-message "You may not configure local-as the same as a member's remote-as";
+						}
+					}
+					refine ttl-security {
+						must "not(../../neighbor[address-family/*/peer-group = current()/../tagnode]/remote-as = ../../tagnode)" {
+							error-message "You may not configure ttl-security for a peer-group with iBGP member";
+						}
+					}
+					refine enforce-multihop {
+						must "not(../../neighbor[address-family/*/peer-group = current()/../tagnode]/remote-as = ../../tagnode)" {
+							error-message "You may not configure enforce-multihop for a peer-group with iBGP member";
+						}
+					}
+					refine ebgp-multihop {
+						must "not(../../neighbor[address-family/*/peer-group = current()/../tagnode]/remote-as = ../../tagnode)" {
+							error-message "You may not configure ebgp-multihop for a peer-group with iBGP member";
+						}
+					}
+				}
+				container address-family {
+					description "BGP peer-group address-family parameters";
+					presence "Enables BGP peer-group address-family";
+					configd:help "BGP peer-group address-family parameters";
+					container ipv4-unicast {
+						description "BGP peer-group IPv4 unicast parameters";
+						presence "Enables BGP peer-group IPv4 unicast parameters";
+						configd:help "BGP peer-group IPv4 unicast parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine remove-private-as {
+								must "not(../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as "+
+									 " = ../../../../../bgp/tagnode)" {
+									 error-message "You may not configure remove-private-as for a peer-group with iBGP member";
+								}
+							}
+							refine route-reflector-client {
+								must "not (../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as) or "+
+									"(../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as "+
+									" = ../../../../../bgp/tagnode)" {
+									error-message "You may not configure route-reflector-client for a peer-group with eBGP member";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv4_lists;
+					}
+					container ipv6-unicast {
+						description "BGP peer-group IPv6 unicast parameters";
+						presence "Enables BGP peer-group IPv6 unicast parameters";
+						configd:help "BGP peer-group IPv6 unicast parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine remove-private-as {
+								must "not(../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as "+
+									 " = ../../../../../bgp/tagnode)" {
+									 error-message "You may not configure remove-private-as for a peer-group with iBGP member";
+								}
+							}
+							refine route-reflector-client {
+								must "not (../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as) or "+
+									"(../../../../neighbor[address-family/*/peer-group = current()/../../../tagnode]/remote-as "+
+									" = ../../../../../bgp/tagnode)" {
+									error-message "You may not configure route-reflector-client for a peer-group with eBGP member";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv6_lists;
+					}
+
+				}
+				must "not(((address-family/*/route-reflector-client)) and" +
+				     "    (ebgp-multihop or enforce-multihop or ttl-security or local-as or (address-family/*/remove-private-as)))" {
+					error-message "You may not configure both eBGP and iBGP type parameters";
+				}
+			}
+	}
+
+	/* Neighbor adddress grouping - validation scripts to be added during refine */
+	grouping peer-address {
+		leaf tagnode {
+			type union {
+				type types:ipv4-address;
+				type types:ipv6-address;
+			}
+			configd:help "BGP neighbor";
+			must "not((starts-with(current(), 'fe8')) or (starts-with(current(), 'fe9')) or " +
+				  "(starts-with(current(), 'fea')) or (starts-with(current(), 'feb'))) or " +
+				 "(../update-source) or " +
+				 "(../../peer-group[tagnode = current()/../address-family/*/peer-group]/update-source)" {
+				 error-message "You must configure update-source for IPv6 link-local neighbors\n";
+			}
+			must "not((starts-with(current(), 'fe8')) or (starts-with(current(), 'fe9')) or " +
+				  "(starts-with(current(), 'fea')) or (starts-with(current(), 'feb'))) or " +
+				 "(not(../ebgp-multihop) and " +
+				 " not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/ebgp-multihop))" {
+				 error-message "You may not configure ebgp-multihop for IPv6 link-local neighbor\n";
+			}
+			must "not((starts-with(current(), 'fe8')) or (starts-with(current(), 'fe9')) or " +
+				  "(starts-with(current(), 'fea')) or (starts-with(current(), 'feb'))) or " +
+				 "(not(../ttl-security) and " +
+				 " not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/ttl-security))" {
+				 error-message "You may not configure ttl-security for IPv6 link-local neighbor\n";
+			}
+		}
+	}
+
+	/* This grouping contains relative path to nodes outside the group scope. It can only be used
+	   at a specific config level matching the relative path.
+	*/
+	grouping bgp-params-neighbor {
+			list neighbor {
+				description "BGP neighbor level configuration parameters";
+				configd:help "BGP neighbor";
+				key "tagnode";
+				uses peer-address;
+				uses peer-grp-neighbor-common-options {
+					refine strict-capability-match {
+						must "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/override-capability)" {
+							error-message "You may not configure strict-capability-match when override-capability is set in peer-group";
+						}
+					}
+					refine override-capability {
+						must "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/strict-capability-match)" {
+							error-message "You may not configure override-capability when strict-capability-match is set in peer-group";
+						}
+					}
+					refine local-as {
+						must "not(../address-family/*/peer-group)" {
+							error-message "You may not configure local-as for a neighbor in peer-group\n";
+						}
+					}
+					refine ttl-security {
+						must "not(../address-family/*/peer-group) or " +
+							 "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/remote-as = ../../tagnode)" {
+							error-message "You may not configure ttl-security for a neighbor in iBGP peer-group";
+						}
+						must "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/ebgp-multihop) or " +
+							 "((../../peer-group[tagnode = current()/../address-family/*/peer-group]/ebgp-multihop) = 1)" {
+							error-message "You may not configure ttl-security hop when ebgp-multihop is set in peer-group";
+						}
+					}
+					refine enforce-multihop {
+						must "not(../address-family/*/peer-group) or " +
+							 "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/remote-as = ../../tagnode)" {
+							error-message "You may not configure enforce-multihop for a neighbor in an iBGP peer-group";
+						}
+					}
+					refine port {
+						must "not(../address-family/*/peer-group)" {
+							error-message "You may not configure port for a neighbor in peer-group\n";
+						}
+					}
+					refine timers {
+						must "not(../address-family/*/peer-group)" {
+							error-message "You may not configure timer for a neighbor in peer-group\n";
+						}
+					}
+					refine ebgp-multihop {
+						must "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/remote-as = ../../tagnode)" {
+							error-message "You may not configure ebgp-multihop for a neighbor in an iBGP peer-group";
+						}
+						must "not(../../peer-group[tagnode = current()/../address-family/*/peer-group]/ttl-security)" {
+							error-message "You may not configure ebgp-multihop when ttl-security hop is set in peer-group";
+						}
+					}
+					refine remote-as {
+						must "not(current()/../address-family/*/peer-group) or " +
+							"(   (" +
+									"(current() = ../../tagnode) and " +
+									"not(../../neighbor[address-family/*/peer-group = current()/../address-family/*/peer-group]/remote-as != ../../tagnode)" +
+								") or " +
+								"(" +
+									"(current() != ../../tagnode) and " +
+									"not(../../neighbor[address-family/*/peer-group = current()/../address-family/*/peer-group]/remote-as = ../../tagnode)" +
+								")" +
+							")" {
+							error-message "All members of a peer-group must be either iBGP or eBGP";
+						}
+					}
+				}
+				must "(not(address-family) or remote-as or (../peer-group[tagnode = current()/address-family/*/peer-group]/remote-as))" {
+					error-message "remote-as must be configured either in neighbor or in peer-group";
+				}
+				must "not(remote-as and (../peer-group[tagnode = current()/address-family/*/peer-group]/remote-as))" {
+					error-message "You may not configure remote-as both in neighbor and peer-group";
+				}
+				container address-family {
+					description "Parameters relating to IPv4 or IPv6 routes";
+					presence "Enables BGP neighbor address-family";
+					configd:help "Parameters relating to IPv4 or IPv6 routes";
+					container ipv4-unicast {
+						description "BGP neighbor parameters";
+						presence "Enables BGP neighbor IPv4 parameters";
+						configd:help "BGP neighbor parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine filter-list/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure filter-list export for a neighbor in peer-group\n";
+								}
+							}
+							refine route-map/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure route-map export for a neighbor in peer-group\n";
+								}
+							}
+							refine attribute-unchanged {
+								must "not(../peer-group)" {
+									error-message "You may not configure attribute-unchanged for a neighbor in peer-group\n";
+								}
+							}
+							refine remove-private-as {
+								must "not(../peer-group)" {
+									error-message "You may not configure remove-private-as for a neighbor in peer-group\n";
+								}
+							}
+							refine route-reflector-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-reflector-client for a neighbor in peer-group\n";
+								}
+							}
+							refine disable-send-community {
+								must "not(../peer-group)" {
+									error-message "You may not configure disable-send-community for a neighbor in peer-group\n";
+								}
+							}
+							refine capability/orf {
+								must "not(../../peer-group)" {
+									error-message "You may not configure capability orf for a neighbor in peer-group";
+								}
+							}
+							refine default-originate {
+								must "not(../peer-group)" {
+									error-message "You may not configure default-originate for a neighbor in peer-group\n";
+								}
+							}
+							refine unsuppress-map {
+								must "not(../peer-group)" {
+									error-message "You may not configure unsuppress-map for a neighbor in peer-group\n";
+								}
+							}
+							refine nexthop-self {
+								must "not(../peer-group)" {
+									error-message "You may not configure nexthop-self for a neighbor in peer-group\n";
+								}
+							}
+							refine route-server-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-server-client for a neighbor in peer-group\n";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv4_lists {
+							refine distribute-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv4-unicast/prefix-list)" {
+									error-message "You may not configure distribute-list when prefix-list is set in peer-group";
+								}
+							}
+							refine prefix-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv4-unicast/distribute-list)" {
+									error-message "You may not configure prefix-list when distribute-list is set in peer-group";
+								}
+							}
+						}
+						leaf peer-group {
+							description "IPv4 peer group for this peer";
+							type leafref {
+							    path "../../../../peer-group/tagnode";
+							}
+							configd:help "IPv4 peer group for this peer";
+							must "../../../../peer-group[tagnode=current()]/address-family/ipv4-unicast" {
+								error-message 'You must configure address-family ipv4-unicast in peer-group';
+							}
+							must "not(../../ipv6-unicast/peer-group) or (current() = ../../ipv6-unicast/peer-group)" {
+								error-message 'You must configure same peer-group for all address-families';
+							}
+						}
+                                        }
+					container ipv6-unicast {
+						description "BGP neighbor parameters";
+						presence "Enables BGP neighbor IPv6 parameters";
+						configd:help "BGP neighbor parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine filter-list/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure filter-list export for a neighbor in peer-group\n";
+								}
+							}
+							refine route-map/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure route-map export for a neighbor in peer-group\n";
+								}
+							}
+							refine attribute-unchanged {
+								must "not(../peer-group)" {
+									error-message "You may not configure attribute-unchanged for a neighbor in peer-group\n";
+								}
+							}
+							refine remove-private-as {
+								must "not(../peer-group)" {
+									error-message "You may not configure remove-private-as for a neighbor in peer-group\n";
+								}
+							}
+							refine route-reflector-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-reflector-client for a neighbor in peer-group\n";
+								}
+							}
+							refine disable-send-community {
+								must "not(../peer-group)" {
+									error-message "You may not configure disable-send-community for a neighbor in peer-group\n";
+								}
+							}
+							refine capability/orf {
+								must "not(../../peer-group)" {
+									error-message "You may not configure capability orf for a neighbor in peer-group";
+								}
+							}
+							refine default-originate {
+								must "not(../peer-group)" {
+									error-message "You may not configure default-originate for a neighbor in peer-group\n";
+								}
+							}
+							refine unsuppress-map {
+								must "not(../peer-group)" {
+									error-message "You may not configure unsuppress-map for a neighbor in peer-group\n";
+								}
+							}
+							refine nexthop-self {
+								must "not(../peer-group)" {
+									error-message "You may not configure nexthop-self for a neighbor in peer-group\n";
+								}
+							}
+							refine route-server-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-server-client for a neighbor in peer-group\n";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv6_lists {
+							refine distribute-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv6-unicast/prefix-list)" {
+									error-message "You may not configure distribute-list when prefix-list is set in peer-group";
+								}
+							}
+							refine prefix-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv6-unicast/distribute-list)" {
+									error-message "You may not configure distribute-list when distribute-list is set in peer-group";
+								}
+							}
+						}
+						leaf peer-group {
+							description "IPv6 peer group for this peer";
+							type leafref {
+							    path "../../../../peer-group/tagnode";
+							}
+							must "../../../../peer-group[tagnode=current()]/address-family/ipv6-unicast" {
+								error-message "Please set address-family ipv6-unicast in peer-group";
+							}
+							configd:help "IPv6 peer group for this peer";
+						}
+					}
+                                }
+
+                        }
+        }
+
+	grouping bgp-params-address-family {
+			container address-family {
+				description "BGP address-level configuration parameters";
+				presence "Enables BGP address-family parameter";
+				configd:help "BGP address-family parameters";
+				container ipv4-unicast {
+					description "BGP IPv4 settings";
+					presence "Enables BGP IPv4 settings";
+					configd:help "BGP IPv4 settings";
+					container parameters {
+						description "BGP parameters for the ipv4-unicast address family";
+						presence "Enables BGP parameters for the ipv4-unicast address family";
+						configd:help "BGP parameters for the ipv4-unicast address family";
+						uses parameters-distance;
+						uses parameters-dampening;
+					}
+					uses ipv4-aggregate-address;
+					uses network-ipv4;
+					uses redistribute-ipv4;
+				}
+				container ipv6-unicast {
+					description "Enable BGP IPv6 settings";
+					presence "Enables BGP IPv6 settings";
+					configd:help "BGP IPv6 settings";
+					container parameters {
+						description "BGP parameters for the ipv6-unicast address family";
+						presence "Enables BGP parameters for the ipv6-unicast address family";
+						configd:help "BGP parameters for the ipv6-unicast address family";
+						uses parameters-distance;
+						uses parameters-dampening;
+					}
+					uses ipv6-aggregate-address;
+					uses network-ipv6;
+					uses redistribute-ipv6;
+				}
+			}
+	}
+
+	grouping bgp-protocol {
+		list bgp {
+			configd:priority "710";
+			description "BGP configuration parameters";
+			configd:help "Border Gateway Protocol (BGP) parameters";
+			must "(tagnode != 23456)" {
+				error-message "Invalid AS Number, 23456 (Reserved)";
+			}
+			must "count(../bgp/tagnode) <= 1" {
+				error-message "Another BGP instance is already running" ;
+			}
+			key "tagnode";
+			leaf tagnode {
+				description "BGP AS Number";
+				type uint32 {
+					range 1..max;
+				}
+				configd:help "Border Gateway Protocol (BGP) parameters";
+			}
+
+		uses bgp-params-global-default-vrf;
+		uses bgp-params-peer-group;
+		uses bgp-params-neighbor;
+		uses bgp-params-address-family;
+		}
+	}
+
+	/* Augmenting to protocols - default VRF */
+	augment /protocols:protocols {
+		uses bgp-protocol;
+	}
+
+	/* Augmenting trap notifications */
+	augment /service:service/service-snmp:snmp/service-snmp:notification {
+		container bgp {
+			description "BGP Notifications";
+			configd:help "BGP Notifications";
+			leaf all {
+				description "Enable BGP Notifications";
+				type empty;
+				configd:help "BGP Notifications";
+			}
+		}
+	}
+}

@@ -1,0 +1,277 @@
+module vyatta-protocols-frr-ldp-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-ldp:1";
+	prefix protocols-frr-ldp;
+
+	import configd-v1 {
+		prefix configd;
+	}
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+
+	import vyatta-policy-v1 {
+		prefix policy;
+	}
+
+	import vyatta-policy-route-v1 {
+		prefix policy-route;
+	}
+
+	import vyatta-protocols-v1 {
+		 prefix protocols;
+	}
+
+	import vyatta-protocols-interface-validation-mpls-v1 {
+		prefix if-validation;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+			 Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Copyright (c) 2016 IETF Trust and the persons identified
+		 as authors of the code.  All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, is permitted pursuant to, and subject
+		 to the license terms contained in, the Simplified BSD License
+		 set forth in Section 4.c of the IETF Trust's Legal Provisions
+		 Relating to IETF Documents
+		 (http://trustee.ietf.org/license-info).
+
+		 Parts of this YANG module are derived from IETF Draft
+		 draft-raza-mpls-ldp-mldp-yang-03.";
+
+	revision 2018-11-27 {
+		description "initial revision of version 1";
+	}
+
+	/*
+	 * Typedefs
+	 */
+
+	typedef access-list-ref {
+		type leafref {
+			path "/policy:policy/policy-route:route/policy-route:access-list/policy-route:tagnode";
+		}
+		description "A type for reference to an access list.";
+	}
+
+	/*
+	 * Groupings
+	 */
+
+	grouping basic-discovery-timers {
+		configd:help
+			"Basic discovery timer attributes.";
+		leaf hello-holdtime {
+			type uint16 {
+				range 15..3600;
+			}
+			units seconds;
+			default 15;
+			configd:help "LDP link Hello hold time (seconds)";
+			description
+				"The time interval for which a LDP link Hello adjacency
+				is maintained in the absence of link Hello messages from
+				the LDP neighbor";
+		}
+		leaf hello-interval {
+			type uint16 {
+				range 5..1200;
+			}
+			units seconds;
+			default 5;
+			configd:help "LDP link Hello interval (seconds)";
+			description
+				"The interval between consecutive LDP link Hello messages
+				used in basic LDP discovery";
+		}
+	} // basic-discovery-timers
+
+	grouping neighbor-attributes {
+		description "Neighbor configuration attributes.";
+		leaf session-ka-holdtime {
+			type uint16 {
+				range 30..3600;
+			}
+			units seconds;
+			default 30;
+			configd:help "LDP session keepalive hold time (seconds)";
+			description
+				"The time interval after which an inactive LDP session
+				terminates and the corresponding TCP session closes.
+				Inactivity is defined as not receiving LDP packets from the
+				neighbor.";
+		}
+	} // neighbor-attributes
+
+	grouping neighbor-authentication {
+		description "Neighbor authentication attributes.";
+		leaf md5-password {
+			type string {
+				length "1..80";
+			}
+			configd:secret "true";
+			configd:help "Assigns an encrypted MD5 password to an LDP neighbor";
+		} // md5-password
+	} // neighbor-authentication
+
+	grouping access-list-ref {
+		leaf access-list {
+			configd:help "Prefixes matching access-list";
+			description "Prefixes matching access-list.";
+			type access-list-ref;
+		}
+	}
+
+	grouping label-policy-advertise-attributes {
+		container advertise {
+			configd:help "Label advertising policies.";
+			container explicit-null {
+				presence "Send Explicit Null Label.";
+				configd:help "Send Explicit Null Label";
+				description
+					"Enables an egress router to advertise an
+					explicit null label (value 0) in place of an
+					implicit null label (value 3) to the
+					penultimate hop router.";
+			}
+			container for {
+				configd:help "Advertise specific prefixes";
+				description "Advertise specific prefixes.";
+				uses access-list-ref;
+			}
+		}
+	}
+
+	grouping label-policy-allocate-attributes {
+		container allocate {
+			configd:help "Label allocation policies.";
+			description "Label allocation policies.";
+			must "count(*) = 1" {
+				error-message "Exactly one allocation policy must be defined";
+			}
+			container for {
+				configd:help "Allocate for specific prefixes";
+				description "Allocate for specific prefixes.";
+				uses access-list-ref;
+			}
+			leaf host-routes {
+				configd:help "Allocate for host routes only";
+				description "Allocate for host routes only.";
+				type empty;
+			}
+		}
+	}
+
+	grouping policy-attributes {
+		description "LDP policy attributes.";
+		container label-policy {
+			configd:help "Label policy attributes.";
+			uses label-policy-advertise-attributes;
+			uses label-policy-allocate-attributes;
+		} // label-policy
+	} // policy-attributes
+
+	grouping discovery-attributes {
+		description "LDP discovery attributes.";
+		container discovery {
+			configd:help "Neighbor discovery configuration.";
+			container interfaces {
+				configd:help "A list of interfaces for basic discovery.";
+				list interface {
+					key "interface";
+					configd:help "List of LDP interfaces.";
+					uses if-validation:interface-mpls;
+					uses basic-discovery-timers;
+					must "hello-holdtime >= (hello-interval * 3)" {
+						error-message "Interface hello-holdtime must be at least 3x hello-interval.";
+					}
+				} // list interface
+			} // interfaces
+		} // discovery
+	} // discovery-attributes
+
+	/*
+	 * Configuration data nodes
+	 */
+	augment /protocols:protocols {
+		description "LDP augmentation.";
+		container mpls-ldp {
+			configd:help "MPLS Label Distribution Protocol (LDP)";
+			presence "Present for MPLS LDP configuration.";
+
+			leaf lsr-id {
+				type types:ipv4-address;
+				configd:help "Router ID.";
+			}
+			container address-family {
+				configd:help "Per-vrf per-af params.";
+				container ipv4 {
+					configd:help
+						"IPv4 address family.";
+					uses discovery-attributes;
+					uses neighbor-attributes;
+					uses policy-attributes;
+					leaf transport-address {
+						type types:ipv4-address;
+						configd:help
+							"The transport address advertised in LDP Hello messages.";
+					}
+				} // ipv4
+			}
+			container neighbors {
+				configd:help "Neighbors configuration attributes.";
+				list neighbor {
+					key "lsr-id";
+					configd:help "List of neighbors.";
+
+					leaf lsr-id {
+						type types:ipv4-address;
+						configd:help "List of neighbors.";
+					}
+					uses neighbor-authentication;
+					uses neighbor-attributes;
+				}
+			} // neighbors
+		} // container ldp
+	}
+}

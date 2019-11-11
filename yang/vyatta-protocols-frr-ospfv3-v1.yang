@@ -1,0 +1,520 @@
+module vyatta-protocols-frr-ospfv3-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-ospfv3:1";
+	prefix vyatta-protocols-frr-ospfv3-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import vyatta-protocols-v1 {
+		prefix protocols;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-policy-v1 {
+		prefix policy;
+	}
+	import vyatta-policy-route-v1 {
+		prefix policy-route;
+	}
+	import vyatta-interfaces-v1 {
+		prefix if;
+	}
+	import vyatta-interfaces-bridge-v1 {
+		prefix if-bridge;
+	}
+	import vyatta-interfaces-dataplane-v1 {
+		prefix if-dataplane;
+	}
+	import vyatta-interfaces-l2tpeth-v1 {
+		prefix if-l2tpeth;
+	}
+	import vyatta-interfaces-loopback-v1 {
+		prefix if-loopback;
+	}
+	import vyatta-interfaces-openvpn-v1 {
+		prefix if-openvpn;
+	}
+	import vyatta-interfaces-tunnel-v1 {
+		prefix if-tunnel;
+	}
+	import vyatta-interfaces-vti-v1 {
+		prefix if-vti;
+	}
+	import vyatta-interfaces-bonding-v1 {
+		prefix if-bonding;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module package for vyatta-protocols-ospfv3-v1";
+
+	revision 2018-09-20 {
+		description "Initial version";
+	}
+
+	typedef metric {
+		type uint32 {
+			range 0..16777214;
+		}
+	}
+
+	typedef distance {
+		type uint32 {
+			range 1..254;
+		}
+	}
+
+	typedef timer-val {
+		type uint32 {
+			range 1..65535;
+		}
+	}
+
+	typedef spf-and-stability-interval {
+		type uint32 {
+			range 0..2147483647;
+		}
+	}
+
+	typedef cost {
+		type uint32 {
+			range 1..65535;
+		}
+	}
+
+	typedef network-type {
+		type enumeration {
+			enum "broadcast" {
+				configd:help "Broadcast network type";
+				description "Broadcast network type";
+			}
+			enum "point-to-point" {
+				configd:help "Point-to-point network type";
+				description "Point-to-point network type";
+			}
+		}
+	}
+
+	grouping parameters_redistribute {
+		leaf route-map {
+			type leafref {
+				path "/policy:policy/policy-route:route/policy-route:route-map/policy-route:tagnode";
+			}
+			configd:help "Route map reference";
+			description "Route map reference";
+		}
+	}
+
+	grouping redistribute-protocols {
+		container bgp {
+			presence "true";
+			configd:help "Redistribute bgp routes";
+			description "Redistribute bgp routes";
+			uses parameters_redistribute;
+		}
+		container kernel {
+			presence "true";
+			configd:help "Redistribute kernel routes";
+			description "Redistribute kernel routes";
+			uses parameters_redistribute;
+		}
+		container rip {
+			presence "true";
+			configd:help "Redistribute RIPNG routes";
+			description "Redistribute RIPNG routes";
+			uses parameters_redistribute;
+		}
+		container connected {
+			presence "true";
+			configd:help "Redistribute connected routes";
+			description "Redistribute connected routes";
+			uses parameters_redistribute;
+		}
+		container static {
+			presence "true";
+			configd:help "Redistribute static routes";
+			description "Redistribute static routes";
+			uses parameters_redistribute;
+		}
+	}
+
+	grouping ospfv3-redistribute {
+		container redistribute {
+			presence "true";
+			configd:help "Redistribute information from another routing protocol";
+			description "Redistribute information from another routing protocol";
+			uses redistribute-protocols;
+		}
+	}
+
+	grouping spf-timers {
+		container timers {
+			presence "true";
+			configd:help "OSPFv3 protocol configuration for timers";
+			description "OSPFv3 protocol configuration for timers";
+			container spf {
+				presence "true";
+				configd:help "OSPFv3 protocol configuration for SPF calculation";
+				description "OSPFv3 protocol configuration for SPF calculation";
+				container exp {
+					presence "true";
+					configd:help "OSPFv3 protocol configuration for exp backoff delays";
+					description "OSPFv3 protocol configuration for exp backoff delays";
+					must "(min <= max)" {
+						error-message "Max delay must be greater or equal to Min delay value";
+					}
+					leaf max {
+						type spf-and-stability-interval;
+						configd:help "Maximum delay between receiving change to SPF calculation";
+						description "Maximum delay between receiving change to SPF calculation";
+						default "50000";
+					}
+					leaf min {
+						type spf-and-stability-interval;
+						configd:help "Minimum delay between receiving change to SPF calculation";
+						description "Minimum delay between receiving change to SPF calculation";
+						default "500";
+					}
+				}
+			}
+		}
+	}
+
+	grouping ospfv3-generic-parameters {
+		leaf default-metric {
+			type uint32 {
+				range 1..16777214;
+			}
+			configd:help "default-metric";
+			description "default-metric";
+		}
+	}
+
+	grouping ospfv3-generic-parameters-1 {
+		container auto-cost {
+			presence "true";
+			configd:help "Set reference bandwidth";
+			description "Set reference bandwidth";
+			leaf reference-bandwidth {
+				type uint32 {
+					range 1..4294967;
+				}
+				configd:help "Reference bandwidth method to assign OSPF cost";
+				description "Reference bandwidth method to assign OSPF cost";
+				default "100";
+			}
+		}
+		leaf router-id {
+			type types:ipv4-address;
+			configd:help "Router identifier";
+			description "Router identifier";
+			must "(not(current() = '0.0.0.0'))" {
+				error-message "Invalid Router-ID";
+			}
+		}
+	}
+
+	grouping ospfv3-distance {
+		container distance {
+			presence "true";
+			configd:help "Administrative distance";
+			description "Administrative distance";
+			leaf global {
+				type distance;
+				configd:help "OSPF administrative distance";
+				description "OSPF administrative distance";
+			}
+			container ospfv3 {
+				presence "true";
+				configd:help "OSPF administrative distance";
+				description "OSPF administrative distance";
+				leaf external {
+					type distance;
+					configd:help "Distance for external routes";
+					description "Distance for external routes";
+				}
+				leaf inter-area {
+					type distance;
+					configd:help "Distance for inter-area routes";
+					description "Distance for inter-area routes";
+				}
+				leaf intra-area {
+					type distance;
+					configd:help "Distance for intra-area routes";
+					description "Distance for intra-area routes";
+				}
+			}
+		}
+	}
+
+	grouping ospfv3-timers {
+		leaf dead-interval {
+			type timer-val;
+			configd:help "Interval after which a neighbor is declared dead";
+			description "Interval after which a neighbor is declared dead";
+		}
+		leaf hello-interval {
+			type timer-val;
+			configd:help "Interval between hello packets";
+			description "Interval between hello packets";
+		}
+		leaf retransmit-interval {
+			type timer-val;
+			configd:help "Interval between retransmitting lost link state advertisements";
+			description "Interval between retransmitting lost link state advertisements";
+		}
+		leaf transmit-delay {
+			type timer-val;
+			configd:help "Link state transmit delay";
+			description "Link state transmit delay";
+		}
+	}
+
+	grouping ospfv3-stub {
+		container stub {
+			presence "true";
+			configd:help "Stub area";
+			description "Stub area";
+			leaf no-summary {
+				type empty;
+				configd:help "Do not inject inter-area routes into stub";
+				description "Do not inject inter-area routes into stub";
+			}
+		}
+	}
+
+	grouping ospfv3-range {
+		list range {
+			configd:help "Area address range";
+			description "Area address range";
+			key "tagnode";
+			leaf tagnode {
+				type types:ipv6-prefix {
+					configd:normalize "normalize ipv6-prefix";
+				}
+				configd:help "Area address range";
+				description "Area address range";
+			}
+			leaf advertise {
+				type empty;
+				configd:help "Advertise this range";
+				description "Advertise this range";
+				must "not(../not-advertise)" {
+					error-message "advertise and not-advertise cannot co-exist";
+				}
+			}
+			leaf not-advertise {
+				type empty;
+				configd:help "Do not advertise this range";
+				description "Do not advertise this range";
+			}
+			leaf metric {
+				type metric;
+				configd:help "Metric to advertise for range";
+				description "Metric to advertise for range";
+				must "not(../not-advertise)" {
+					error-message "metric and not-advertise cannot co-exist";
+				}
+			}
+		}
+	}
+
+	grouping ospfv3-area {
+		list area {
+			configd:help "OSPFv3 Area";
+			description "OSPFv3 Area";
+			key "tagnode";
+			leaf tagnode {
+				type union {
+					type types:ipv4-address;
+					type uint32;
+				}
+				must "not(current() = '0.0.0.0' or current() = 0) or not(../stub)" {
+					error-message "Cannot configure area 0 (0.0.0.0) with stub area type";
+				}
+				configd:help "OSPFv3 Area";
+				description "OSPFv3 Area";
+			}
+			uses ospfv3-stub;
+			uses ospfv3-range;
+                        list interface {
+                                configd:help "Enable interface in area";
+                                description "Enable interface in area";
+                                key tagnode;
+                                leaf tagnode {
+                                        type string;
+                                        must "(current() = /if:interfaces/*/*[(local-name(.) = 'tagnode') or (local-name(.) = 'ifname')] "
+                                                + "or /if:interfaces/*/*[local-name(.) = 'vif'][./../* = substring-before(current(), '.')]"
+                                                + "/*[(local-name(.) = 'tagnode') or (local-name(.) = 'ifname')][. = substring-after(current(), '.')])" {
+                                                error-message "Interface name must refer to an existing interface name";
+                                        }
+                                }
+                        }
+		}
+	}
+
+	augment /protocols:protocols {
+		container ospfv3 {
+			presence "true";
+			configd:help "Open Shortest Path First version 3 protocol (OSPFv3) parameters";
+			description "Open Shortest Path First version 3 protocol (OSPFv3) parameters";
+			uses spf-timers;
+			uses ospfv3-redistribute;
+			uses ospfv3-distance;
+			uses ospfv3-area;
+			uses ospfv3-generic-parameters-1;
+		}
+	}
+
+	grouping ospfv3-itf-parameters {
+		leaf priority {
+			type uint32 {
+				range 0..255;
+			}
+			configd:help "Router priority (default 1)";
+			description "Router priority (default 1)";
+		}
+	}
+
+	grouping ospfv3-itf-timers {
+		leaf dead-interval {
+			type timer-val;
+			configd:help "Interval after which neighbor is declared dead (default 40)";
+			description "Interval after which neighbor is declared dead (default 40)";
+		}
+		leaf hello-interval {
+			type timer-val;
+			configd:help "Interval between hello packets (default 10)";
+			description "Interval between hello packets (default 10)";
+		}
+		leaf retransmit-interval {
+			type uint32 {
+				range 3..65535;
+			}
+			configd:help "Interval between retransmitting lost link state advertisements (default 5)";
+			description "Interval between retransmitting lost link state advertisements (default 5)";
+		}
+	}
+
+	grouping ospfv3-itf-parameters-1 {
+		leaf cost {
+			type cost;
+			configd:help "Interface cost";
+			description "Interface cost";
+		}
+		list network {
+			max-elements "1";
+			configd:help "Network type";
+			description "Network type";
+			key "tagnode";
+			leaf tagnode {
+				type network-type;
+				configd:help "Network type";
+				description "Network type";
+			}
+		}
+		leaf transmit-delay {
+			type timer-val;
+			configd:help "Link state transmit delay (default 1)";
+			description "Link state transmit delay (default 1)";
+		}
+	}
+
+	grouping ospfv3-itf-mtu-ignore {
+		leaf mtu-ignore {
+			type empty;
+			configd:help "Disable Maximum Transmission Unit mismatch detection";
+			description "Disable Maximum Transmission Unit mismatch detection";
+		}
+	}
+
+	grouping itf-ipv6-ospfv3 {
+		container ospfv3 {
+			configd:help "Set OSPFv3 instance parameters";
+			description "Set OSPFv3 instance parameters";
+			uses ospfv3-itf-parameters;
+			uses ospfv3-itf-mtu-ignore;
+			uses ospfv3-itf-timers;
+			uses ospfv3-itf-parameters-1 {
+				refine network {
+					must "not(../../../if-loopback:tagnode) or (current() = 'point-to-point')" {
+						error-message "Only point-to-point network is valid for loopback interfaces";
+					}
+				}
+			}
+		}
+	}
+
+	augment /if:interfaces/if-bridge:bridge/if-bridge:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-dataplane:dataplane/if-dataplane:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-dataplane:dataplane/if-dataplane:vif/if-dataplane:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-l2tpeth:l2tpeth/if-l2tpeth:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-l2tpeth:l2tpeth/if-l2tpeth:vif/if-l2tpeth:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-loopback:loopback/if-loopback:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-openvpn:openvpn/if-openvpn:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-tunnel:tunnel/if-tunnel:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-vti:vti/if-vti:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-bonding:bonding/if-bonding:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+	augment /if:interfaces/if-bonding:bonding/if-bonding:vif/if-bonding:ipv6 {
+		uses itf-ipv6-ospfv3;
+	}
+}

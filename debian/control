@@ -1,0 +1,188 @@
+Source: vyatta-protocols-frr
+Section: contrib/net
+Priority: extra
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends:
+ debhelper (>= 9),
+ dh-golang,
+ dh-python,
+ dh-vci,
+ dh-yang,
+ golang-any,
+ golang-vyatta-protocols-dev,
+ python3
+Standards-Version: 3.9.8
+
+Package: vyatta-protocols-frr
+Provides: vyatta-protocols
+Conflicts: vyatta-protocols-ipi
+Breaks: vyatta-protocols (<< 1.12.0)
+Replaces: vyatta-protocols (<< 1.12.0)
+Architecture: all
+Depends: frr, vyatta-protocols-common, ${misc:Depends}
+Description: Common scripts & libs for FRR on Vyatta
+
+Package: vyatta-op-show-ip-ipv6-route-frr-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: Routing table show CLI for FRR
+ The YANG module package for vyatta-op-show-ip-ipv6-route-frr-v1
+
+Package: vyatta-op-show-monitoring-protocols-frr-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: "show monitoring protocols" operational YANG module
+ The YANG module package for vyatta-op-show-monitoring-protocols-frr-yang
+
+Package: vyatta-op-protocols-frr-zebra-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: Zebra operational YANG module
+ The YANG module package for vyatta-op-protocols-frr-zebra-v1-yang
+
+Package: vyatta-op-protocols-frr-bgp-v1-yang
+Architecture: all
+Depends:
+ vyatta-op-common-protocols-bgp-v1-yang,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: BGP operational YANG module
+ The YANG module package for vyatta-op-frr-bgp-v1-yang
+
+Package: vyatta-op-protocols-frr-bgp-routing-instance-v1-yang
+Architecture: all
+Depends:
+ vyatta-op-common-protocols-bgp-routing-instance-v1-yang,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: BGP routing instance operational YANG module
+ The YANG module package for vyatta-op-frr-bgp-routing-instance-v1-yang
+
+Package: vyatta-protocols-frr-bgp-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ vyatta-vrrp-v1-yang,
+ ${misc:Depends},
+ ${perl:Depends},
+ ${yang:Depends}
+Description: bgp yang module package
+ The YANG module package for vyatta-protocols-bgp-v1
+
+Package: vyatta-protocols-frr-bgp-routing-instance-v1-yang
+Architecture: all
+Depends: frr, vyatta-frr-vci, ${misc:Depends}, ${yang:Depends}
+Description: BGP Yang module which supports Routing Instance
+ The YANG module for vyatta-protocols-frr-bgp-routing-instance-v1
+
+Package: vyatta-frr-vci
+Architecture: any
+Priority: extra
+Depends: frr-pythontools, python3, ${misc:Depends}, ${shlibs:Depends}
+Conflicts:
+ vyatta-bgp-vci,
+ vyatta-ospf-vci,
+ vyatta-policy-route-vci,
+ vyatta-rib-vci
+Built-Using: ${misc:Built-Using}
+Description: FRR Service
+ Service for FRR using the Vyatta Component Infrastructure
+
+Package: vyatta-op-protocols-frr-ospf-v1-yang
+Architecture: all
+Depends:
+ vyatta-op-common-protocols-ospf-v1-yang,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: OSPF operational YANG module
+ The YANG module package for vyatta-op-protocols-frr-ospf-v1-yang
+
+Package: vyatta-op-protocols-frr-ospf-routing-instance-v1-yang
+Architecture: all
+Depends:
+ vyatta-op-common-protocols-ospf-routing-instance-v1-yang,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: OSPF routing instance operational YANG module
+ The YANG module package for vyatta-op-protocols-frr-ospf-routing-instance-v1-yang
+
+Package: vyatta-protocols-frr-ospf-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Conflicts: vyatta-protocols-ospf-v1-yang
+Description: FRR ospf yang module package
+ The YANG module package for vyatta-protocols-frr-ospf-v1
+
+Package: vyatta-protocols-frr-ospf-routing-instance-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Description: ospf yang module package for routing-instance support
+ The YANG module package for vyatta-protocols-frr-ospf-routing-instance-v1
+
+Package: vyatta-protocols-frr-switch-vif-ospf-v1-yang
+Architecture: any
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: switch VLAN ospf yang module package
+ The YANG module for enabling ospf on switch VLAN interfaces
+
+Package: vyatta-op-protocols-frr-ospfv3-v1-yang
+Architecture: all
+Depends:
+ vyatta-op-common-protocols-ospfv3-v1-yang,
+ ${misc:Depends},
+ ${yang:Depends}
+Description: OSPFv3 operational YANG module
+ The YANG module package for vyatta-op-protocols-frr-ospfv3-v1-yang
+
+Package: vyatta-protocols-frr-ospfv3-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Conflicts: vyatta-protocols-ospfv3-v1-yang
+Description: FRR ospfv3 yang module package
+ The YANG module package for vyatta-protocols-frr-ospfv3-v1
+
+Package: vyatta-protocols-frr-switch-vif-ospfv3-v1-yang
+Architecture: any
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: switch VLAN ospfv3 yang module package
+ The YANG module for enabling ospfv3 on switch VLAN interfaces
+
+Package: vyatta-op-protocols-frr-ldp-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: LDP operational YANG module
+ The YANG module package for vyatta-op-frr-ldp-v1-yang
+
+Package: vyatta-protocols-frr-ldp-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Conflicts: vyatta-protocols-mpls-ldp-v1-yang
+Description: FRR ldp yang module package
+ The YANG module package for vyatta-protocols-frr-ldp-v1

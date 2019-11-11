@@ -1,0 +1,11 @@
+*~
+*.orig
+*#
+.*.swp
+debian/files
+debian/tmp
+debian/vyatta-frr-vci
+debian/vyatta-protocols-frr
+debian/*.debhelper.log
+debian/*.substvars
+debian/*-yang

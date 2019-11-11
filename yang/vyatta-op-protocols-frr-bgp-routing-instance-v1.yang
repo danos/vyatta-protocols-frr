@@ -1,0 +1,508 @@
+module vyatta-op-protocols-frr-bgp-routing-instance-v1 {
+    namespace "urn:vyatta.com:mgmt:vyatta-op-protocols-frr-bgp-routing-instance:1";
+    prefix vyatta-op-protocols-frr-bgp-routing-instance;
+
+    import vyatta-types-v1 {
+        prefix types;
+    }
+    import vyatta-opd-extensions-v1 {
+        prefix opd;
+    }
+    import vyatta-op-routing-instance-v1 {
+        prefix op-routing-instance;
+    }
+    import vyatta-op-show-v1 {
+        prefix op-show;
+    }
+    import vyatta-op-show-protocols-v1 {
+        prefix op-show-protocols;
+    }
+    import vyatta-op-protocols-frr-bgp-v1 {
+        prefix op-protocols-bgp;
+    }
+    import vyatta-routing-v1 {
+        prefix routing;
+    }
+    import vyatta-op-reset-v1 {
+        prefix op-reset;
+    }
+    import vyatta-op-reset-protocols-v1 {
+        prefix op-reset-protocols;
+    }
+
+    organization "AT&T, Inc.";
+    contact
+        "AT&T
+         Postal: 208 S. Akard Street
+                 Dallas, TX 25202
+         Web: www.att.com";
+
+    description
+        "Copyright (c) 2018-2019, AT&T Intellectual Property.
+         All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+         This module implements the BGP routing instance operational CLI";
+
+    revision 2018-09-27 {
+        description "Initial revision";
+    }
+
+    opd:augment /op-show:show/op-show-protocols:protocols/op-protocols-bgp:bgp {
+        opd:option routing-instance {
+            opd:help "Show BGP routing instance";
+            type routing:routing-instance-name;
+            opd:allowed "allowed-nodes routing routing-instance";
+            opd:command all {
+                opd:help "Show BGP information applicable to all address families";
+                opd:command summary {
+                    opd:help "Show BGP summary information";
+                    opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 summary"';
+                    opd:privileged true;
+                }
+            }
+            opd:command ipv4 {
+                opd:help "Show BGP address family IPv4 routing instance information";
+                opd:command unicast {
+                    opd:help "Show BGP IPv4 unicast information";
+                    opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast"';
+                    opd:privileged true;
+
+                    opd:command as-path-list {
+                        opd:help "Show BGP IPv4 unicast filter with as-path-list";
+                        opd:argument filter-list-name {
+                            opd:help "Show BGP IPv4 unicast as-path-list";
+                            opd:allowed "allowed-nodes policy route as-path-list";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast filter-list $9"';
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:command community-list {
+                        opd:help "Show BGP IPv4 unicast filtered by community list";
+                        opd:argument community {
+                            opd:help "Show BGP IPv4 unicast filtered by community-list";
+                            opd:allowed "allowed-nodes policy route community-list standard";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast community-list $7"';
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:command cidr-only {
+                        opd:help "Show BGP IPv6 unicast without natural netmasks";
+                        opd:on-enter 'vtysh -c "show ip vrf vrf$5 bgp ipv4 unicast cidr-only"';
+                        opd:privileged true;
+                    }
+                    opd:command dampening {
+                        opd:help "Show BGP IPv4 unicast dampening parameters";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast dampening parameters"';
+                        opd:privileged true;
+
+                        opd:command dampened-paths {
+                            opd:help "Show BGP IPv4 unicast dampened paths";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast dampening dampened-paths"';
+                            opd:privileged true;
+                        }
+                        opd:command flap-statistics {
+                            opd:help "Show BGP IPv4 unicast flap statistics";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast dampening flap-statistics"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command neighbors {
+                        opd:help "Show BGP IPv4 unicast neighbors";
+                        opd:argument ip-address {
+                            opd:help "Show BGP ipv4 unicast neighbor address";
+                            opd:allowed 'local -a vals
+                                eval "bgp_as=$(cli-shell-api listActiveNodes protocols bgp)"
+                                eval "vals=($(cli-shell-api listActiveNodes protocols bgp $bgp_as neighbor))"
+                                echo -n ${vals[@]}';
+                            type types:ip-address;
+                            opd:command advertised-routes {
+                               opd:help "Show BGP IPv4 unicast neighbor advertised routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast neighbors $9 advertised-routes"';
+                               opd:privileged true;
+                            }
+                            opd:command received-routes {
+                               opd:help "Show BGP IPv4 unicast neighbor received routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast neighbors $9 received-routes"';
+                               opd:privileged true;
+                            }
+                            opd:command routes {
+                               opd:help "Show BGP IPv4 unicast neighbor routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast neighbors $9 routes"';
+                               opd:privileged true;
+                            }
+                        }
+                    }
+                    opd:argument prefix {
+                        opd:help "Show BGP IPv4 unicast prefix";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast $8"';
+                        type types:ip-address;
+                        opd:privileged true;
+                    }
+                    opd:command prefix-list {
+                        opd:help "Show BGP IPv4 unicast prefix-list";
+                        opd:argument prefix-list-name {
+                            opd:help "Show BGP IPv4 unicast prefix-list name";
+                            opd:allowed "allowed-nodes policy route prefix-list";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast prefix-list $9"';
+                            type string;
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command regexp {
+                        opd:help "Show BGP IPv4 unicast AS path filtered by regular expression";
+                        opd:argument regexp-string {
+                            opd:help "Show BGP IPv4 unicast using regular expression";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast regexp $9"';
+                            type string;
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command route-map {
+                        opd:help "Show BGP IPv4 unicast filtered by route-map";
+                        opd:argument route-map-name {
+                            opd:help "Show BGP IPv4 unicast route-map name";
+                            opd:allowed "allowed-nodes policy route route-map";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast route-map $9"';
+                            type string;
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command summary {
+                        opd:help "Show BGP IPv4 unicast summary";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 unicast summary"';
+                        opd:privileged true;
+                    }
+                }
+                opd:command vpn {
+                    opd:help "Show BGP VPNv4 information";
+
+                    opd:inherit "Using vtysh needs privileges" {
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 vpn"';
+                        opd:privileged true;
+                    }
+                    opd:argument prefix {
+                        opd:help "Show BGP VPNv4 prefix";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 vpn $8"';
+                        opd:privileged true;
+                        type types:ip-address;
+                    }
+                    opd:command summary {
+                        opd:help "Show BGP VPNv4 summary";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv4 vpn summary"';
+                        opd:privileged true;
+                    }
+                }
+            }
+            opd:command ipv6 {
+                opd:help "Show BGP address family IPv6 routing instance information";
+                opd:command unicast {
+                    opd:help "Show BGP IPv6 unicast information";
+                    opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast"';
+                    opd:privileged true;
+
+                    opd:command as-path-list {
+                        opd:help "Show BGP IPv6 unicast filter with as-path-list";
+                        opd:argument filter-list-name {
+                            opd:help "Show BGP IPv6 unicast as-path-list";
+                            opd:allowed "allowed-nodes policy route as-path-list";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast filter-list $9"';
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:command community-list {
+                        opd:help "Show BGP IPv6 unicast filtered by community list";
+                        opd:argument community {
+                            opd:help "Show BGP IPv6 unicast filtered by community-list";
+                            opd:allowed "allowed-nodes policy route community-list standard";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast community-list $7"';
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:command dampening {
+                        opd:help "Show BGP IPv6 unicast dampening parameters";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast dampening parameters"';
+                        opd:privileged true;
+
+                        opd:command dampened-paths {
+                            opd:help "Show BGP IPv6 unicast dampened paths";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast dampening dampened-paths"';
+                            opd:privileged true;
+                        }
+                        opd:command flap-statistics {
+                            opd:help "Show BGP IPv6 unicast flap statistics";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast dampening flap-statistics"';
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command extcommunity-list {
+                        opd:help "Show BGP IPv6 unicast filtered by extended community list";
+                        opd:argument extcommunity {
+                            opd:help "Show BGP IPv6 unicast filtered by extended community-list";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast extcommunity-list $7"';
+                            opd:allowed "allowed-nodes policy route extcommunity-list standard";
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:argument prefix {
+                        opd:help "Show BGP IPv6 unicast prefix";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast $8"';
+                        opd:privileged true;
+                        type types:ip-address;
+                    }
+                    opd:command prefix-list {
+                        opd:help "Show BGP IPv6 unicast prefix-list";
+                        opd:argument prefix-list-name {
+                            opd:help "Show BGP IPv6 unicast prefix-list name";
+                            opd:allowed "allowed-nodes policy route prefix-list";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast prefix-list $9"';
+                            type string;
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command regexp {
+                        opd:help "Show BGP IPv6 unicast AS path filtered by regular expression";
+                        opd:argument regexp-string {
+                            opd:help "Show BGP IPv6 unicast using regular expression";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast regexp $9"';
+                            type string;
+                            opd:privileged true;
+                        }
+                    }
+                    opd:command neighbors {
+                        opd:help "Show BGP IPv6 unicast neighbors";
+                        opd:argument ip-address {
+                            opd:help "Show BGP ipv6 unicast over ipv4 neighbor address";
+                            opd:allowed 'local -a vals
+                                eval "bgp_as=$(cli-shell-api listActiveNodes protocols bgp)"
+                                eval "vals=($(cli-shell-api listActiveNodes protocols bgp $bgp_as neighbor))"
+                                echo -n ${vals[@]}';
+                            type types:ip-address;
+                            opd:command advertised-routes {
+                               opd:help "Show BGP IPv6 unicast neighbor advertised routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast neighbors $9 advertised-routes"';
+                               opd:privileged true;
+                            }
+                            opd:command received-routes {
+                               opd:help "Show BGP IPv6 unicast neighbor received routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast neighbors $9 received-routes"';
+                               opd:privileged true;
+                            }
+                            opd:command routes {
+                               opd:help "Show BGP IPv6 unicast neighbor routes";
+                               opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast neighbors $9 routes"';
+                               opd:privileged true;
+                            }
+                        }
+                    }
+                    opd:command route-map {
+                        opd:help "Show BGP IPv6 unicast filtered by route-map";
+                        opd:argument route-map-name {
+                            opd:help "Show BGP IPv6 unicast route-map name";
+                            opd:allowed "allowed-nodes policy route route-map";
+                            opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast route-map $9"';
+                            opd:privileged true;
+                            type string;
+                        }
+                    }
+                    opd:command summary {
+                        opd:help "Show BGP IPv6 unicast summary";
+                        opd:on-enter 'vtysh -c "show ip bgp vrf vrf$5 ipv6 unicast summary"';
+                        opd:privileged true;
+                    }
+                }
+            }
+        }
+    }
+    opd:augment /op-reset:reset/op-reset-protocols:protocols/op-protocols-bgp:bgp {
+        opd:option routing-instance {
+            opd:help "Reset BGP routing instance";
+            type routing:routing-instance-name;
+            opd:allowed "allowed-nodes routing routing-instance";
+
+            opd:command ipv4 {
+                opd:help "Reset BGP address family IPv4 routing instance information";
+                opd:command unicast {
+                    opd:help "Reset BGP IPv4 unicast information";
+                    opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast *"';
+                    opd:privileged true;
+
+                    opd:command external {
+                        opd:help "Reset BGP IPv4 unicast external neighbors";
+
+                        opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast external soft"';
+                        opd:privileged true;
+
+                        opd:option soft-in {
+                            opd:help "Reset BGP IPv4 unicast external soft inbound";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast external soft in"';
+                            opd:privileged true;
+                            type empty;
+                        }
+                        opd:option soft-out {
+                            opd:help "Reset BGP IPv4 unicast external soft outbound";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast external soft out"';
+                            opd:privileged true;
+                            type empty;
+                        }
+                    }
+                    opd:command neighbor {
+                        opd:help "Reset BGP IPv4 unicast neighbor";
+
+                        opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast *"';
+                        opd:privileged true;
+                        opd:option as-number {
+                            opd:help "Reset BGP IPv4 neighbors belonging to the specified AS";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast $10"';
+                            opd:privileged true;
+                            type uint32 {
+                                range 1..65535;
+                            }
+                        }
+                        opd:argument ip-address {
+                            opd:help "Reset BGP IPv4 neighbor address";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast $9"';
+                            opd:privileged true;
+                            type types:ip-address;
+                        }
+                    }
+                    opd:command peer-group {
+                        opd:help "Reset BGP IPv4 unicast peer-group";
+
+                        opd:argument peer-group-name {
+                            opd:help "Reset BGP IPv4 unicast peer-group";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast peer-group $9 soft"';
+                            opd:allowed 'local -a vals
+                                eval "bgp_as=$(cli-shell-api listActiveNodes protocols bgp)"
+                                eval "vals=($(cli-shell-api listActiveNodes protocols bgp $bgp_as peer-group))"
+                                echo -n ${vals[@]}';
+                            opd:privileged true;
+                            type string;
+
+                            opd:option soft-in {
+                                opd:help "Reset BGP IPv4 unicast peer-group soft inbound";
+                                opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 bgp ipv4 unicast peer-group $9 soft in"';
+                                opd:privileged true;
+                                type empty;
+                            }
+                            opd:option soft-out {
+                                opd:help "Reset BGP IPv4 unicast peer-group soft outbound";
+                                opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv4 unicast bgp peer-group $9 soft out"';
+                                opd:privileged true;
+                                type empty;
+                            }
+                        }
+                    }
+                }
+            }
+            opd:command ipv6 {
+                opd:help "Reset BGP address family IPv6 routing instance information";
+                opd:command unicast {
+                    opd:help "Reset BGP IPv6 unicast information";
+                    opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast *"';
+                    opd:privileged true;
+
+                    opd:command external {
+                        opd:help "Reset BGP IPv6 unicast external neighbors";
+
+                        opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast external soft"';
+                        opd:privileged true;
+
+                        opd:option soft-in {
+                            opd:help "Reset BGP IPv6 unicast external soft inbound";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast external soft in"';
+                            opd:privileged true;
+                            type empty;
+                        }
+                        opd:option soft-out {
+                            opd:help "Reset BGP IPv6 unicast external soft outbound";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast external soft out"';
+                            opd:privileged true;
+                            type empty;
+                        }
+                    }
+                    opd:command neighbor {
+                        opd:help "Reset BGP IPv6 unicast neighbor";
+
+                        opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast *"';
+                        opd:privileged true;
+                        opd:option as-number {
+                            opd:help "Reset BGP IPv6 neighbors belonging to the specified AS";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast $10"';
+                            opd:privileged true;
+                            type uint32 {
+                                range 1..65535;
+                            }
+                        }
+                        opd:argument ip-address {
+                            opd:help "Reset BGP IPv6 neighbor address";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast $9"';
+                            opd:privileged true;
+                            type types:ip-address;
+                        }
+                    }
+                    opd:command peer-group {
+                        opd:help "Reset BGP IPv4 unicast peer-group";
+
+                        opd:argument peer-group-name {
+                            opd:help "Reset BGP IPv6 unicast peer-group";
+                            opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast peer-group $9 soft"';
+                            opd:allowed 'local -a vals
+                                eval "bgp_as=$(cli-shell-api listActiveNodes protocols bgp)"
+                                eval "vals=($(cli-shell-api listActiveNodes protocols bgp $bgp_as peer-group))"
+                                echo -n ${vals[@]}';
+                            opd:privileged true;
+                            type string;
+
+                            opd:option soft-in {
+                                opd:help "Reset BGP IPv6 unicast peer-group soft inbound";
+                                opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 bgp ipv6 unicast peer-group $9 soft in"';
+                                opd:privileged true;
+                                type empty;
+                            }
+                            opd:option soft-out {
+                                opd:help "Reset BGP IPv6 unicast peer-group soft outbound";
+                                opd:on-enter 'vtysh -c "clear ip bgp vrf vrf$5 ipv6 unicast bgp peer-group $9 soft out"';
+                                opd:privileged true;
+                                type empty;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

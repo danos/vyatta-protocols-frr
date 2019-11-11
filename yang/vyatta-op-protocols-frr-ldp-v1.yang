@@ -1,0 +1,300 @@
+module vyatta-op-protocols-frr-ldp-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-op-ldp-1";
+	prefix vyatta-op-protocols-frr-ldp-v1;
+
+	import vyatta-types-v1 {
+		prefix types;
+	}
+	import vyatta-opd-extensions-v1 {
+		prefix opd;
+	}
+	import vyatta-op-show-v1 {
+		prefix op-show;
+	}
+	import vyatta-op-show-protocols-v1 {
+		prefix op-show-protocols;
+	}
+	import vyatta-op-reset-v1 {
+		prefix op-reset;
+	}
+	import vyatta-op-reset-protocols-v1 {
+		prefix op-reset-protocols;
+	}
+	import vyatta-op-monitor-v1 {
+		prefix op-monitor;
+	}
+	import vyatta-op-monitor-protocols-v1 {
+		prefix op-monitor-protocols;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		 Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 This module implements the LDP operational CLI.";
+
+	revision 2018-10-23 {
+		description "Initial revision";
+	}
+
+	opd:augment /op-show:show/op-show-protocols:protocols {
+		opd:command mpls-ldp {
+			opd:help "Show MPLS LDP information";
+			opd:command ipv4 {
+				opd:help "IPv4 Address Family";
+
+				opd:command binding {
+					opd:help "Label bindings";
+					opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding"';
+					opd:privileged true;
+
+					opd:command detail {
+						opd:help "Show detailed information";
+						opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding detail"';
+						opd:privileged true;
+					}
+
+					opd:argument ipv4-prefix {
+						opd:help "Destination prefix";
+						opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding $6"';
+						opd:privileged true;
+						type types:ipv4-prefix;
+
+						opd:command detail {
+							opd:help "Show detailed information";
+							opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding $6 detail"';
+							opd:privileged true;
+						}
+					}
+
+					opd:command neighbor {
+						opd:help "Display labels from LDP neighbor";
+						opd:argument ipv4-address {
+							opd:help "Neighbor LSR-ID";
+							opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding neighbor $7"';
+							opd:privileged true;
+							type types:ipv4-address;
+
+							opd:command detail {
+								opd:help "Show detailed information";
+								opd:on-enter 'vtysh -c "show mpls ldp ipv4 binding neighbor $7 detail"';
+								opd:privileged true;
+							}
+						}
+					}
+				}
+				opd:command discovery {
+					opd:help "Discovery hello information";
+					opd:on-enter 'vtysh -c "show mpls ldp ipv4 discovery"';
+					opd:privileged true;
+
+					opd:command detail {
+						opd:help "Show detailed information";
+						opd:on-enter 'vtysh -c "show mpls ldp ipv4 discovery detail"';
+						opd:privileged true;
+					}
+				}
+				opd:command interface {
+					opd:help "Interface information";
+					opd:on-enter 'vtysh -c "show mpls ldp ipv4 interface"';
+					opd:privileged true;
+				}
+			}
+			opd:command neighbor {
+				opd:help "Neighbor information";
+				opd:on-enter 'vtysh -c "show mpls ldp neighbor"';
+				opd:privileged true;
+
+				opd:command detail {
+					opd:help "Show detailed information";
+					opd:on-enter 'vtysh -c "show mpls ldp neighbor detail"';
+					opd:privileged true;
+				}
+
+				opd:argument ipv4-address {
+					opd:help "Neighbor LSR-ID";
+					opd:on-enter 'vtysh -c "show mpls ldp neighbor $5"';
+					opd:privileged true;
+					type types:ipv4-address;
+
+					opd:command detail {
+						opd:help "Show detailed information";
+						opd:on-enter 'vtysh -c "show mpls ldp neighbor $5 detail"';
+						opd:privileged true;
+					}
+				}
+			}
+		}
+	}
+
+	opd:augment /op-reset:reset/op-reset-protocols:protocols {
+		opd:command mpls-ldp {
+			opd:help "Reset LDP state";
+
+			opd:command neighbor {
+				opd:help "Reset LDP neighbor sessions";
+				opd:on-enter 'vtysh -c "clear mpls ldp neighbor"';
+				opd:privileged true;
+
+				opd:argument ip-address {
+					opd:help "Neighbor address";
+					opd:on-enter 'vtysh -c "clear mpls ldp neighbor $5"';
+					opd:privileged true;
+					type types:ip-address;
+				}
+			}
+		}
+	}
+
+	opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
+		opd:command mpls-ldp {
+			opd:help "Monitor MPLS LDP information";
+			opd:command enable {
+				opd:help "Enable LDP monitor";
+
+				opd:command discovery {
+					opd:help "Discovery messages";
+
+					opd:command hello {
+						opd:help "Discovery hello messages";
+						opd:command received {
+							opd:help "Received messages";
+							opd:on-enter 'vtysh -c "debug mpls ldp discovery hello recv"';
+							opd:privileged true;
+						}
+						opd:command sent {
+							opd:help "Sent messages";
+							opd:on-enter 'vtysh -c "debug mpls ldp discovery hello sent"';
+							opd:privileged true;
+						}
+					}
+				}
+				opd:command errors {
+					opd:help "Errors";
+					opd:on-enter 'vtysh -c "debug mpls ldp errors"';
+					opd:privileged true;
+				}
+				opd:command event {
+					opd:help "Event information";
+					opd:on-enter 'vtysh -c "debug mpls ldp event"';
+					opd:privileged true;
+				}
+				opd:command labels {
+					opd:help "Label allocation information";
+					opd:on-enter 'vtysh -c "debug mpls ldp labels"';
+					opd:privileged true;
+				}
+				opd:command messages {
+					opd:help "Messages";
+
+					opd:command received {
+						opd:help "Received messages, excluding keep-alives";
+						opd:on-enter 'vtysh -c "debug mpls ldp messages recv"';
+						opd:privileged true;
+					}
+					opd:command sent {
+						opd:help "Sent messages, excluding keep-alives";
+						opd:on-enter 'vtysh -c "debug mpls ldp messages sent"';
+						opd:privileged true;
+					}
+				}
+				opd:command zebra {
+					opd:help "Zebra information";
+					opd:on-enter 'vtysh -c "debug mpls ldp zebra"';
+					opd:privileged true;
+				}
+			}
+			opd:command disable {
+				opd:help "Disable LDP monitor";
+
+				opd:command discovery {
+					opd:help "Discovery messages";
+
+					opd:command hello {
+						opd:help "Discovery hello messages";
+						opd:command received {
+							opd:help "Received messages";
+							opd:on-enter 'vtysh -c "no debug mpls ldp discovery hello recv"';
+							opd:privileged true;
+						}
+						opd:command sent {
+							opd:help "Sent messages";
+							opd:on-enter 'vtysh -c "no debug mpls ldp discovery hello sent"';
+							opd:privileged true;
+						}
+					}
+				}
+				opd:command errors {
+					opd:help "Errors";
+					opd:on-enter 'vtysh -c "no debug mpls ldp errors"';
+					opd:privileged true;
+				}
+				opd:command event {
+					opd:help "Event information";
+					opd:on-enter 'vtysh -c "no debug mpls ldp event"';
+					opd:privileged true;
+				}
+				opd:command labels {
+					opd:help "Label allocation information";
+					opd:on-enter 'vtysh -c "no debug mpls ldp labels"';
+					opd:privileged true;
+				}
+				opd:command messages {
+					opd:help "Messages";
+
+					opd:command received {
+						opd:help "Received messages, excluding keep-alives";
+						opd:on-enter 'vtysh -c "no debug mpls ldp messages recv"';
+						opd:privileged true;
+					}
+					opd:command sent {
+						opd:help "Sent messages, excluding keep-alives";
+						opd:on-enter 'vtysh -c "no debug mpls ldp messages sent"';
+						opd:privileged true;
+					}
+				}
+				opd:command zebra {
+					opd:help "Zebra information";
+					opd:on-enter 'vtysh -c "no debug mpls ldp zebra"';
+					opd:privileged true;
+				}
+			}
+		}
+	}
+}

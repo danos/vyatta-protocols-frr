@@ -1,0 +1,6 @@
+#!/bin/bash -e
+
+chown routing:routing /etc/vyatta-routing/frr.conf
+chmod 600  /etc/vyatta-routing/frr.conf
+
+#DEBHELPER#

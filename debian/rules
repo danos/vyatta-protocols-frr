@@ -1,0 +1,30 @@
+#!/usr/bin/make -f
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+export DH_GOPKG := eng.vyatta.net/protocols-frr
+
+# Use hardening options
+export DEB_BUILD_HARDENING=1
+
+GO_BUILD_DIR = golang_build
+
+%:
+	# Build Go packages
+	dh $@ --buildsystem=golang --with=golang,vci   \
+	      --builddirectory=${GO_BUILD_DIR}         \
+	      --package vyatta-frr-vci                 
+
+	# Build all other packages
+	# There must be a --no-package argument for each --package argument
+	# in the above dh invocation
+	dh $@ --with=yang,python3         \
+	      --no-package vyatta-frr-vci              
+
+override_dh_auto_build: vet
+	dh_auto_build
+
+# We do not vet vendor code
+vet:
+	go tool vet $$(find . -type f -name \*.go | xargs dirname | \
+		sort -u | grep -v "/vendor/");

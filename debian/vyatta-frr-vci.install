@@ -1,0 +1,6 @@
+component-config/frr.conf etc/vyatta-routing
+component-config/mpls-modules.conf etc/modules-load.d
+scripts/frr/command.py usr/lib/python3/dist-packages/vyatta
+scripts/frr/configs/* etc/vyatta-routing/configs
+scripts/frr/parser.py opt/vyatta/sbin
+usr/bin/frr opt/vyatta/sbin
