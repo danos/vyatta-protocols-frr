@@ -13,6 +13,7 @@
     "/policy/route/route-map/@element/rule/@element/match/ipv6/address/access-list":"match ipv6 address {@text}",
     "/policy/route/route-map/@element/rule/@element/match/ipv6/address/prefix-list":"match ipv6 address prefix-list {@text}",
     "/policy/route/route-map/@element/rule/@element/match/ipv6/source-protocol":"match source-protocol $if|ospf6,{@text}|{@text}==ospfv3$",
+    "/policy/route/route-map/@element/rule/@element/match/local-preference":"match local-preference {@text}",
     "/policy/route/route-map/@element/rule/@element/match/metric":"match metric {@text}",
     "/policy/route/route-map/@element/rule/@element/match/origin":"match origin {@text}",
     "/policy/route/route-map/@element/rule/@element/match/tag":"match tag {@text}",
