@@ -51,6 +51,8 @@
     "/protocols/bgp/@element/address-family/ipv4-unicast/redistribute/rip": "redistribute rip [route-map {/route-map/@text},]",
     "/protocols/bgp/@element/address-family/ipv4-unicast/parameters/dampening": "bgp dampening $if|{/half-life/@text},|half-life in {/@dict}$",
     "/protocols/bgp/@element/address-family/ipv4-unicast/parameters/distance/global": "distance bgp {/external/@text} {/internal/@text} {/local/@text}",
+    "/protocols/bgp/@element/address-family/ipv4-unicast/parameters/multiple-paths/ebgp": "maximum-paths {/@text}",
+    "/protocols/bgp/@element/address-family/ipv4-unicast/parameters/multiple-paths/ibgp": "maximum-paths ibgp {/@text}",
     "/protocols/bgp/@element/address-family/ipv4-unicast/network/@element": "network {/tagnode/@text} [route-map {/route-map/@text},] $if|backdoor,|backdoor in {/@dict}$",
 
     "/protocols/bgp/@element/address-family/ipv6-unicast/@enter": "address-family ipv6 unicast",
@@ -63,6 +65,8 @@
     "/protocols/bgp/@element/address-family/ipv6-unicast/redistribute/ripng": "redistribute ripng [route-map {/route-map/@text},]",
     "/protocols/bgp/@element/address-family/ipv6-unicast/parameters/dampening": "bgp dampening $if|{/half-life/@text},|half-life in {/@dict}$",
     "/protocols/bgp/@element/address-family/ipv6-unicast/parameters/distance/global": "distance bgp {/external/@text} {/internal/@text} {/local/@text}",
+    "/protocols/bgp/@element/address-family/ipv6-unicast/parameters/multiple-paths/ebgp": "maximum-paths {/@text}",
+    "/protocols/bgp/@element/address-family/ipv6-unicast/parameters/multiple-paths/ibgp": "maximum-paths ibgp {/@text}",
     "/protocols/bgp/@element/address-family/ipv6-unicast/network/@element": "network {/tagnode/@text} [route-map {/route-map/@text},]",
 
     "/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/@enter": "address-family ipv4 unicast",
