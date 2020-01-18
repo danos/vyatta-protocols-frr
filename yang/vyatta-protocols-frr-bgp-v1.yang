@@ -1064,7 +1064,9 @@ module vyatta-protocols-frr-bgp-v1 {
 	   - unsuppress-map
 	   - capability orf prefix-list (both|receive|send))
 	   - route-server-client
-	   - nexthop-self*/
+	   - nexthop-self
+	   - addpath-tx-all-paths
+	   - addpath-tx-bestpath-per-AS*/
 	/*
        This grouping contains relative path to nodes outside the group scope.
        It can only be used at a specific config level matching the relative path.
@@ -1225,6 +1227,18 @@ module vyatta-protocols-frr-bgp-v1 {
 			description "Peer-group as route server client";
 			type empty;
 			configd:help "Peer-group as route server client";
+		}
+
+		leaf addpath-tx-all-paths {
+			description "Advertise all paths to this peer-group";
+			type empty;
+			configd:help "Advertise all paths to this peer-group";
+		}
+
+		leaf addpath-tx-bestpath-per-AS {
+			description "Advertise the bestpath per each neighboring AS";
+			type empty;
+			configd:help "Advertise the bestpath per each neighboring AS";
 		}
 	}
 
