@@ -1,878 +1,822 @@
 module vyatta-protocols-frr-isis-v1 {
-	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-isis:1";
+  namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-isis:1";
 	prefix vyatta-protocols-frr-isis-v1;
 
-	  import vyatta-protocols-v1 {
-		  prefix protocols;
-	  }
-  	import vyatta-services-v1 {
-    		prefix service;
-  	}
-  	import vyatta-service-snmp-v1 {
-    		prefix service-snmp;
-  	}
-  	import vyatta-types-v1 {
-    		prefix types;
-  	}
-  	import configd-v1 {
-    		prefix configd;
-  	}
-  	import vyatta-interfaces-v1 {
-    		prefix if;
-  	}
-  	import vyatta-interfaces-dataplane-v1 {
-    		prefix interfaces-dataplane;
-  	}
-  	import vyatta-interfaces-bridge-v1 {
-    		prefix interfaces-bridge;
-  	}
-
-    organization "Niral Networks Private Limited";
-    contact
-      "Niral Networks
-      Postal: Sigma Soft Tech Park, Whitefield Main Road,
-      Bengaluru, India 560066
-      Web: www.niralnetworks.com";
-
-    description
-      "Copyright (c) 2019-2020, Niral Networks Intellectual Property.
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or
-      without modification, are permitted provided that the following
-      conditions are met:
-
-      1. Redistributions of source code must retain the above copyright
-      notice, this list of conditions and the following disclaimer.
-      2. Redistributions in binary form must reproduce the above
-      copyright notice, this list of conditions and the following
-      disclaimer in the documentation and/or other materials provided
-      with the distribution.
-      3. Neither the name of the copyright holder nor the names of its
-      contributors may be used to endorse or promote products derived
-      from this software without specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-      'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-      LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
-      FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
-      COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-      INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-      BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-      CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-      LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-      ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-      POSSIBILITY OF SUCH DAMAGE.
-
-      SPDX-License-Identifier: BSD-3-Clause
-
-      The YANG module package for vyatta-protocols-frr-isis-v1";
-
-  	revision 2018-11-15 {
-    		description "Initial revision of version 1";
-  	}
-
-
-  	typedef level {
-    		type enumeration {
-      			enum "level-1" {
-        			value 1;
-        			configd:help "This enum indicates L1-only capability.";
-        			description "This enum indicates L1-only capability.";
-      			}		
-      			enum "level-2" {
-        			value 2;
-        			configd:help "This enum indicates L2-only capability.";
-        			description "This enum indicates L2-only capability.";
-      			}
-      			enum "level-1-2" {
-        			value 3;
-        			configd:help "This enum indicates capability for both levels.";
-        			description "This enum indicates capability for both levels.";
-      			}
-    		}
-        	configd:help "This type defines IS-IS level of an object.";
-        	description "This type defines IS-IS level of an object.";
-  	}
-
-  	typedef extended-circuit-id {
-    		type uint32;
-        	configd:help "This type defines the extended circuit ID associated with an interface.";
-        	description "This type defines the extended circuit ID associated with an interface.";
-  	}
-
-  	typedef network-type {
-    		type enumeration {
-      			enum "unknown" {
-        			value 0;
-				configd:help "Unknown network type. Only valid as a state.";
-        			description "Unknown network type. Only valid as a state.";
-      			}
-      			enum "broadcast" {
-        			value 1;
-				configd:help "Broadcast circuit network-type.";
-        			description "Broadcast circuit network-type.";
-      			}
-      			enum "point-to-point" {
-        			value 2;
-				configd:help "Point-to-point circuit network-type."; 
-        			description "Point-to-point circuit network-type.";
-      			}
-      			enum "loopback" {
-        			value 3;
-        			configd:help "Loopback circuit network-type. Only valid as a state.";
-        			description "Loopback circuit network-type. Only valid as a state.";
-      			}
-    		}
-  	}
-
-  	typedef lsp-id {
-    		type string {
-      			pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9][0-9]-[0-9][0-9]";
-    		}
-    		configd:help  "This type defines the IS-IS LSP ID format using a
-      		pattern, An example LSP ID is 0143.0438.AeF0.02-01"; 
-    		description "This type defines the IS-IS LSP ID format using a
-      		pattern, An example LSP ID is 0143.0438.AeF0.02-01";
-  	}
-
-  	typedef snpa {
-    		type string {
-      			length "0 .. 20";
-    		}
-        	configd:help "This type defines the Subnetwork Point
-          	of Attachment (SNPA) format.
-          	The SNPA should be encoded according to the rules
-          	specified for the particular type of subnetwork
-          	being used. As an example, for an ethernet subnetwork,
-                the SNPA is encoded as a MAC address like '00aa.bbcc.ddee'.";
-
-        	description"This type defines the Subnetwork Point
-          	of Attachment (SNPA) format.
-          	The SNPA should be encoded according to the rules
-          	specified for the particular type of subnetwork
-          	being used. As an example, for an ethernet subnetwork,
-                the SNPA is encoded as a MAC address like '00aa.bbcc.ddee'.";
-  	}
-
-  	typedef system-id {
-    		type string {
-      			pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}";
-    		}
-    		configd:help "This type defines IS-IS system-id using a pattern,
-      		An example system-id is 0143.0438.AeF0";
-    		description "This type defines IS-IS system-id using a pattern,
-      		An example system-id is 0143.0438.AeF0";
-  	}
-
-  	typedef net-address {
-    		type string {
-      			pattern "[a-fA-F0-9]{2}(\\.[a-fA-F0-9]{4}){3,9}\\.[a-fA-F0-9]{2}";
-    		}
-        	configd:help "This type defines an OSI NET address using a pattern,
-          	An example net-address is 49.0123.6452.1972.00";
-        	description "This type defines an OSI NET address using a pattern,
-          	An example net-address is 49.0123.6452.1972.00";
-  	}
-
-  	typedef if-state-type {
-    		type enumeration {
-      			enum "up" {
-        			value 0;
-				configd:help "Up state."; 
-        			description "Up state.";
-      			}
-      			enum "down" {
-        			value 1;
-				configd:help "Down state";
-        			description "Down state";
-      			}
-    		}
-    		configd:help "This type defines the state of an interface";
-    		description "This type defines the state of an interface";
-  	}
-
-  	typedef adj-state-type {
-    		type enumeration {
-      			enum "up" {
-        			value 0;
-				configd:help "State indicates the adjacency is established.";
-        			description "State indicates the adjacency is established.";
-      			}
-      			enum "down" {
-        			value 1;
-				configd:help "State indicates the adjacency is NOT established.";
-        			description "State indicates the adjacency is NOT established.";
-      			}
-      			enum "init" {
-        			value 2;
-				configd:help "State indicates the adjacency is establishing.";
-        			description "State indicates the adjacency is establishing.";
-      			}
-      			enum "failed" {
-        			value 3;
-				configd:help "State indicates the adjacency is failed.";
-        			description "State indicates the adjacency is failed.";
-      			}
-    		}
-    		configd:help "This type defines states of an adjacency";
-    		description "This type defines states of an adjacency";
-  	}
-
-  	typedef metric-style-type {
-    		type enumeration {
-      			enum "narrow" {
-        			value 0;
-        			configd:help "This enum describes narrow metric style";
-        			description "This enum describes narrow metric style";
-        			reference "RFC1195";
-      			}
-      			enum "wide" {
-        			value 1;
-        			configd:help "This enum describes wide metric style";
-        			description "This enum describes wide metric style";
-        			reference "RFC5305";
-      			}
-      			enum "transition" {
-        			value 2;
-        			configd:help "This enum describes transition metric style";
-        			description "This enum describes transition metric style";
-      			}
-    		}
-  	}
-
-  	typedef authenticate-snp-type {
-    		type enumeration {
-      			enum "none" {
-        			value 0;
-        			configd:help "No SNP authentication.";
-        			description "No SNP authentication.";
-      			}
-      			enum "send-only" {
-        			value 1;
-        			configd:help "Send authenticated PDUs but do not check on receiving.";
-        			description "Send authenticated PDUs but do not check on receiving.";
-      			}
-      			enum "validate" {
-       				value 3;
-        			configd:help "Send authenticated PDUs and check on receiving.";
-        			description "Send authenticated PDUs and check on receiving.";
-      			}
-    		}
-    		default "none";
-        		configd:help "SNP PDUs authentication.";
-        		description "SNP PDUs authentication.";
-  	}
-
-  	grouping isis-intf-password {
-    		list clear {
-        		configd:help "Clear-text authentication type.";
-        		description "Clear-text authentication type.";
-        		key "password";
-        		leaf password {
-          			type string {
-            				length "1..254";
-          			}
-        			configd:help "Actual password.";
-        			description "Actual password.";
-        			mandatory true;
-
-        		}
-        
-    		}
-    		list md5 {
-        		configd:help "MD5 authentication type.";
-        		description "MD5 authentication type.";
-        		key "password";
-        		leaf password {
-          			type string {
-            				length "1..254";
-          			}
-          			mandatory true;
-        			configd:help "Actual password.";
-        			description "Actual password.";
-
-        		}
-      		}
-
-  	}
-
-
-  	grouping isis-password {
-    		list clear {
-        		configd:help "Clear-text authentication type.";
-        		description "Clear-text authentication type.";
-        		key "password";
-        		leaf password {
-          			type string {
-            				length "1..254";
-          			}
-        			configd:help "Actual password.";
-        			description "Actual password.";
-        			mandatory true;
-
-        		}
-        		container authenticate {
-        			configd:help "Authentication .";
-        			description "Authentication.";
-        			leaf snp {
-          				type authenticate-snp-type;
-        				configd:help "SNP PDUs.";
-        				description "SNP PDUs.";
-        			}
-        		}
-
-    		}
-    		list md5 {
-        		configd:help "MD5 authentication type.";
-        		description "MD5 authentication type.";
-        		key "password";
-        		leaf password {
-          			type string {
-            				length "1..254";
-          			}
-          			mandatory true;
-        			configd:help "Actual password.";
-        			description "Actual password.";
-
-        		}
-        		container authenticate {
-        			configd:help "Authentication .";
-        			description "Authentication.";
-
-        			leaf snp {
-          				type authenticate-snp-type;
-        				configd:help "SNP PDUs.";
-        				description "SNP PDUs.";
-        			}
-        		}
-
-
-    		}
-
-  	}
-
-  	grouping isis-area-domain-password {
-    		container area-password {
-      			description "area password.";
-      			configd:help "area password.";
-        		uses isis-password ;
-
-    		}
-    		container domain-password {
-      			description "domain password.";
-      			configd:help "domain password.";
-        		uses isis-password ;
-    		}
-
-  	}
-
-
-  	grouping redistribute-attributes {
-        	configd:help "Common optional attributes of any redistribute entry.";
-       		description  "Common optional attributes of any redistribute entry.";
-        	choice attribute {
-          		list route-map {
-        			configd:help "Route map reference.";
-        			description "Route map reference.";
-        			key "tagnode";
-        			leaf tagnode {
-          				type string {
-            					length "1..max";
-          				}
-        				configd:help "Applies the conditions of the specified route-map to routes that
-          				are redistributed into this routing instance.";
-        				description "Applies the conditions of the specified route-map to routes that
-          				are redistributed into this routing instance.";
-        			}
-        			leaf metric {
-        				configd:help "Metric for default route.";
-        				description "Metric for default route.";
-        				type uint32 {
-          					range "0..16777215";
-        				}
-        				default "0";
-
-        			}
-          		}
-
-          		list metric {
-        			configd:help "Metric for default route.";
-        			description "Metric for default route.";
-        			key "tagnode";
-        			leaf tagnode {
-          				type uint32 {
-            					range "0..16777215";
-          				}
-          				default "0";
-        				configd:help "Metric used for the redistributed route. If 0,
-          				the default-metric attribute is used instead.";
-        				description "Metric used for the redistributed route. If 0,
-                    			the default-metric attribute is used instead.";
-        			}
-        			leaf route-map {
-          				type string {
-            					length "1..max";
-          				}
-        				configd:help "Route map reference.";
-        				description "Route map reference";
-        			}
-
-
-          		}			
-        	}
-  	}
-
-  	grouping redistribute-default {
-    		container always {
-        		configd:help "Always advertise default route.";
-        		description "Always advertise default route.";
-        		uses redistribute-attributes;
-    		}
-    		uses redistribute-attributes;
-
-  	}
-
-
-  	grouping isis-net {
-  		container default-information {
-    			configd:help "Distribution of default information.";
-      			description "Distribution of default information.";
-      			container originate {
-      				configd:help "Distribute a default route.";
-        			description "Distribute a default route.";
-        			list ipv4 {
-        				key "level";
-          				configd:help "Distribute default route for IPv4.";
-          				description "Distribute default route for IPv4.";
-          				leaf level {
-            					type level;
-          				}
-
-        			}
-
-        			list ipv6 {
-        				key "level";
-          				configd:help "Distribute default route for IPv6.";
-          				description "Distribute default route for IPv6.";
-          				leaf level {
-          					type level;
-          				}
-          
-        			}
-    			}
-    		}
-    		leaf net {
-      			type net-address;
-        		configd:help "XX.XXXX. ... .XXX.XX  Network entity title (NET)";
-        		description "List of OSI NET addresses for this protocol instance.";
-    		}
-
-    		leaf log-adjacency-changes {
-      			type empty;
-        		configd:help "Log changes to the IS-IS adjacencies in this area.";
-        		description "Log changes to the IS-IS adjacencies in this area.";
-    		}
-
-    		container lsp-gen-interval {
-        		configd:help "Minimum LSP regeneration interval.";
-        		description "Minimum LSP regeneration interval.";
-        		leaf level-1 {
-          			type uint16 {
-            				range "1..120";
-          			}
-          			units "seconds";
-        			configd:help "Minimum time allowed before level-1 LSP retransmissions.";
-        			description "Minimum time allowed before level-1 LSP retransmissions.";
-        		}
-
-        		leaf level-2 {
-          			type uint16 {
-            				range "1..120";
-          			}
-          			units "seconds";
-        			configd:help "Minimum time allowed before level-2 LSP retransmissions.";
-        			description "Minimum time allowed before level-2 LSP retransmissions.";
-        		}
-    		}
-    		container lsp-refresh-interval {
-      			description "LSP refresh interval";
-      			configd:help "LSP refresh interval";
-        		leaf level-1 {
-          			type uint16;
-          			units "seconds";
-          			configd:help "LSP refresh interval for level-1.";
-          			description "LSP refresh interval for level-1.";
-	  			must ". > ../../lsp-gen-interval/level-1" {
-	    				error-message "lsp refresh interval must be greater than lsp general interval";
-	  			}
-        		}
-
-        		leaf level-2 {
-          			type uint16;
-          			units "seconds";
-          			configd:help "LSP refresh interval for level-2.";
-          			description "LSP refresh interval for level-2.";
-	  			must ". > ../../lsp-gen-interval/level-2" {
-	    				error-message "lsp refresh interval must be greater than lsp general interval";
-	  			}
-        		}
-    		}
-
-    		container max-lsp-lifetime {
-        		configd:help "Maximum LSP lifetime.";
-        		description "Maximum LSP lifetime.";
-        		leaf level-1 {
-          			type uint16 {
-            				range "350..65535";
-          			}
-          			units "seconds";
-        			configd:help "Maximum LSP lifetime for level-1.";
-        			description "Maximum LSP lifetime for level-1.";
-        		}
-
-        		leaf level-2 {
-          			type uint16 {
-            				range "350..65535";
-          			}
-          			units "seconds";
-        			configd:help "Maximum LSP lifetime for level-2.";
-        			description "Maximum LSP lifetime for level-2.";
-        		}
-    		}
-
-    		leaf purge-originator {
-      			type empty;
-        		configd:help "Use the RFC 6232 purge-originator.";
-        		description "Use the RFC 6232 purge-originator.";
-        		reference "RFC6232";
-    		}
-
-    		leaf set-attached-bit {
-      			type empty;
-        		configd:help "If true, identify as L1/L2 router for inter-area traffic.";
-        		description "If true, identify as L1/L2 router for inter-area traffic.";
-    		}
-
-    		leaf set-overload-bit {
-      			type empty;
-        		configd:help "If true, avoid any transit traffic.";
-        		description "If true, avoid any transit traffic.";
-    		}
-
-    		container spf-delay-ietf {
-      			presence "Present if IETF SPF back-off delay is enabled.";
-      			configd:help "IETF SPF delay algorithm.";
-        		description "IETF SPF delay algorithm.";
-        		list init-delay {
-          			configd:help "Delay used while in QUIET state";
-          			description "Delay used while in QUIET state";
-          			key "tagnode";
-          			leaf tagnode {
-            				type uint16 {
-              					range "0..60000";
-            				}
-            				units "msec";
-            				mandatory true;
-          			}
-
-          			list short-delay {
-	    				configd:help "Delay used while in SHORT_WAIT state";
-            				description "Delay used while in SHORT_WAIT state";
-            				key "tagnode";
-            				leaf tagnode {
-              					type uint16 {
-                					range "0..60000";
-              					}
-              					units "msec";
-              					mandatory true;
-            				}
-
-            			list long-delay {
-	      				configd:help "Delay used while in LONG_WAIT state";
-              				description "Delay used while in LONG_WAIT state";
-
-              				key "tagnode";
-              				leaf tagnode {
-                				type uint16 {
-                 		 			range "0..60000";
-                				}
-                				units "msec";
-                				mandatory true;
-              				}
-              				list holddown {
-						configd:help "Time with no received IGP events before considering IGP stable";
-        					description "Time with no received IGP events before considering IGP stable";
-                				key "tagnode";
-                				leaf tagnode {
-                  					type uint16 {
-                    						range "0..60000";
-                  					}
-                 	 				units "msec";
-                  					mandatory true;
-                				}
-
-                				list time-to-learn {
-		  					configd:help "Max duration needed to learn all the events related to a single failure";
-                  					description "Max duration needed to learn all the events related to a single failure";
-                  					key "tagnode";
-                  					leaf tagnode {
-                    						type uint16 {
-                      							range "0..60000";
-                    						}
-                    						units "msec";
-                    						mandatory true;
-                 					}
-               					}
-              				}
-            			}
-          		}
-        	}
-    	}
-
-    		container spf-interval {
-        		configd:help "Minimum interval between SPF calculations";
-        		description "Minimum interval between SPF calculations";
-        		leaf level-1 {
-          			type uint16 {
-            				range "1..120";
-          			}
-          			units "seconds";
-        			configd:help "Minimum time between consecutive level-1 SPFs.";
-        			description "Minimum time between consecutive level-1 SPFs.";
-        		}
-
-        		leaf level-2 {
-          			type uint16 {
-            				range "1..120";
-          			}
-          			units "seconds";
-        			configd:help "Minimum time between consecutive level-2 SPFs.";
-        			description "Minimum time between consecutive level-2 SPFs.";
-        		}
-    		}
-
-		leaf is-type {
-      			type level;
-      			configd:help "IS Level for this routing process (OSI only)";
-    		}
-    		leaf metric-style {
-      			type metric-style-type;
-      			description "Define the style of TLVs metric supported.";
-      			configd:help "Define the style of TLVs metric supported.";
-    		}
-    		leaf lsp-mtu {
-      			type uint16 {
-        			range "128..4352";
-      			}
-        		configd:help "MTU of an LSP.";
-        		description "MTU of an LSP.";
-    		}
-
-  	}
+  import vyatta-protocols-v1 {
+    prefix protocols;
+  }
+  import vyatta-services-v1 {
+    prefix service;
+  }
+  import vyatta-service-snmp-v1 {
+    prefix service-snmp;
+  }
+  import vyatta-types-v1 {
+    prefix types;
+  }
+  import configd-v1 {
+    prefix configd;
+  }
+  import vyatta-interfaces-v1 {
+    prefix if;
+  }
+  import vyatta-interfaces-dataplane-v1 {
+    prefix interfaces-dataplane;
+  }
+  import vyatta-interfaces-bridge-v1 {
+    prefix interfaces-bridge;
+  }
+
+  organization "Niral Networks Private Limited";
+  contact
+    "Niral Networks
+    Postal: Sigma Soft Tech Park, Whitefield Main Road,
+    Bengaluru, India 560066
+    Web: www.niralnetworks.com";
+
+  description
+    "Copyright (c) 2019-2020, Niral Networks Intellectual Property.
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
+    conditions are met:
+
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above
+    copyright notice, this list of conditions and the following
+    disclaimer in the documentation and/or other materials provided
+    with the distribution.
+    3. Neither the name of the copyright holder nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+
+    SPDX-License-Identifier: BSD-3-Clause
+    The YANG module package for vyatta-protocols-frr-isis-v1";
+
+  revision 2018-11-15 {
+    description "Initial revision of version 1";
+  }
+
+
+  typedef level {
+    type enumeration {
+      enum "level-1" {
+        value 1;
+        configd:help "This enum indicates L1-only capability.";
+        description "This enum indicates L1-only capability.";
+      }		
+      enum "level-2" {
+        value 2;
+        configd:help "This enum indicates L2-only capability.";
+        description "This enum indicates L2-only capability.";
+      }
+      enum "level-1-2" {
+        value 3;
+        configd:help "This enum indicates capability for both levels.";
+        description "This enum indicates capability for both levels.";
+      }
+    }
+    configd:help "This type defines IS-IS level of an object.";
+    description "This type defines IS-IS level of an object.";
+  } 
+
+  typedef extended-circuit-id {
+    type uint32;
+    configd:help "This type defines the extended circuit ID associated with an interface.";
+    description "This type defines the extended circuit ID associated with an interface.";
+  }
+
+  typedef network-type {
+    type enumeration {
+      enum "unknown" {
+        value 0;
+        configd:help "Unknown network type. Only valid as a state.";
+        description "Unknown network type. Only valid as a state.";
+      }
+      enum "broadcast" {
+        value 1;
+        configd:help "Broadcast circuit network-type.";
+        description "Broadcast circuit network-type.";
+      }
+      enum "point-to-point" {
+        value 2;
+        configd:help "Point-to-point circuit network-type."; 
+        description "Point-to-point circuit network-type.";
+      }
+      enum "loopback" {
+        value 3;
+        configd:help "Loopback circuit network-type. Only valid as a state.";
+        description "Loopback circuit network-type. Only valid as a state.";
+      }
+    }
+  }
+
+  typedef lsp-id {
+    type string {
+      pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9][0-9]-[0-9][0-9]";
+    }
+    configd:help  "This type defines the IS-IS LSP ID format using a 
+    pattern, An example LSP ID is 0143.0438.AeF0.02-01"; 
+    description "This type defines the IS-IS LSP ID format using a
+    pattern, An example LSP ID is 0143.0438.AeF0.02-01";
+  }
+
+  typedef snpa {
+    type string {
+      length "0 .. 20";
+    }
+    configd:help "This type defines the Subnetwork Point of Attachment (SNPA) format.
+    The SNPA should be encoded according to the rules specified for the particular type
+    of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is 
+    encoded as a MAC address like '00aa.bbcc.ddee'.";
+
+    description"This type defines the Subnetwork Point of Attachment (SNPA) format.
+    The SNPA should be encoded according to the rules specified for the particular type
+    of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is
+    encoded as a MAC address like '00aa.bbcc.ddee'.";
+  }
+
+  typedef system-id {
+    type string {
+      pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}";
+    }
+    configd:help "This type defines IS-IS system-id using a pattern,
+    An example system-id is 0143.0438.AeF0";
+    description "This type defines IS-IS system-id using a pattern,
+    An example system-id is 0143.0438.AeF0";
+  }
+
+  typedef net-address {
+    type string {
+      pattern "[a-fA-F0-9]{2}(\\.[a-fA-F0-9]{4}){3,9}\\.[a-fA-F0-9]{2}";
+    }
+    configd:help "This type defines an OSI NET address using a pattern,
+    An example net-address is 49.0123.6452.1972.00";
+    description "This type defines an OSI NET address using a pattern,
+    An example net-address is 49.0123.6452.1972.00";
+  }
+
+  typedef if-state-type {
+    type enumeration {
+      enum "up" {
+        value 0;
+        configd:help "Up state."; 
+        description "Up state.";
+      }
+      enum "down" {
+        value 1;
+        configd:help "Down state";
+        description "Down state";
+      }
+    }
+    configd:help "This type defines the state of an interface";
+    description "This type defines the state of an interface";
+  }
+
+  typedef adj-state-type {
+    type enumeration {
+      enum "up" {
+        value 0;
+        configd:help "State indicates the adjacency is established.";
+        description "State indicates the adjacency is established.";
+      }
+      enum "down" {
+        value 1;
+        configd:help "State indicates the adjacency is NOT established.";
+        description "State indicates the adjacency is NOT established.";
+      }
+      enum "init" {
+        value 2;
+        configd:help "State indicates the adjacency is establishing.";
+        description "State indicates the adjacency is establishing.";
+      }
+      enum "failed" {
+        value 3;
+        configd:help "State indicates the adjacency is failed.";
+        description "State indicates the adjacency is failed.";
+      }
+    }
+    configd:help "This type defines states of an adjacency";
+    description "This type defines states of an adjacency";
+  }
+
+  typedef metric-style-type {
+    type enumeration {
+      enum "narrow" {
+        value 0;
+        configd:help "This enum describes narrow metric style";
+        description "This enum describes narrow metric style";
+        reference "RFC1195";
+      }
+      enum "wide" {
+        value 1;
+        configd:help "This enum describes wide metric style";
+        description "This enum describes wide metric style";
+        reference "RFC5305";
+      }
+      enum "transition" {
+        value 2;
+        configd:help "This enum describes transition metric style";
+        description "This enum describes transition metric style";
+      }
+    }
+  }
+
+  typedef authenticate-snp-type {
+    type enumeration {
+      enum "none" {
+        value 0;
+        configd:help "No SNP authentication.";
+        description "No SNP authentication.";
+      }
+      enum "send-only" {
+        value 1;
+        configd:help "Send authenticated PDUs but do not check on receiving.";
+        description "Send authenticated PDUs but do not check on receiving.";
+      }
+      enum "validate" {
+        value 3;
+        configd:help "Send authenticated PDUs and check on receiving.";
+        description "Send authenticated PDUs and check on receiving.";
+      }
+    }
+    default "none";
+    configd:help "SNP PDUs authentication.";
+    description "SNP PDUs authentication.";
+  }
+
+  grouping isis-intf-password {
+    list clear {
+      configd:help "Clear-text authentication type.";
+      description "Clear-text authentication type.";
+      key "password";
+      leaf password {
+        type string {
+          length "1..254";
+        }
+        configd:help "Actual password.";
+        description "Actual password.";
+        mandatory true;
+      }
+    }
+    list md5 {
+      configd:help "MD5 authentication type.";
+      description "MD5 authentication type.";
+      key "password";
+      leaf password {
+        type string {
+          length "1..254";
+        }
+        mandatory true;
+        configd:help "Actual password.";
+        description "Actual password.";
+      }
+    }
+  }
+
+  grouping isis-password {
+    list clear {
+      configd:help "Clear-text authentication type.";
+      description "Clear-text authentication type.";
+      key "password";
+      leaf password {
+        type string {
+          length "1..254";
+        }
+        configd:help "Actual password.";
+        description "Actual password.";
+        mandatory true;
+      }
+      container authenticate {
+        configd:help "Authentication .";
+        description "Authentication.";
+        leaf snp {
+          type authenticate-snp-type;
+          configd:help "SNP PDUs.";
+          description "SNP PDUs.";
+        }
+      }
+    }
+    list md5 {
+      configd:help "MD5 authentication type.";
+      description "MD5 authentication type.";
+      key "password";
+      leaf password {
+        type string {
+          length "1..254";
+        }
+        mandatory true;
+        configd:help "Actual password.";
+        description "Actual password.";
+      }
+      container authenticate {
+        configd:help "Authentication .";
+        description "Authentication.";
+        leaf snp {
+          type authenticate-snp-type;
+          configd:help "SNP PDUs.";
+          description "SNP PDUs.";
+        }
+      }
+    }
+  }
+
+  grouping isis-area-domain-password {
+    container area-password {
+      description "area password.";
+      configd:help "area password.";
+      uses isis-password ;
+    }
+    container domain-password {
+      description "domain password.";
+      configd:help "domain password.";
+      uses isis-password ;
+    }
+  }
+
+  grouping redistribute-attributes {
+    configd:help "Common optional attributes of any redistribute entry.";
+    description  "Common optional attributes of any redistribute entry.";
+    choice attribute {
+      list route-map {
+        configd:help "Route map reference.";
+        description "Route map reference.";
+        key "rm-name";
+        leaf rm-name {
+          type string {
+            length "1..max";
+          }
+          configd:help "Applies the conditions of the specified route-map to routes that
+          are redistributed into this routing instance.";
+          description "Applies the conditions of the specified route-map to routes that
+          are redistributed into this routing instance.";
+        }
+        leaf metric {
+          configd:help "Metric for default route.";
+          description "Metric for default route.";
+          type uint32 {
+            range "0..16777215";
+          }
+          default "0";
+        }
+      }
+      list metric {
+        configd:help "Metric for default route.";
+        description "Metric for default route.";
+        key "metric-id";
+        leaf metric-id {
+          type uint32 {
+            range "0..16777215";
+          }
+          default "0";
+          configd:help "Metric used for the redistributed route. If 0,
+          the default-metric attribute is used instead.";
+          description "Metric used for the redistributed route. If 0,
+          the default-metric attribute is used instead.";
+        }
+        leaf route-map {
+          type string {
+            length "1..max";
+          }
+          configd:help "Route map reference.";
+          description "Route map reference";
+        }
+      }			
+    }
+  }
+
+  grouping redistribute-default {
+    container always {
+      configd:help "Always advertise default route.";
+      description "Always advertise default route.";
+      uses redistribute-attributes;
+    }
+    uses redistribute-attributes;
+  }
+
+
+  grouping isis-net {
+    container default-information {
+      configd:help "Distribution of default information.";
+      description "Distribution of default information.";
+      container originate {
+        configd:help "Distribute a default route.";
+        description "Distribute a default route.";
+        list ipv4 {
+          key "level";
+          configd:help "Distribute default route for IPv4.";
+          description "Distribute default route for IPv4.";
+          leaf level {
+            type level;
+          }
+        }
+
+        list ipv6 {
+          key "level";
+          configd:help "Distribute default route for IPv6.";
+          description "Distribute default route for IPv6.";
+          leaf level {
+            type level;
+          }
+        }
+      }
+    }
+    leaf net {
+      type net-address;
+      configd:help "XX.XXXX. ... .XXX.XX  Network entity title (NET)";
+      description "List of OSI NET addresses for this protocol instance.";
+    }
+    leaf log-adjacency-changes {
+      type empty;
+      configd:help "Log changes to the IS-IS adjacencies in this area.";
+      description "Log changes to the IS-IS adjacencies in this area.";
+    }
+    container lsp-gen-interval {
+      configd:help "Minimum LSP regeneration interval.";
+      description "Minimum LSP regeneration interval.";
+      leaf level-1 {
+        type uint16 {
+          range "1..120";
+        }
+        units "seconds";
+        configd:help "Minimum time allowed before level-1 LSP retransmissions.";
+        description "Minimum time allowed before level-1 LSP retransmissions.";
+      }
+      leaf level-2 {
+        type uint16 {
+          range "1..120";
+        }
+        units "seconds";
+        configd:help "Minimum time allowed before level-2 LSP retransmissions.";
+        description "Minimum time allowed before level-2 LSP retransmissions.";
+      }
+    }
+    container lsp-refresh-interval {
+      description "LSP refresh interval";
+      configd:help "LSP refresh interval";
+      leaf level-1 {
+        type uint16;
+        units "seconds";
+        configd:help "LSP refresh interval for level-1.";
+        description "LSP refresh interval for level-1.";
+        must ". > ../../lsp-gen-interval/level-1" {
+          error-message "lsp refresh interval must be greater than lsp general interval";
+        }
+      }
+      leaf level-2 {
+        type uint16;
+        units "seconds";
+        configd:help "LSP refresh interval for level-2.";
+        description "LSP refresh interval for level-2.";
+        must ". > ../../lsp-gen-interval/level-2" {
+          error-message "lsp refresh interval must be greater than lsp general interval";
+        }
+      }
+    }
+
+    container max-lsp-lifetime {
+      configd:help "Maximum LSP lifetime.";
+      description "Maximum LSP lifetime.";
+      leaf level-1 {
+        type uint16 {
+          range "350..65535";
+        }
+        units "seconds";
+        configd:help "Maximum LSP lifetime for level-1.";
+        description "Maximum LSP lifetime for level-1.";
+      }
+      leaf level-2 {
+        type uint16 {
+          range "350..65535";
+        }
+        units "seconds";
+        configd:help "Maximum LSP lifetime for level-2.";
+        description "Maximum LSP lifetime for level-2.";
+      }
+    }
+
+    leaf set-overload-bit {
+      type empty;
+      configd:help "If true, avoid any transit traffic.";
+      description "If true, avoid any transit traffic.";
+    }
+
+    container spf-delay-ietf {
+      presence "Present if IETF SPF back-off delay is enabled.";
+      configd:help "IETF SPF delay algorithm.";
+      description "IETF SPF delay algorithm.";
+      list init-delay {
+        configd:help "Delay used while in QUIET state";
+        description "Delay used while in QUIET state";
+        key "init-val";
+        leaf init-val {
+          type uint16 {
+            range "0..60000";
+          }
+          units "msec";
+          mandatory true;
+        }
+        list short-delay {
+          configd:help "Delay used while in SHORT_WAIT state";
+          description "Delay used while in SHORT_WAIT state";
+          key "short-val";
+          leaf short-val {
+            type uint16 {
+              range "0..60000";
+            }
+            units "msec";
+            mandatory true;
+          }
+          list long-delay {
+            configd:help "Delay used while in LONG_WAIT state";
+            description "Delay used while in LONG_WAIT state";
+            key "long-val";
+            leaf long-val {
+              type uint16 {
+                range "0..60000";
+              }
+              units "msec";
+              mandatory true;
+            }
+            list holddown {
+              configd:help "Time with no received IGP events before considering IGP stable";
+              description "Time with no received IGP events before considering IGP stable";
+              key "hold-val";
+              leaf hold-val {
+                type uint16 {
+                  range "0..60000";
+                }
+                units "msec";
+                mandatory true;
+              }
+              list time-to-learn {
+                configd:help "Max duration needed to learn all the events related to a single failure";
+                description "Max duration needed to learn all the events related to a single failure";
+                key "t2l-val";
+                leaf t2l-val {
+                  type uint16 {
+                    range "0..60000";
+                  }
+                  units "msec";
+                  mandatory true;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    container spf-interval {
+      configd:help "Minimum interval between SPF calculations";
+      description "Minimum interval between SPF calculations";
+      leaf level-1 {
+        type uint16 {
+          range "1..120";
+        }
+        units "seconds";
+        configd:help "Minimum time between consecutive level-1 SPFs.";
+        description "Minimum time between consecutive level-1 SPFs.";
+      }
+      leaf level-2 {
+        type uint16 {
+          range "1..120";
+        }
+        units "seconds";
+        configd:help "Minimum time between consecutive level-2 SPFs.";
+        description "Minimum time between consecutive level-2 SPFs.";
+      }
+    }
+
+    leaf is-type {
+      type level;
+      configd:help "IS Level for this routing process (OSI only)";
+    }
+
+    leaf metric-style {
+      type metric-style-type;
+      description "Define the style of TLVs metric supported.";
+      configd:help "Define the style of TLVs metric supported.";
+    }
+
+    leaf lsp-mtu {
+      type uint16 {
+        range "128..4352";
+      }
+      configd:help "MTU of an LSP.";
+      description "MTU of an LSP.";
+    }
+  }
 
 	grouping redistribute-protocol {
 		leaf kernel {
-          		type level;
-          		must ". != \"isis\"";
-          		configd:help "Kernel routes (not installed via the zebra RIB).";
-          		description "Kernel routes (not installed via the zebra RIB).";
-        	}
-        	leaf connected {
-          		type level;
-          		must ". != \"isis\"";
-          		configd:help "Connected routes (directly attached subnet or host).";
-          		description "Connected routes (directly attached subnet or host).";
-        	}
-        	leaf static {
-          		type level;
-          		must ". != \"isis\"";
-          		configd:help "Statically configured routes.";
-          		description "Statically configured routes.";
-        	}
+      type level;
+      must ". != \"isis\"";
+      configd:help "Kernel routes (not installed via the zebra RIB).";
+      description "Kernel routes (not installed via the zebra RIB).";
+    }
+    leaf connected {
+      type level;
+      must ". != \"isis\"";
+      configd:help "Connected routes (directly attached subnet or host).";
+      description "Connected routes (directly attached subnet or host).";
+    }
+    leaf static {
+      type level;
+      must ". != \"isis\"";
+      configd:help "Statically configured routes.";
+      description "Statically configured routes.";
+    }
 		leaf ospf {
-          		type level;
-          		must ". != \"isis\"";
-          		configd:help "Open Shortest Path First (OSPFv2).";
-          		description "Open Shortest Path First (OSPFv2).";
-        	}
+      type level;
+      must ". != \"isis\"";
+      configd:help "Open Shortest Path First (OSPFv2).";
+      description "Open Shortest Path First (OSPFv2).";
+    }
 		leaf bgp {
-          		type level;
-          		must ". != \"isis\"";
-	  		configd:help "Redistribute bgp routes";
-          		description "Redistribute bgp routes";
-        	}
+      type level;
+      must ". != \"isis\"";
+      configd:help "Redistribute bgp routes";
+      description "Redistribute bgp routes";
+    }
 		leaf rip {
-          		type level;
-          		must ". != \"isis\"";
-	  		configd:help "Redistribute rip routes";
-          		description "Redistribute rip routes";
-        	}
-	}
+      type level;
+      must ". != \"isis\"";
+      configd:help "Redistribute rip routes";
+      description "Redistribute rip routes";
+    }
+  }
 
 	grouping isis-redistribute {
-  		container redistribute {
-    	  		configd:help "Redistributes routes learned from other routing protocols.";
-      	  		description "Redistributes routes learned from other routing protocols.";
+    container redistribute {
+      configd:help "Redistributes routes learned from other routing protocols.";
+      description "Redistributes routes learned from other routing protocols.";
+      container ipv4 {
+        configd:help "IPv4 route redistribution.";
+        description "IPv4 route redistribution.";
+        uses redistribute-protocol;
+      }
+      container ipv6 {
+        configd:help "IPv6 route redistribution.";
+        description "IPv6 route redistribution.";
+        uses redistribute-protocol;
+      }
+    }
+  }
 
-          		container ipv4 {
-      	   			configd:help "IPv4 route redistribution.";
-           			description "IPv4 route redistribution.";
-	   			uses redistribute-protocol;
-          		}
-	  		container ipv6 {
-      	    			configd:help "IPv6 route redistribution.";
-            			description "IPv6 route redistribution.";
-	    			uses redistribute-protocol;
-          		}
-  		}
-      	}
+  grouping isis-parameters-all {
+    uses isis-redistribute;
+    uses isis-net;
+    uses isis-area-domain-password;
+  }
 
-  	grouping isis-parameters-all {
-    		uses isis-redistribute;
-    		uses isis-net;
-    		uses isis-area-domain-password;
-  	}
+  augment /protocols:protocols {
+    list isis {
+      configd:help "Intermediate System to Intermediate System (ISIS) parameters";
+      description "Intermediate System to Intermediate System (ISIS) parameters";
+      must "(as-num != 23456)" {
+        error-message "Invalid AS Number, 23456 (Reserved)";
+      }
+      must "count(../isis/as-num) <= 1" {
+        error-message "Another ISIS instance is already running" ;
+      }
+      key "as-num";
+      leaf as-num {
+        description "ISIS AS Number";
+          type uint32 {
+            range 1..max;
+          }
+          configd:help "ISIS parameters";
+      }				
+      uses isis-redistribute;
+      uses isis-net;
+      uses isis-area-domain-password;
 
+    }
+  }
 
-  	augment /protocols:protocols {
-    		list isis {
-        		configd:help "Intermediate System to Intermediate System (ISIS) parameters";
-        		description "Intermediate System to Intermediate System (ISIS) parameters";
-        		must "(tagnode != 23456)" {
-          			error-message "Invalid AS Number, 23456 (Reserved)";
-        		}
-        		must "count(../isis/tagnode) <= 1" {
-          			error-message "Another ISIS instance is already running" ;
-        		}
-        		key "tagnode";
-        		leaf tagnode {
-          			description "ISIS AS Number";
-          			type uint32 {
-            				range 1..max;
-          			}
-        			configd:help "ISIS parameters";
-        		}				
-        		uses isis-redistribute;
-        		uses isis-net;
-        		uses isis-area-domain-password;
+  grouping itf-ip-router-isis {
+    container router {
+      leaf isis {
+        type string;
+          configd:help "Extended isis-id of the ISIS instance";
+          description "Extended isis-id of the ISIS instance";
+      }
+    }
+  }
 
-    		}
-  	}
+  grouping isis {
+    container isis {
+      configd:help "IS-IS routing protocol";
+      leaf circuit-type {
+        type level;
+        configd:help "IS-type of this circuit.";
+        description "IS-type of this circuit.";
+      }
+      container hello-interval {
+        configd:help "Interval between consecutive hello messages.";
+        description "Interval between consecutive hello messages.";
+        leaf level-1 {
+          type uint32 {
+            range "1..600";
+          }
+          units "seconds";
+          configd:help "Holding time for level-1; interval will depend on multiplier.";
+          description "Holding time for level-1; interval will depend on multiplier.";
+        }
+        leaf level-2 {
+          type uint32 {
+            range "1..600";
+          }
+          units "seconds";
+          configd:help "Holding time for level-2; interval will depend on multiplier.";
+          description "Holding time for level-2; interval will depend on multiplier.";
+        }
+      }
+      container metric {
+        configd:help "Metric for this IS-IS circuit.";
+        description "Metric for this IS-IS circuit.";
+        leaf level-1 {
+          type uint32 {
+            range "0..16777215";
+          }
+          configd:help "Level-1 metric for this IS-IS circuit.";
+          description "Level-1 metric for this IS-IS circuit.";
+        }
+        leaf level-2 {
+          type uint32 {
+            range "0..16777215";
+          }
+          configd:help "Level-2 metric for this IS-IS circuit.";
+          description "Level-2 metric for this IS-IS circuit.";
+        }
+      }
 
-  	grouping itf-ip-router-isis {
-    		container router {
-      			leaf isis {
-        			type string;
-        			configd:help "Extended isis-id of the ISIS instance";
-        			description "Extended isis-id of the ISIS instance";
+      container priority {
+        configd:help "Priority for Designated Router election."; 
+        description "Priority for Designated Router election.";
+        leaf level-1 {
+          type uint8 {
+            range "0..127";
+          }
+          configd:help "Level-1 priority for this IS-IS circuit.";
+          description "Level-1 priority for this IS-IS circuit.";
+        }
+        leaf level-2 {
+          type uint8 {
+            range "0..127";
+          }
+          configd:help "Level-2 priority for this IS-IS circuit.";
+          description "Level-2 priority for this IS-IS circuit.";
+        }
+      }
 
-      			}
-    		}
-  	}
+      leaf passive {
+        type empty;
+        configd:help "Interface is in passive mode.";
+        description "Interface is in passive mode.";
+      }
 
-  	grouping isis {
-    		container isis {
-        		configd:help "IS-IS routing protocol";
-        
-        		leaf circuit-type {
-          			type level;
+      container password {
+        presence "Present if a password is set for this IS interface.";
+        configd:help "Authentication password for an IS-IS area.";
+        description "Authentication password for an IS-IS area.";
+        uses isis-intf-password;
+      }
 
-        			configd:help "IS-type of this circuit.";
-        			description "IS-type of this circuit.";
-        		}
-       
-        		container hello-interval {
-        			configd:help "Interval between consecutive hello messages.";
-        			description "Interval between consecutive hello messages.";
-        			leaf level-1 {
-          				type uint32 {
-            					range "1..600";
-          				}
-          				units "seconds";
-        				configd:help "Holding time for level-1; interval will depend on multiplier.";
-        				description "Holding time for level-1; interval will depend on multiplier.";
-        			}
+      leaf network {
+        type network-type;
+        must "(. = \"point-to-point\") or (. = \"broadcast\")";
+        configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point)."; 
+        description "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
+      }
+    }
+  }
 
-        			leaf level-2 {
-          				type uint32 {
-            					range "1..600";
-          				}
-          				units "seconds";
-        				configd:help "Holding time for level-2; interval will depend on multiplier.";
-        				description "Holding time for level-2; interval will depend on multiplier.";
-        			}
-        		}
-
-        		container metric {
-	  			configd:help "Metric for this IS-IS circuit.";
-          			description "Metric for this IS-IS circuit.";
-          			leaf level-1 {
-            				type uint32 {
-              					range "0..16777215";
-           	 			}
-	    				configd:help "Level-1 metric for this IS-IS circuit.";
-            				description "Level-1 metric for this IS-IS circuit.";
-          			}
-
-          			leaf level-2 {
-            				type uint32 {
-              					range "0..16777215";
-            				}
-	    				configd:help "Level-2 metric for this IS-IS circuit.";
-            				description "Level-2 metric for this IS-IS circuit.";
-          			}
-        		}
-        		container priority {
-          			configd:help "Priority for Designated Router election."; 
-          			description "Priority for Designated Router election.";
-          			leaf level-1 {
-            				type uint8 {
-              					range "0..127";
-            				}
-	    				configd:help "Level-1 priority for this IS-IS circuit.";
-            				description "Level-1 priority for this IS-IS circuit.";
-          			}
-
-          			leaf level-2 {
-           				type uint8 {
-              					range "0..127";
-            				}
-	    				configd:help "Level-2 priority for this IS-IS circuit.";
-            				description "Level-2 priority for this IS-IS circuit.";
-          			}
-        		}
-        		leaf passive {
-          			type empty;
-	  			configd:help "Interface is in passive mode.";
-          			description "Interface is in passive mode.";
-        		}
-
-        		container password {
-          			presence "Present if a password is set for this IS interface.";
-	  			configd:help "Authentication password for an IS-IS area.";
-          			description "Authentication password for an IS-IS area.";
-          			uses isis-intf-password;
-        		}
-        		leaf network {
-          			type network-type;
-          			must "(. = \"point-to-point\") or (. = \"broadcast\")";
-	  			configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point)."; 
-          			description "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
-        		}
-    		}
-  	}
-
-  	augment /if:interfaces/interfaces-dataplane:dataplane {
-    		uses isis;
-  	}	
-  	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:ip {
-    		uses itf-ip-router-isis;
-  	}
-  	augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ip {
-    		uses itf-ip-router-isis;
-  	}
+  augment /if:interfaces/interfaces-dataplane:dataplane {
+    uses isis;
+  }	
+  augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:ip {
+    uses itf-ip-router-isis;
+  }
+  augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ip {
+    uses itf-ip-router-isis;
+  }
 
 
 }

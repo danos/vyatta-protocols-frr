@@ -84,15 +84,14 @@ module vyatta-op-protocols-frr-isis-v1 {
 					opd:help "Show ISIS database Detailed information";
 					opd:on-enter 'vtysh -c "show isis database detail"';
 					opd:privileged true;
-
-    				}
-    			}
-			opd:command hostname {
+        }
+      }
+      opd:command hostname {
 				opd:help "Show IS-IS Dynamic hostname mapping";
 				opd:on-enter 'vtysh -c "show isis hostname"';
 				opd:privileged true;
-    			}
-			opd:command interface {
+      }
+      opd:command interface {
 				opd:help "Show ISIS interface";
 				opd:on-enter 'vtysh -c "show isis interface"';
 				opd:privileged true;
@@ -101,16 +100,15 @@ module vyatta-op-protocols-frr-isis-v1 {
 					opd:on-enter 'vtysh -c "show isis interface $4"';
 					opd:allowed "allowed-nodes interfaces dataplane";
 					opd:privileged true;
-    					type string;
-    				}
-				opd:command detail {
+          type string;
+        }
+        opd:command detail {
 					opd:help "Show ISIS interface Detailed information";
 					opd:on-enter 'vtysh -c "show isis interface detail"';
 					opd:privileged true;
-
-    				}
-    			}
-			opd:command mpls-te {
+        }
+      }
+      opd:command mpls-te {
 				opd:help "Show MPLS-TE specific commands";
 				opd:command interface {
 					opd:help "Show ISIS interface";
@@ -121,17 +119,16 @@ module vyatta-op-protocols-frr-isis-v1 {
 						opd:on-enter 'vtysh -c "show isis mpls-te interface $5"';
 						opd:allowed "allowed-nodes interfaces dataplane";
 						opd:privileged true;
-    						type string;
-    					}
-    				}
-				opd:command router {
+            type string;
+          }
+        }
+        opd:command router {
 					opd:help "Show IS-IS Router information";
 					opd:on-enter 'vtysh -c "show isis mpls-te router"';
 					opd:privileged true;
-    				}
-
-    			}
-			opd:command neighbor {	
+        }
+      }
+      opd:command neighbor {	
 				opd:help "Show ISIS neighbor adjacencies";
 				opd:on-enter 'vtysh -c "show isis neighbor"';
 				opd:privileged true;
@@ -139,20 +136,20 @@ module vyatta-op-protocols-frr-isis-v1 {
 					opd:help "show detailed information";
 					opd:on-enter 'vtysh -c "show isis neighbor detail"';
 					opd:privileged true;
-    				}
+        }
 
-    			}
-			opd:command spf-delay-ietf {
+      }
+      opd:command spf-delay-ietf {
 				opd:help "Show SPF delay IETF information";
 				opd:on-enter 'vtysh -c "show isis spf-delay-ietf"';
 				opd:privileged true;
-    			}
-			opd:command summary {
+      }
+      opd:command summary {
 				opd:help "Show summary";
 				opd:on-enter 'vtysh -c "show isis summary"';
 				opd:privileged true;
-    			}
-			opd:command topology {
+      }
+      opd:command topology {
 				opd:help "Show IS-IS paths to Intermediate Systems";
 				opd:on-enter 'vtysh -c "show isis topology"';
 				opd:privileged true;
@@ -160,16 +157,14 @@ module vyatta-op-protocols-frr-isis-v1 {
 					opd:help "Show Paths to all level-1 routers in the area";
 					opd:on-enter 'vtysh -c "show isis topology level-1"';
 					opd:privileged true;
-    				}
-				opd:command level-2 {
+        }
+        opd:command level-2 {
 					opd:help "Show Paths to all level-2 routers in the domain";
 					opd:on-enter 'vtysh -c "show isis topology level-2"';
 					opd:privileged true;
-    				}
-
-    			}
-	
-    		}
+        }
+      }
+    }
 	}
 	opd:augment /op-reset:reset/op-reset-protocols:protocols {
 		opd:command isis {
@@ -182,119 +177,119 @@ module vyatta-op-protocols-frr-isis-v1 {
 				opd:on-enter 'vtysh -c "clear isis neighbor"';
 				opd:allowed "allowed-nodes neighbor dataplane";
 				opd:privileged true;
-    			}
-    		}
-    	}
-       opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
+      }
+    }
+  }
+  
+  opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
 		opd:command isis {
-                    opd:help "Monitor ISIS Information";
-           	        opd:inherit "Using vtysh requires raised privileges" { 
-           	        opd:privileged true;
-		    }
-        	opd:command enable {
-           		opd:help "Enable ISIS Monitor";
-           
-           		opd:command adj-packets{
-	   			opd:help "Monitor ISIS adj-packets";
-	   			opd:on-enter 'vtysh -c "debug isis adj-packets"';
-           		}
-           		opd:command checksum-errors{
-	   			opd:help "Monitor ISIS checksum-errors";
-	   			opd:on-enter 'vtysh -c "debug isis checksum-errors"';
-           		}
-		 	opd:command events{
-	   			opd:help "Monitor ISIS events";
-	   			opd:on-enter 'vtysh -c "debug isis events"';
-           		}
-			opd:command local-updates{
-	   			opd:help "Monitor ISIS local-updates";
-	   			opd:on-enter 'vtysh -c "debug isis local-updates"';
-           		}
-			opd:command packet-dump{
-	   			opd:help "Monitor ISIS packet-dump";
-	   			opd:on-enter 'vtysh -c "debug isis packet-dump"';
-           		}
-			opd:command protocol-errors{
-	   			opd:help "Monitor ISIS protocol-errors";
-	   			opd:on-enter 'vtysh -c "debug isis protocol-errors"';
-           		}
-			opd:command route-events{
-	   			opd:help "Monitor ISIS route-events";
-	   			opd:on-enter 'vtysh -c "debug isis route-events"';
-           		}
-			opd:command snp-packets{
-	   			opd:help "Monitor ISIS snp-packets";
-	   			opd:on-enter 'vtysh -c "debug isis snp-packets"';
-           		}
-			opd:command spf-events{
-	   			opd:help "Monitor ISIS spf-events";
-	   			opd:on-enter 'vtysh -c "debug isis spf-events"';
-           		}
-			opd:command spf-statistics{
-	   			opd:help "Monitor ISIS spf-statistics";
-	   			opd:on-enter 'vtysh -c "debug isis spf-statistics"';
-           		}
-			opd:command spf-triggers{
-	   			opd:help "Monitor ISIS spf-triggers";
-	   			opd:on-enter 'vtysh -c "debug isis spf-triggers"';
-           		}
-			opd:command update-packets{
-	   			opd:help "Monitor ISIS update-packets";
-	   			opd:on-enter 'vtysh -c "debug isis update-packets"';
-           		}
-        	}
-		opd:command disable {
-           		opd:help "Disable ISIS Monitor";
-           
-           		opd:command adj-packets{
-	   			opd:help "Disable Monitor ISIS adj-packets";
-	   			opd:on-enter 'vtysh -c "no debug isis adj-packets"';
-           		}
-           		opd:command checksum-errors{
-	   			opd:help "Disable Monitor ISIS checksum-errors";
-	   			opd:on-enter 'vtysh -c "no debug isis checksum-errors"';
-           		}
-		 	opd:command events{
-	   			opd:help "Disable Monitor ISIS events";
-	   			opd:on-enter 'vtysh -c "no debug isis events"';
-           		}
-			opd:command local-updates{
-	   			opd:help "Disable Monitor ISIS local-updates";
-	   			opd:on-enter 'vtysh -c "no debug isis local-updates"';
-           		}
-			opd:command packet-dump{
-	   			opd:help "Disable Monitor ISIS packet-dump";
-	   			opd:on-enter 'vtysh -c "no debug isis packet-dump"';
-           		}
-			opd:command protocol-errors{
-	   			opd:help "Disable Monitor ISIS protocol-errors";
-	   			opd:on-enter 'vtysh -c "no debug isis protocol-errors"';
-           		}
-			opd:command route-events{
-	   			opd:help "Disable Monitor ISIS route-events";
-	   			opd:on-enter 'vtysh -c "no debug isis route-events"';
-           		}
-			opd:command snp-packets{
-	   			opd:help "Disable Monitor ISIS snp-packets";
-	   			opd:on-enter 'vtysh -c "no debug isis snp-packets"';
-           		}
-			opd:command spf-events{
-	   			opd:help "Disable Monitor ISIS spf-events";
-	   			opd:on-enter 'vtysh -c "no debug isis spf-events"';
-           		}
-			opd:command spf-statistics{
-	   			opd:help "Disable Monitor ISIS spf-statistics";
-	   			opd:on-enter 'vtysh -c "no debug isis spf-statistics"';
-           		}
-			opd:command spf-triggers{
-	   			opd:help "Disable Monitor ISIS spf-triggers";
-	   			opd:on-enter 'vtysh -c "no debug isis spf-triggers"';
-           		}
-			opd:command update-packets{
-	   			opd:help "Disable Monitor ISIS update-packets";
-	   			opd:on-enter 'vtysh -c "no debug isis update-packets"';
-           		}
-        	}
-	   }
-       }
+      opd:help "Monitor ISIS Information";
+      opd:inherit "Using vtysh requires raised privileges" { 
+        opd:privileged true;
+      }
+      opd:command enable {
+        opd:help "Enable ISIS Monitor";
+        opd:command adj-packets{
+          opd:help "Monitor ISIS adj-packets";
+          opd:on-enter 'vtysh -c "debug isis adj-packets"';
+        }
+        opd:command checksum-errors {
+          opd:help "Monitor ISIS checksum-errors";
+          opd:on-enter 'vtysh -c "debug isis checksum-errors"';
+        }
+        opd:command events {
+          opd:help "Monitor ISIS events";
+          opd:on-enter 'vtysh -c "debug isis events"';
+        }
+        opd:command local-updates {
+          opd:help "Monitor ISIS local-updates";
+          opd:on-enter 'vtysh -c "debug isis local-updates"';
+        }
+        opd:command packet-dump {
+          opd:help "Monitor ISIS packet-dump";
+          opd:on-enter 'vtysh -c "debug isis packet-dump"';
+        }
+        opd:command protocol-errors {
+          opd:help "Monitor ISIS protocol-errors";
+          opd:on-enter 'vtysh -c "debug isis protocol-errors"';
+        }
+        opd:command route-events {
+          opd:help "Monitor ISIS route-events";
+          opd:on-enter 'vtysh -c "debug isis route-events"';
+        }
+        opd:command snp-packets {
+          opd:help "Monitor ISIS snp-packets";
+          opd:on-enter 'vtysh -c "debug isis snp-packets"';
+        }
+        opd:command spf-events {
+          opd:help "Monitor ISIS spf-events";
+          opd:on-enter 'vtysh -c "debug isis spf-events"';
+        }
+        opd:command spf-statistics {
+          opd:help "Monitor ISIS spf-statistics";
+          opd:on-enter 'vtysh -c "debug isis spf-statistics"';
+        }
+        opd:command spf-triggers {
+          opd:help "Monitor ISIS spf-triggers";
+          opd:on-enter 'vtysh -c "debug isis spf-triggers"';
+        }
+        opd:command update-packets {
+          opd:help "Monitor ISIS update-packets";
+          opd:on-enter 'vtysh -c "debug isis update-packets"';
+        }
+      }
+
+      opd:command disable {
+        opd:help "Disable ISIS Monitor";
+        opd:command adj-packets {
+          opd:help "Disable Monitor ISIS adj-packets";
+          opd:on-enter 'vtysh -c "no debug isis adj-packets"';
+        }
+        opd:command checksum-errors {
+          opd:help "Disable Monitor ISIS checksum-errors";
+          opd:on-enter 'vtysh -c "no debug isis checksum-errors"';
+        }
+        opd:command events {
+          opd:help "Disable Monitor ISIS events";
+          opd:on-enter 'vtysh -c "no debug isis events"';
+        }
+        opd:command local-updates {
+          opd:help "Disable Monitor ISIS local-updates";
+          opd:on-enter 'vtysh -c "no debug isis local-updates"';
+        }
+        opd:command packet-dump {
+          opd:help "Disable Monitor ISIS packet-dump";
+          opd:on-enter 'vtysh -c "no debug isis packet-dump"';
+        }
+        opd:command protocol-errors {
+          opd:help "Disable Monitor ISIS protocol-errors";
+          opd:on-enter 'vtysh -c "no debug isis protocol-errors"';
+        }
+        opd:command route-events {
+          opd:help "Disable Monitor ISIS route-events";
+          opd:on-enter 'vtysh -c "no debug isis route-events"';
+        }
+        opd:command snp-packets {
+          opd:help "Disable Monitor ISIS snp-packets";
+          opd:on-enter 'vtysh -c "no debug isis snp-packets"';
+        }
+        opd:command spf-events {
+          opd:help "Disable Monitor ISIS spf-events";
+          opd:on-enter 'vtysh -c "no debug isis spf-events"';
+        }
+        opd:command spf-statistics {
+          opd:help "Disable Monitor ISIS spf-statistics";
+          opd:on-enter 'vtysh -c "no debug isis spf-statistics"';
+        }
+        opd:command spf-triggers {
+          opd:help "Disable Monitor ISIS spf-triggers";
+          opd:on-enter 'vtysh -c "no debug isis spf-triggers"';
+        }
+        opd:command update-packets {
+          opd:help "Disable Monitor ISIS update-packets";
+          opd:on-enter 'vtysh -c "no debug isis update-packets"';
+        }
+      }
+    }
+  }
 }
