@@ -1,18 +1,9 @@
 module vyatta-protocols-frr-isis-v1 {
   namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-isis:1";
-	prefix vyatta-protocols-frr-isis-v1;
+  prefix vyatta-protocols-frr-isis-v1;
 
   import vyatta-protocols-v1 {
     prefix protocols;
-  }
-  import vyatta-services-v1 {
-    prefix service;
-  }
-  import vyatta-service-snmp-v1 {
-    prefix service-snmp;
-  }
-  import vyatta-types-v1 {
-    prefix types;
   }
   import configd-v1 {
     prefix configd;
@@ -22,9 +13,6 @@ module vyatta-protocols-frr-isis-v1 {
   }
   import vyatta-interfaces-dataplane-v1 {
     prefix interfaces-dataplane;
-  }
-  import vyatta-interfaces-bridge-v1 {
-    prefix interfaces-bridge;
   }
 
   organization "Niral Networks Private Limited";
@@ -95,12 +83,6 @@ module vyatta-protocols-frr-isis-v1 {
     description "This type defines IS-IS level of an object.";
   } 
 
-  typedef extended-circuit-id {
-    type uint32;
-    configd:help "This type defines the extended circuit ID associated with an interface.";
-    description "This type defines the extended circuit ID associated with an interface.";
-  }
-
   typedef network-type {
     type enumeration {
       enum "unknown" {
@@ -126,16 +108,6 @@ module vyatta-protocols-frr-isis-v1 {
     }
   }
 
-  typedef lsp-id {
-    type string {
-      pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9][0-9]-[0-9][0-9]";
-    }
-    configd:help  "This type defines the IS-IS LSP ID format using a 
-    pattern, An example LSP ID is 0143.0438.AeF0.02-01"; 
-    description "This type defines the IS-IS LSP ID format using a
-    pattern, An example LSP ID is 0143.0438.AeF0.02-01";
-  }
-
   typedef snpa {
     type string {
       length "0 .. 20";
@@ -145,20 +117,10 @@ module vyatta-protocols-frr-isis-v1 {
     of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is 
     encoded as a MAC address like '00aa.bbcc.ddee'.";
 
-    description"This type defines the Subnetwork Point of Attachment (SNPA) format.
+    description "This type defines the Subnetwork Point of Attachment (SNPA) format.
     The SNPA should be encoded according to the rules specified for the particular type
     of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is
     encoded as a MAC address like '00aa.bbcc.ddee'.";
-  }
-
-  typedef system-id {
-    type string {
-      pattern "[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}\\.[0-9A-Fa-f]{4}";
-    }
-    configd:help "This type defines IS-IS system-id using a pattern,
-    An example system-id is 0143.0438.AeF0";
-    description "This type defines IS-IS system-id using a pattern,
-    An example system-id is 0143.0438.AeF0";
   }
 
   typedef net-address {
@@ -169,50 +131,6 @@ module vyatta-protocols-frr-isis-v1 {
     An example net-address is 49.0123.6452.1972.00";
     description "This type defines an OSI NET address using a pattern,
     An example net-address is 49.0123.6452.1972.00";
-  }
-
-  typedef if-state-type {
-    type enumeration {
-      enum "up" {
-        value 0;
-        configd:help "Up state."; 
-        description "Up state.";
-      }
-      enum "down" {
-        value 1;
-        configd:help "Down state";
-        description "Down state";
-      }
-    }
-    configd:help "This type defines the state of an interface";
-    description "This type defines the state of an interface";
-  }
-
-  typedef adj-state-type {
-    type enumeration {
-      enum "up" {
-        value 0;
-        configd:help "State indicates the adjacency is established.";
-        description "State indicates the adjacency is established.";
-      }
-      enum "down" {
-        value 1;
-        configd:help "State indicates the adjacency is NOT established.";
-        description "State indicates the adjacency is NOT established.";
-      }
-      enum "init" {
-        value 2;
-        configd:help "State indicates the adjacency is establishing.";
-        description "State indicates the adjacency is establishing.";
-      }
-      enum "failed" {
-        value 3;
-        configd:help "State indicates the adjacency is failed.";
-        description "State indicates the adjacency is failed.";
-      }
-    }
-    configd:help "This type defines states of an adjacency";
-    description "This type defines states of an adjacency";
   }
 
   typedef metric-style-type {
@@ -237,100 +155,24 @@ module vyatta-protocols-frr-isis-v1 {
     }
   }
 
-  typedef authenticate-snp-type {
-    type enumeration {
-      enum "none" {
-        value 0;
-        configd:help "No SNP authentication.";
-        description "No SNP authentication.";
-      }
-      enum "send-only" {
-        value 1;
-        configd:help "Send authenticated PDUs but do not check on receiving.";
-        description "Send authenticated PDUs but do not check on receiving.";
-      }
-      enum "validate" {
-        value 3;
-        configd:help "Send authenticated PDUs and check on receiving.";
-        description "Send authenticated PDUs and check on receiving.";
-      }
-    }
-    default "none";
-    configd:help "SNP PDUs authentication.";
-    description "SNP PDUs authentication.";
-  }
-
-  grouping isis-intf-password {
-    list clear {
-      configd:help "Clear-text authentication type.";
-      description "Clear-text authentication type.";
-      key "password";
-      leaf password {
-        type string {
-          length "1..254";
-        }
-        configd:help "Actual password.";
-        description "Actual password.";
-        mandatory true;
-      }
-    }
-    list md5 {
-      configd:help "MD5 authentication type.";
-      description "MD5 authentication type.";
-      key "password";
-      leaf password {
-        type string {
-          length "1..254";
-        }
-        mandatory true;
-        configd:help "Actual password.";
-        description "Actual password.";
-      }
-    }
-  }
-
   grouping isis-password {
-    list clear {
-      configd:help "Clear-text authentication type.";
-      description "Clear-text authentication type.";
-      key "password";
-      leaf password {
-        type string {
-          length "1..254";
-        }
-        configd:help "Actual password.";
-        description "Actual password.";
-        mandatory true;
-      }
-      container authenticate {
-        configd:help "Authentication .";
-        description "Authentication.";
-        leaf snp {
-          type authenticate-snp-type;
-          configd:help "SNP PDUs.";
-          description "SNP PDUs.";
+    choice type-choice {
+      case is-clear {
+        leaf clear {
+          configd:help "Clear-text authentication type.";
+          description "Clear-text authentication type.";
+          type string {
+            length "1..254";
+          }
         }
       }
-    }
-    list md5 {
-      configd:help "MD5 authentication type.";
-      description "MD5 authentication type.";
-      key "password";
-      leaf password {
-        type string {
-          length "1..254";
-        }
-        mandatory true;
-        configd:help "Actual password.";
-        description "Actual password.";
-      }
-      container authenticate {
-        configd:help "Authentication .";
-        description "Authentication.";
-        leaf snp {
-          type authenticate-snp-type;
-          configd:help "SNP PDUs.";
-          description "SNP PDUs.";
+      case is-md5 {
+        leaf md5 {
+          configd:help "MD5 authentication type.";
+          description "MD5 authentication type.";
+          type string {
+            length "1..254";
+          }
         }
       }
     }
@@ -340,77 +182,22 @@ module vyatta-protocols-frr-isis-v1 {
     container area-password {
       description "area password.";
       configd:help "area password.";
-      uses isis-password ;
+      uses isis-password;
     }
     container domain-password {
       description "domain password.";
       configd:help "domain password.";
-      uses isis-password ;
+      uses isis-password;
     }
   }
-
-  grouping redistribute-attributes {
-    configd:help "Common optional attributes of any redistribute entry.";
-    description  "Common optional attributes of any redistribute entry.";
-    choice attribute {
-      list route-map {
-        configd:help "Route map reference.";
-        description "Route map reference.";
-        key "rm-name";
-        leaf rm-name {
-          type string {
-            length "1..max";
-          }
-          configd:help "Applies the conditions of the specified route-map to routes that
-          are redistributed into this routing instance.";
-          description "Applies the conditions of the specified route-map to routes that
-          are redistributed into this routing instance.";
-        }
-        leaf metric {
-          configd:help "Metric for default route.";
-          description "Metric for default route.";
-          type uint32 {
-            range "0..16777215";
-          }
-          default "0";
-        }
-      }
-      list metric {
-        configd:help "Metric for default route.";
-        description "Metric for default route.";
-        key "metric-id";
-        leaf metric-id {
-          type uint32 {
-            range "0..16777215";
-          }
-          default "0";
-          configd:help "Metric used for the redistributed route. If 0,
-          the default-metric attribute is used instead.";
-          description "Metric used for the redistributed route. If 0,
-          the default-metric attribute is used instead.";
-        }
-        leaf route-map {
-          type string {
-            length "1..max";
-          }
-          configd:help "Route map reference.";
-          description "Route map reference";
-        }
-      }			
-    }
-  }
-
-  grouping redistribute-default {
-    container always {
-      configd:help "Always advertise default route.";
-      description "Always advertise default route.";
-      uses redistribute-attributes;
-    }
-    uses redistribute-attributes;
-  }
-
 
   grouping isis-net {
+    leaf net {
+      type net-address;
+      configd:pattern-help "<XX.XXXX. ... .XXX.XX>";
+      configd:help "XX.XXXX. ... .XXX.XX  Network entity title (NET)";
+      description "XX.XXXX. ... .XXX.XX  Network entity title (NET)";
+    }
     container default-information {
       configd:help "Distribution of default information.";
       description "Distribution of default information.";
@@ -435,11 +222,6 @@ module vyatta-protocols-frr-isis-v1 {
           }
         }
       }
-    }
-    leaf net {
-      type net-address;
-      configd:help "XX.XXXX. ... .XXX.XX  Network entity title (NET)";
-      description "List of OSI NET addresses for this protocol instance.";
     }
     leaf log-adjacency-changes {
       type empty;
@@ -470,7 +252,9 @@ module vyatta-protocols-frr-isis-v1 {
       description "LSP refresh interval";
       configd:help "LSP refresh interval";
       leaf level-1 {
-        type uint16;
+        type uint16 {
+          range "1..65535";
+        }
         units "seconds";
         configd:help "LSP refresh interval for level-1.";
         description "LSP refresh interval for level-1.";
@@ -479,7 +263,9 @@ module vyatta-protocols-frr-isis-v1 {
         }
       }
       leaf level-2 {
-        type uint16;
+        type uint16 {
+          range "1..65535";
+        }
         units "seconds";
         configd:help "LSP refresh interval for level-2.";
         description "LSP refresh interval for level-2.";
@@ -520,65 +306,50 @@ module vyatta-protocols-frr-isis-v1 {
       presence "Present if IETF SPF back-off delay is enabled.";
       configd:help "IETF SPF delay algorithm.";
       description "IETF SPF delay algorithm.";
-      list init-delay {
+      leaf init-delay {
         configd:help "Delay used while in QUIET state";
         description "Delay used while in QUIET state";
-        key "init-val";
-        leaf init-val {
-          type uint16 {
-            range "0..60000";
-          }
-          units "msec";
-          mandatory true;
+        default 500;	
+        type uint16 {
+          range "0..60000";
         }
-        list short-delay {
-          configd:help "Delay used while in SHORT_WAIT state";
-          description "Delay used while in SHORT_WAIT state";
-          key "short-val";
-          leaf short-val {
-            type uint16 {
-              range "0..60000";
-            }
-            units "msec";
-            mandatory true;
-          }
-          list long-delay {
-            configd:help "Delay used while in LONG_WAIT state";
-            description "Delay used while in LONG_WAIT state";
-            key "long-val";
-            leaf long-val {
-              type uint16 {
-                range "0..60000";
-              }
-              units "msec";
-              mandatory true;
-            }
-            list holddown {
-              configd:help "Time with no received IGP events before considering IGP stable";
-              description "Time with no received IGP events before considering IGP stable";
-              key "hold-val";
-              leaf hold-val {
-                type uint16 {
-                  range "0..60000";
-                }
-                units "msec";
-                mandatory true;
-              }
-              list time-to-learn {
-                configd:help "Max duration needed to learn all the events related to a single failure";
-                description "Max duration needed to learn all the events related to a single failure";
-                key "t2l-val";
-                leaf t2l-val {
-                  type uint16 {
-                    range "0..60000";
-                  }
-                  units "msec";
-                  mandatory true;
-                }
-              }
-            }
-          }
+        units "msec";
+      }
+      leaf short-delay {
+        configd:help "Delay used while in SHORT_WAIT state";
+        description "Delay used while in SHORT_WAIT state";
+        default 500;
+        type uint16 {
+          range "0..60000";
         }
+        units "msec";
+       }
+       leaf long-delay {
+        configd:help "Delay used while in LONG_WAIT state";
+        description "Delay used while in LONG_WAIT state";
+         default 500;
+         type uint16 {
+           range "0..60000";
+        }
+         units "msec";
+      }
+      leaf holddown {
+        configd:help "Time with no received IGP events before considering IGP stable";
+        description "Time with no received IGP events before considering IGP stable";
+        default 500;
+        type uint16 {
+          range "0..60000";
+        }
+        units "msec";
+       }
+      leaf time-to-learn {
+        configd:help "Max duration needed to learn all the events related to a single failure";
+        description "Max duration needed to learn all the events related to a single failure";
+        default 500;
+        type uint16 {
+          range "0..60000";
+         }
+        units "msec";
       }
     }
 
@@ -623,46 +394,40 @@ module vyatta-protocols-frr-isis-v1 {
     }
   }
 
-	grouping redistribute-protocol {
-		leaf kernel {
+  grouping redistribute-protocol {
+    leaf kernel {
       type level;
-      must ". != \"isis\"";
       configd:help "Kernel routes (not installed via the zebra RIB).";
       description "Kernel routes (not installed via the zebra RIB).";
     }
     leaf connected {
       type level;
-      must ". != \"isis\"";
       configd:help "Connected routes (directly attached subnet or host).";
       description "Connected routes (directly attached subnet or host).";
     }
     leaf static {
       type level;
-      must ". != \"isis\"";
       configd:help "Statically configured routes.";
       description "Statically configured routes.";
     }
-		leaf ospf {
+    leaf ospf {
       type level;
-      must ". != \"isis\"";
       configd:help "Open Shortest Path First (OSPFv2).";
       description "Open Shortest Path First (OSPFv2).";
     }
-		leaf bgp {
+    leaf bgp {
       type level;
-      must ". != \"isis\"";
       configd:help "Redistribute bgp routes";
       description "Redistribute bgp routes";
     }
-		leaf rip {
+    leaf rip {
       type level;
-      must ". != \"isis\"";
       configd:help "Redistribute rip routes";
       description "Redistribute rip routes";
     }
   }
 
-	grouping isis-redistribute {
+  grouping isis-redistribute {
     container redistribute {
       configd:help "Redistributes routes learned from other routing protocols.";
       description "Redistributes routes learned from other routing protocols.";
@@ -679,12 +444,6 @@ module vyatta-protocols-frr-isis-v1 {
     }
   }
 
-  grouping isis-parameters-all {
-    uses isis-redistribute;
-    uses isis-net;
-    uses isis-area-domain-password;
-  }
-
   augment /protocols:protocols {
     list isis {
       configd:help "Intermediate System to Intermediate System (ISIS) parameters";
@@ -695,6 +454,7 @@ module vyatta-protocols-frr-isis-v1 {
       must "count(../isis/as-num) <= 1" {
         error-message "Another ISIS instance is already running" ;
       }
+      
       key "as-num";
       leaf as-num {
         description "ISIS AS Number";
@@ -706,13 +466,12 @@ module vyatta-protocols-frr-isis-v1 {
       uses isis-redistribute;
       uses isis-net;
       uses isis-area-domain-password;
-
     }
   }
 
   grouping itf-ip-router-isis {
-    container router {
-      leaf isis {
+    container isis {
+      leaf instance {
         type string;
           configd:help "Extended isis-id of the ISIS instance";
           description "Extended isis-id of the ISIS instance";
@@ -796,7 +555,7 @@ module vyatta-protocols-frr-isis-v1 {
         presence "Present if a password is set for this IS interface.";
         configd:help "Authentication password for an IS-IS area.";
         description "Authentication password for an IS-IS area.";
-        uses isis-intf-password;
+        uses isis-password;
       }
 
       leaf network {
