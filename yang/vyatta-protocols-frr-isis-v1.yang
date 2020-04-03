@@ -162,18 +162,12 @@ module vyatta-protocols-frr-isis-v1 {
       type string {
         length "1..254";
       }
-      must "not(../md5)" {
-        error-message "Can't configure both clear and md5 for password";
-      }
     }
     leaf md5 {
       configd:help "MD5 authentication type.";
       description "MD5 authentication type.";
       type string {
         length "1..254";
-      }
-      must "not(../clear)" {
-        error-message "Can't configure both clear and md5 for password";
       }
     }
   }
@@ -183,11 +177,17 @@ module vyatta-protocols-frr-isis-v1 {
       description "area password.";
       configd:help "area password.";
       uses isis-password;
+      must "not(clear and md5)" {
+        error-message "Can't configure both clear and md5 for password";
+      }
     }
     container domain-password {
       description "domain password.";
       configd:help "domain password.";
       uses isis-password;
+      must "not(clear and md5)" {
+        error-message "Can't configure both clear and md5 for password";
+      }
     }
   }
 
@@ -556,6 +556,9 @@ module vyatta-protocols-frr-isis-v1 {
         configd:help "Authentication password for an IS-IS area.";
         description "Authentication password for an IS-IS area.";
         uses isis-password;
+        must "not(clear and md5)" {
+          error-message "Can't configure both clear and md5 for password";
+        }
       }
 
       leaf network {
