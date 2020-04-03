@@ -156,24 +156,24 @@ module vyatta-protocols-frr-isis-v1 {
   }
 
   grouping isis-password {
-    choice type-choice {
-      case is-clear {
-        leaf clear {
-          configd:help "Clear-text authentication type.";
-          description "Clear-text authentication type.";
-          type string {
-            length "1..254";
-          }
-        }
+    leaf clear {
+      configd:help "Clear-text authentication type.";
+      description "Clear-text authentication type.";
+      type string {
+        length "1..254";
       }
-      case is-md5 {
-        leaf md5 {
-          configd:help "MD5 authentication type.";
-          description "MD5 authentication type.";
-          type string {
-            length "1..254";
-          }
-        }
+      must "not(../md5)" {
+        error-message "Can't configure both clear and md5 for password";
+      }
+    }
+    leaf md5 {
+      configd:help "MD5 authentication type.";
+      description "MD5 authentication type.";
+      type string {
+        length "1..254";
+      }
+      must "not(../clear)" {
+        error-message "Can't configure both clear and md5 for password";
       }
     }
   }
