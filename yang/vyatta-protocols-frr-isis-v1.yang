@@ -560,7 +560,7 @@ module vyatta-protocols-frr-isis-v1 {
 
       leaf network {
         type network-type;
-        must "(. = \"point-to-point\") or (. = \"broadcast\")";
+        must "(. = 'point-to-point') or (. = 'broadcast')";
         configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point)."; 
         description "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
       }
