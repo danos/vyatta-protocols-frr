@@ -13,7 +13,7 @@
     "/interfaces/@element/isis/network": "isis network {/@text}",
     "/interfaces/@element/isis/passive": "isis passive",
     "/protocols/isis/@enter": "!",
-    "/protocols/isis/@element": "router isis {/as-num/@text}",
+    "/protocols/isis/@element": "router isis {/area-tag/@text}",
     "/protocols/isis/@element/area-password/clear": "area-password clear {/@text}",
     "/protocols/isis/@element/area-password/md5": "area-password md5 {/@text}",
     "/protocols/isis/@element/domain-password/clear": "domain-password clear {/@text}",

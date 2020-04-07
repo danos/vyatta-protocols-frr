@@ -155,12 +155,21 @@ module vyatta-protocols-frr-isis-v1 {
     }
   }
 
+  typedef timer-val {
+    type uint16 {
+      range "0..60000";
+    }
+  }
+
   grouping isis-password {
     leaf clear {
       configd:help "Clear-text authentication type.";
       description "Clear-text authentication type.";
       type string {
         length "1..254";
+      }
+      must "not(../md5)" {
+        error-message "Can't configure both clear and md5 for password";
       }
     }
     leaf md5 {
@@ -177,17 +186,11 @@ module vyatta-protocols-frr-isis-v1 {
       description "area password.";
       configd:help "area password.";
       uses isis-password;
-      must "not(clear and md5)" {
-        error-message "Can't configure both clear and md5 for password";
-      }
     }
     container domain-password {
       description "domain password.";
       configd:help "domain password.";
       uses isis-password;
-      must "not(clear and md5)" {
-        error-message "Can't configure both clear and md5 for password";
-      }
     }
   }
 
@@ -309,46 +312,36 @@ module vyatta-protocols-frr-isis-v1 {
       leaf init-delay {
         configd:help "Delay used while in QUIET state";
         description "Delay used while in QUIET state";
-        default 500;	
-        type uint16 {
-          range "0..60000";
-        }
+        default 500;
+        type timer-val;
         units "msec";
       }
       leaf short-delay {
         configd:help "Delay used while in SHORT_WAIT state";
         description "Delay used while in SHORT_WAIT state";
         default 500;
-        type uint16 {
-          range "0..60000";
-        }
+        type timer-val;
         units "msec";
-       }
-       leaf long-delay {
+      }
+      leaf long-delay {
         configd:help "Delay used while in LONG_WAIT state";
         description "Delay used while in LONG_WAIT state";
-         default 500;
-         type uint16 {
-           range "0..60000";
-        }
-         units "msec";
+        default 500;
+        type timer-val;
+        units "msec";
       }
       leaf holddown {
         configd:help "Time with no received IGP events before considering IGP stable";
         description "Time with no received IGP events before considering IGP stable";
         default 500;
-        type uint16 {
-          range "0..60000";
-        }
+        type timer-val;
         units "msec";
-       }
+      }
       leaf time-to-learn {
         configd:help "Max duration needed to learn all the events related to a single failure";
         description "Max duration needed to learn all the events related to a single failure";
         default 500;
-        type uint16 {
-          range "0..60000";
-         }
+        type timer-val;
         units "msec";
       }
     }
@@ -448,20 +441,12 @@ module vyatta-protocols-frr-isis-v1 {
     list isis {
       configd:help "Intermediate System to Intermediate System (ISIS) parameters";
       description "Intermediate System to Intermediate System (ISIS) parameters";
-      must "(as-num != 23456)" {
-        error-message "Invalid AS Number, 23456 (Reserved)";
-      }
-      must "count(../isis/as-num) <= 1" {
-        error-message "Another ISIS instance is already running" ;
-      }
       
-      key "as-num";
-      leaf as-num {
-        description "ISIS AS Number";
-          type uint32 {
-            range 1..max;
-          }
-          configd:help "ISIS parameters";
+      key "area-tag";
+      leaf area-tag {
+        configd:help "Area-tag associated to this routing instance";
+        description "Area-tag associated to this routing instance";
+        type string;
       }				
       uses isis-redistribute;
       uses isis-net;
@@ -556,9 +541,6 @@ module vyatta-protocols-frr-isis-v1 {
         configd:help "Authentication password for an IS-IS area.";
         description "Authentication password for an IS-IS area.";
         uses isis-password;
-        must "not(clear and md5)" {
-          error-message "Can't configure both clear and md5 for password";
-        }
       }
 
       leaf network {
