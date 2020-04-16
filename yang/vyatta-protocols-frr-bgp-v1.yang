@@ -64,8 +64,8 @@ module vyatta-protocols-frr-bgp-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 		 The YANG module package for vyatta-protocols-frr-bgp-v1";
 
-	revision 2018-10-30 {
-		description "Inital version.";
+	revision 2020-04-16 {
+		description "Added commands to support IPv4 mpls l3 vpn.";
 	}
 
 	typedef rt-rd {
@@ -1591,69 +1591,84 @@ module vyatta-protocols-frr-bgp-v1 {
 						uses peer-grp-neighbor-afi-common-settings {
 							refine filter-list/export {
 								must "not(../../peer-group)" {
-									error-message "You may not configure filter-list export for a neighbor in peer-group\n";
+									error-message "You may not configure
+									filter-list export for a neighbor in peer-group\n";
 								}
 							}
 							refine route-map/export {
 								must "not(../../peer-group)" {
-									error-message "You may not configure route-map export for a neighbor in peer-group\n";
+									error-message "You may not configure
+									route-map export for a neighbor in peer-group\n";
 								}
 							}
 							refine attribute-unchanged {
 								must "not(../peer-group)" {
-									error-message "You may not configure attribute-unchanged for a neighbor in peer-group\n";
+									error-message "You may not configure
+									attribute-unchanged for a neighbor in peer-group\n";
 								}
 							}
 							refine remove-private-as {
 								must "not(../peer-group)" {
-									error-message "You may not configure remove-private-as for a neighbor in peer-group\n";
+									error-message "You may not configure
+									remove-private-as for a neighbor in peer-group\n";
 								}
 							}
 							refine route-reflector-client {
 								must "not(../peer-group)" {
-									error-message "You may not configure route-reflector-client for a neighbor in peer-group\n";
+									error-message "You may not configure
+									route-reflector-client for a neighbor in peer-group\n";
 								}
 							}
 							refine disable-send-community {
 								must "not(../peer-group)" {
-									error-message "You may not configure disable-send-community for a neighbor in peer-group\n";
+									error-message "You may not configure
+									disable-send-community for a neighbor in peer-group\n";
 								}
 							}
 							refine capability/orf {
 								must "not(../../peer-group)" {
-									error-message "You may not configure capability orf for a neighbor in peer-group";
+									error-message "You may not configure
+									capability orf for a neighbor in peer-group";
 								}
 							}
 							refine default-originate {
 								must "not(../peer-group)" {
-									error-message "You may not configure default-originate for a neighbor in peer-group\n";
+									error-message "You may not configure
+									default-originate for a neighbor in peer-group\n";
 								}
 							}
 							refine unsuppress-map {
 								must "not(../peer-group)" {
-									error-message "You may not configure unsuppress-map for a neighbor in peer-group\n";
+									error-message "You may not configure
+									unsuppress-map for a neighbor in peer-group\n";
 								}
 							}
 							refine nexthop-self {
 								must "not(../peer-group)" {
-									error-message "You may not configure nexthop-self for a neighbor in peer-group\n";
+									error-message "You may not configure
+									nexthop-self for a neighbor in peer-group\n";
 								}
 							}
 							refine route-server-client {
 								must "not(../peer-group)" {
-									error-message "You may not configure route-server-client for a neighbor in peer-group\n";
+									error-message "You may not configure
+									route-server-client for a neighbor in peer-group\n";
 								}
 							}
 						}
 						uses neigh_peer_grp_ipv4_lists {
 							refine distribute-list {
-								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv4-unicast/prefix-list)" {
-									error-message "You may not configure distribute-list when prefix-list is set in peer-group";
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+												address-family/ipv4-unicast/prefix-list)" {
+									error-message "You may not configure
+									distribute-list when prefix-list is set in peer-group";
 								}
 							}
 							refine prefix-list {
-								must "not(../../../../peer-group[tagnode = current()/../peer-group]/address-family/ipv4-unicast/distribute-list)" {
-									error-message "You may not configure prefix-list when distribute-list is set in peer-group";
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+												address-family/ipv4-unicast/distribute-list)" {
+									error-message "You may not configure
+									prefix-list when distribute-list is set in peer-group";
 								}
 							}
 						}
@@ -1663,11 +1678,15 @@ module vyatta-protocols-frr-bgp-v1 {
 							    path "../../../../peer-group/tagnode";
 							}
 							configd:help "IPv4 peer group for this peer";
-							must "../../../../peer-group[tagnode=current()]/address-family/ipv4-unicast" {
-								error-message 'You must configure address-family ipv4-unicast in peer-group';
+							must "../../../../peer-group[tagnode=current()]/
+									address-family/ipv4-unicast" {
+								error-message 'You must configure
+								address-family ipv4-unicast in peer-group';
 							}
-							must "not(../../ipv6-unicast/peer-group) or (current() = ../../ipv6-unicast/peer-group)" {
-								error-message 'You must configure same peer-group for all address-families';
+							must "not(../../ipv6-unicast/peer-group) or
+										(current() = ../../ipv6-unicast/peer-group)" {
+								error-message 'You must configure same
+								peer-group for all address-families';
 							}
 						}
           }
