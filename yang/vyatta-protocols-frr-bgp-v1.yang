@@ -68,6 +68,10 @@ module vyatta-protocols-frr-bgp-v1 {
 		description "Added commands to support IPv4 mpls l3 vpn.";
 	}
 
+	revision 2018-10-30 {
+		description "Inital version.";
+	}
+
 	typedef rt-rd {
 		type union {
 			type string {
