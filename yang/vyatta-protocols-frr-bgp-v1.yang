@@ -64,6 +64,10 @@ module vyatta-protocols-frr-bgp-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 		 The YANG module package for vyatta-protocols-frr-bgp-v1";
 
+	revision 2020-05-18 {
+		description "Commands added to support 6PE and 6VPE features.";
+	}
+
 	revision 2020-04-16 {
 		description "Added commands to support IPv4 mpls l3 vpn.";
 	}
@@ -246,7 +250,7 @@ module vyatta-protocols-frr-bgp-v1 {
 		}
 	}
 
-	grouping network-ipv4-vpn {
+	grouping network-vpnv4-unicast {
 		list network {
 			description "BGP network";
 			configd:help "BGP network";
@@ -382,6 +386,40 @@ module vyatta-protocols-frr-bgp-v1 {
 			uses route-map-group {
 				refine route-map {
 					configd:help "Route-map to modify route attributes";
+				}
+			}
+		}
+	}
+	grouping network-vpnv6-unicast {
+		list network {
+			description "BGP network";
+			configd:help "BGP network";
+			key "addr";
+			leaf addr {
+				description "BGP network";
+				type types:ipv6-prefix {
+					configd:normalize "normalize ipv4-prefix";
+				}
+				configd:help "BGP network";
+			}
+			leaf rd {
+				description "Specify Route Distinguisher";
+				configd:help "Specify Route Distinguisher";
+				configd:pattern-help "ASN:NN or IPAddress:NN";
+				type rt-rd;
+				default "100:1";
+			}
+			leaf label {
+				description "VPN NLRI label";
+				configd:help "VPN NLRI label";
+				type uint32 {
+					range 0..1048575;
+				}
+				default "10";
+			}
+			uses route-map-group {
+				refine route-map {
+					configd:help "Route-map to modify network";
 				}
 			}
 		}
@@ -1588,7 +1626,7 @@ module vyatta-protocols-frr-bgp-v1 {
 						}
                                         }
 
-					container ipv4-vpn {
+					container vpnv4-unicast {
 						description "BGP neighbor parameters";
 						presence "Enables BGP neighbor IPv4 parameters";
 						configd:help "BGP neighbor parameters";
@@ -1779,6 +1817,210 @@ module vyatta-protocols-frr-bgp-v1 {
 							configd:help "IPv6 peer group for this peer";
 						}
 					}
+					container vpnv6-unicast {
+						description "BGP neighbor parameters";
+						presence "Enables BGP neighbor IPv6 parameters";
+						configd:help "BGP neighbor parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine filter-list/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure filter-list
+														export for a neighbor in peer-group\n";
+								}
+							}
+							refine route-map/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure route-map
+																export for a neighbor in peer-group\n";
+								}
+							}
+							refine attribute-unchanged {
+								must "not(../peer-group)" {
+									error-message "You may not configure attribute-unchanged
+																					for a neighbor in peer-group\n";
+								}
+							}
+							refine remove-private-as {
+								must "not(../peer-group)" {
+									error-message "You may not configure remove-private-as
+																	for a neighbor in peer-group\n";
+								}
+							}
+							refine route-reflector-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-reflector-client
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine disable-send-community {
+								must "not(../peer-group)" {
+									error-message "You may not configure disable-send-community
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine capability/orf {
+								must "not(../../peer-group)" {
+									error-message "You may not configure capability orf
+																 for a neighbor in peer-group";
+								}
+							}
+							refine default-originate {
+								must "not(../peer-group)" {
+									error-message "You may not configure default-originate
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine unsuppress-map {
+								must "not(../peer-group)" {
+									error-message "You may not configure unsuppress-map
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine nexthop-self {
+								must "not(../peer-group)" {
+									error-message "You may not configure nexthop-self
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine route-server-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-server-client
+																	for a neighbor in peer-group\n";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv6_lists {
+							refine distribute-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+											address-family/ipv6-unicast/prefix-list)" {
+									error-message "You may not configure distribute-list when
+																 prefix-list is set in peer-group";
+								}
+							}
+							refine prefix-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+											address-family/ipv6-unicast/distribute-list)" {
+									error-message "You may not configure distribute-list
+																 when distribute-list is set in peer-group";
+								}
+							}
+						}
+						leaf peer-group {
+							description "IPv6 peer group for this peer";
+							type leafref {
+							    path "../../../../peer-group/tagnode";
+							}
+							must "../../../../peer-group[tagnode=current()]/
+																address-family/ipv6-unicast" {
+								error-message "Please set address-family
+															 ipv6-unicast in peer-group";
+							}
+							configd:help "IPv6 peer group for this peer";
+						}
+					}
+
+					container ipv6-labeled-unicast {
+						description "BGP neighbor parameters";
+						presence "Enables BGP neighbor IPv6 parameters";
+						configd:help "BGP neighbor parameters";
+						uses peer-grp-neighbor-afi-common-settings {
+							refine filter-list/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure filter-list export
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine route-map/export {
+								must "not(../../peer-group)" {
+									error-message "You may not configure route-map
+																 export for a neighbor in peer-group\n";
+								}
+							}
+							refine attribute-unchanged {
+								must "not(../peer-group)" {
+									error-message "You may not configure attribute-unchanged
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine remove-private-as {
+								must "not(../peer-group)" {
+									error-message "You may not configure remove-private-as
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine route-reflector-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-reflector-client
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine disable-send-community {
+								must "not(../peer-group)" {
+									error-message "You may not configure disable-send-community
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine capability/orf {
+								must "not(../../peer-group)" {
+									error-message "You may not configure capability orf for a
+																	neighbor in peer-group";
+								}
+							}
+							refine default-originate {
+								must "not(../peer-group)" {
+									error-message "You may not configure default-originate
+																 for a neighbor in peer-group\n";
+								}
+							}
+							refine unsuppress-map {
+								must "not(../peer-group)" {
+									error-message "You may not configure unsuppress-map for
+																 a neighbor in peer-group\n";
+								}
+							}
+							refine nexthop-self {
+								must "not(../peer-group)" {
+									error-message "You may not configure nexthop-self for a
+																 neighbor in peer-group\n";
+								}
+							}
+							refine route-server-client {
+								must "not(../peer-group)" {
+									error-message "You may not configure route-server-client
+																	for a neighbor in peer-group\n";
+								}
+							}
+						}
+						uses neigh_peer_grp_ipv6_lists {
+							refine distribute-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+											address-family/ipv6-unicast/prefix-list)" {
+									error-message "You may not configure distribute-list
+																 when prefix-list is set in peer-group";
+								}
+							}
+							refine prefix-list {
+								must "not(../../../../peer-group[tagnode = current()/../peer-group]/
+											address-family/ipv6-unicast/distribute-list)" {
+									error-message "You may not configure distribute-list when
+																 distribute-list is set in peer-group";
+								}
+							}
+						}
+						leaf peer-group {
+							description "IPv6 peer group for this peer";
+							type leafref {
+							    path "../../../../peer-group/tagnode";
+							}
+							must "../../../../peer-group[tagnode=current()]/
+											address-family/ipv6-unicast" {
+								error-message "Please set address-family
+															 ipv6-unicast in peer-group";
+							}
+							configd:help "IPv6 peer group for this peer";
+						}
+					}
+
                                 }
 
                         }
@@ -1810,8 +2052,14 @@ module vyatta-protocols-frr-bgp-v1 {
 							leaf export {
 								description "For routes leaked from current address-family to vpn";
 								configd:help "For routes leaked from current address-family to vpn";
-								type uint32 {
-									range 0..1048575;
+								type union {
+									type uint32 {
+										range 0..1048575;
+									}
+									type enumeration {
+										enum "auto";
+										configd:help "Automatically assign a label";
+									}
 								}
 							}
 						}
@@ -1822,11 +2070,11 @@ module vyatta-protocols-frr-bgp-v1 {
 					uses redistribute-ipv4;
 				}
 
-				container ipv4-vpn {
+				container vpnv4-unicast {
 					description "BGP IPv4 VPN settings";
 					presence "Enables BGP IPv4 VPN settings";
 					configd:help "BGP IPv4 VPN settings";
-					uses network-ipv4-vpn;
+					uses network-vpnv4-unicast;
 				}
 
 				container ipv6-unicast {
@@ -1840,10 +2088,39 @@ module vyatta-protocols-frr-bgp-v1 {
 						uses parameters-distance;
 						uses parameters-dampening;
 					}
+					container label {
+						description "label value for VRF";
+						configd:help "label value for VRF";
+						container vpn {
+							description "Between current address-family and vpn";
+							configd:help "Between current address-family and vpn";
+							leaf export {
+								description "For routes leaked from current address-family to vpn";
+								configd:help "For routes leaked from current address-family to vpn";
+								type union {
+									type uint32 {
+										range 0..1048575;
+									}
+									type enumeration {
+										enum "auto";
+										configd:help "Automatically assign a label";
+									}
+								}
+							}
+						}
+					}
+
 					uses ipv6-aggregate-address;
 					uses network-ipv6;
 					uses redistribute-ipv6;
 				}
+				container vpnv6-unicast {
+					description "BGP IPv6 VPN settings";
+					presence "Enables BGP IPv6 VPN settings";
+					configd:help "BGP IPv6 VPN settings";
+					uses network-vpnv6-unicast;
+				}
+
 			}
 	}
 
