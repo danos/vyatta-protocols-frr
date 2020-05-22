@@ -9,7 +9,7 @@ Build-Depends:
  dh-vci,
  dh-yang,
  golang-any,
- golang-vyatta-protocols-dev,
+ golang-vyatta-protocols-dev (>= 1.14.0),
  python3
 Standards-Version: 3.9.8
 

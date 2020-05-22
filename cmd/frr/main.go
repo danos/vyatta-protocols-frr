@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2019, AT&T Intellectual Property.
+// Copyright (c) 2018-2020, AT&T Intellectual Property.
 // All rights reserved.
 //
 // SPDX-License-Identifier: GPL-2.0-only
@@ -61,7 +61,8 @@ func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 }
 
 func main() {
-	pmc := protocols.NewProtocolsModelComponent(v1Component, cfgFileName)
+	pmc := protocols.NewProtocolsModelComponent(
+		componentName, v1Component, cfgFileName)
 	pmc.SetSetFunction(Set)
-	pmc.Run(componentName)
+	pmc.Run()
 }
