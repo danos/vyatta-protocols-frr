@@ -68,7 +68,7 @@ module vyatta-protocols-frr-isis-v1 {
         configd:help "This enum indicates L1-only capability.";
         description "This enum indicates L1-only capability.";
       }		
-      enum "level-2" {
+      enum "level-2-only" {
         value 2;
         configd:help "This enum indicates L2-only capability.";
         description "This enum indicates L2-only capability.";
@@ -82,6 +82,23 @@ module vyatta-protocols-frr-isis-v1 {
     configd:help "This type defines IS-IS level of an object.";
     description "This type defines IS-IS level of an object.";
   } 
+
+  typedef isis-level {
+    type enumeration {
+      enum "level-1" {
+        value 1;
+        configd:help "This enum indicates L1-only capability.";
+        description "This enum indicates L1-only capability.";
+      }
+      enum "level-2" {
+        value 2;
+        configd:help "This enum indicates L2-only capability.";
+        description "This enum indicates L2-only capability.";
+      }
+    }
+    configd:help "This type defines IS-IS level of an object.";
+    description "This type defines IS-IS level of an object.";
+  }
 
   typedef network-type {
     type enumeration {
@@ -168,6 +185,7 @@ module vyatta-protocols-frr-isis-v1 {
       type string {
         length "1..254";
       }
+      configd:secret "true";
       must "not(../md5)" {
         error-message "Can't configure both clear and md5 for password";
       }
@@ -178,6 +196,7 @@ module vyatta-protocols-frr-isis-v1 {
       type string {
         length "1..254";
       }
+      configd:secret "true";
     }
   }
 
@@ -212,7 +231,7 @@ module vyatta-protocols-frr-isis-v1 {
           configd:help "Distribute default route for IPv4.";
           description "Distribute default route for IPv4.";
           leaf level {
-            type level;
+            type isis-level;
           }
         }
 
@@ -221,7 +240,7 @@ module vyatta-protocols-frr-isis-v1 {
           configd:help "Distribute default route for IPv6.";
           description "Distribute default route for IPv6.";
           leaf level {
-            type level;
+            type isis-level;
           }
         }
       }
@@ -389,32 +408,32 @@ module vyatta-protocols-frr-isis-v1 {
 
   grouping redistribute-protocol {
     leaf kernel {
-      type level;
+      type isis-level;
       configd:help "Kernel routes (not installed via the zebra RIB).";
       description "Kernel routes (not installed via the zebra RIB).";
     }
     leaf connected {
-      type level;
+      type isis-level;
       configd:help "Connected routes (directly attached subnet or host).";
       description "Connected routes (directly attached subnet or host).";
     }
     leaf static {
-      type level;
+      type isis-level;
       configd:help "Statically configured routes.";
       description "Statically configured routes.";
     }
     leaf ospf {
-      type level;
+      type isis-level;
       configd:help "Open Shortest Path First (OSPFv2).";
       description "Open Shortest Path First (OSPFv2).";
     }
     leaf bgp {
-      type level;
+      type isis-level;
       configd:help "Redistribute bgp routes";
       description "Redistribute bgp routes";
     }
     leaf rip {
-      type level;
+      type isis-level;
       configd:help "Redistribute rip routes";
       description "Redistribute rip routes";
     }

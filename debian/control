@@ -203,6 +203,6 @@ Depends:frr,
 	${misc:Depends},
 	${yang:Depends}
 Conflicts: vyatta-protocols-isis-v1-yang
-Description: FRR ospf yang module package
+Description: FRR ISIS yang module package
  The YANG module package for vyatta-protocols-frr-isis-v1
 
