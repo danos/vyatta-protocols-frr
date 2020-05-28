@@ -1,3 +1,11 @@
+vyatta-protocols-frr (1.12.4) unstable; urgency=medium
+
+  [ bbs2web ]
+  * Add matching by local-preference
+  * Fix IPv4 route-map access-list and prefix-list matching
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Thu, 28 May 2020 12:41:06 +0100
+
 vyatta-protocols-frr (1.12.3) unstable; urgency=medium
 
   * DANOS Import
