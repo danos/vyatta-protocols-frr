@@ -4,6 +4,7 @@ Priority: extra
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
 Build-Depends:
  debhelper (>= 9),
+ dh-exec,
  dh-golang,
  dh-python,
  dh-vci,
@@ -60,8 +61,8 @@ Description: BGP routing instance operational YANG module
 
 Package: vyatta-protocols-frr-bgp-v1-yang
 Architecture: all
+Pre-Depends: frr
 Depends:
- frr,
  vyatta-cfg (>= 0.18.56),
  vyatta-frr-vci,
  vyatta-protocols-frr (>= ${source:Version}),
@@ -81,7 +82,7 @@ Description: BGP Yang module which supports Routing Instance
 Package: vyatta-frr-vci
 Architecture: any
 Priority: extra
-Depends: frr-pythontools, python3, ${misc:Depends}, ${shlibs:Depends}
+Depends: frr-pythontools, python3 (>= 3.6), ${misc:Depends}, ${shlibs:Depends}
 Conflicts:
  vyatta-bgp-vci,
  vyatta-ospf-vci,

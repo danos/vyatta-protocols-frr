@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2018-2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018-2020 AT&T Intellectual Property. All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -24,6 +24,7 @@ DIR_TRAVERSE_UP_LABEL = "¬"
 CONFIGS_DIR = '/etc/vyatta-routing/configs'
 PRIORITIES_FILENAME = '/priorities.json'
 COMMANDS_DIRNAME = '/commands'
+BASE_CONF_FILE = f"{CONFIGS_DIR}/base.conf"
 VYATTA_JSON_FILE = "/etc/vyatta-routing/frr.json"
 OUTPUT_FILE = "/etc/vyatta-routing/frr.conf"
 OUTPUT_FILE_OWNER = "routing"
@@ -116,7 +117,11 @@ class VyattaJSONParser:
         """Retrieves each node's command and puts it in the output CLI config
         Returns list of command strings.
         """
-        self.output.append('log syslog')
+        if (os.path.exists(BASE_CONF_FILE)):
+            with open(BASE_CONF_FILE) as base_conf:
+                for line in base_conf:
+                    self.output.append(line.strip())
+
         for node, path in self.depth_first_traverse(self.tree):
             self.on_enter(path)
             for command in self.retrieve_commands(path):

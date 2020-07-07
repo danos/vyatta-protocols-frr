@@ -3,4 +3,11 @@
 chown routing:routing /etc/vyatta-routing/frr.conf
 chmod 600  /etc/vyatta-routing/frr.conf
 
+# Apply default config, on a new package installation only
+# (ie. during image build).
+if [ "$1" == "configure" ] && [ -z "$2" ]; then
+    echo "Generating default /etc/frr/frr.conf"
+    cat /etc/vyatta-routing/frr.conf > /etc/frr/frr.conf
+fi
+
 #DEBHELPER#

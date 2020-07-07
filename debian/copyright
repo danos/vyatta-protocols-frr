@@ -2,7 +2,7 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 
 Files: *
 Copyright:
-    Copyright (c) 2018-2019 AT&T Intellectual Property
+    Copyright (c) 2018-2020 AT&T Intellectual Property
 License: GPL-2
 
 Files: scripts/common/*
