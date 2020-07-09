@@ -1,0 +1,17 @@
+# FRR daemon configuration file for DANOS
+#
+# This config file displaces that from upstream, which can be
+# found at /etc/frr/daemons.danos-orig
+
+vtysh_enable=yes
+
+bgpd=yes
+ospfd=yes
+ospf6d=yes
+ldpd=yes
+
+zebra_options="  -A 127.0.0.1 -s 90000000 -M fpm"
+bgpd_options="   -A 127.0.0.1"
+ospfd_options="  -A 127.0.0.1"
+ospf6d_options=" -A ::1"
+ldpd_options="   -A 127.0.0.1"

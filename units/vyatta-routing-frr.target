@@ -1,0 +1,7 @@
+[Unit]
+Description=Vyatta Routing Service
+Before=system-configure.service
+Requires=vyatta-routing-frr-early.target
+
+[Install]
+WantedBy=system-configure.service

@@ -18,7 +18,7 @@ GO_BUILD_DIR = golang_build
 	# Build all other packages
 	# There must be a --no-package argument for each --package argument
 	# in the above dh invocation
-	dh $@ --with=yang,python3         \
+	dh $@ --with=config_package,yang,python3        \
 	      --no-package vyatta-frr-vci              
 
 override_dh_auto_build: vet

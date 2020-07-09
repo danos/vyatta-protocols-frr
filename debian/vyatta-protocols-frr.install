@@ -1,2 +1,4 @@
+etc/frr/daemons.danos etc/frr
+units/* lib/systemd/system
 scripts/common/vtyshow.pl opt/vyatta/bin/
 scripts/common/vyatta-link-detect opt/vyatta/sbin/
