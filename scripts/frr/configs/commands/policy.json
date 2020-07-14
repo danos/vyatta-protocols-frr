@@ -1,4 +1,5 @@
 {
+    "/policy/route/as-path-list/@element/rule/@element":"bgp as-path access-list {/../../tagnode/@text} {/action/@text} {/regex/@text}",
     "/policy/route/route-map/@enter": "!",
     "/policy/route/route-map/@element/rule/@element":"route-map {/../../tagnode/@text} {/action/@text} {/tagnode/@text}",
     "/policy/route/route-map/@element/rule/@element/match/as-path":"match as-path {@text}",
