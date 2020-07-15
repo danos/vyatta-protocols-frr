@@ -7,8 +7,9 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 from json import loads, load
 import os
-from os import listdir, system
+from os import listdir
 import shutil
+import subprocess
 import sys
 
 from vyatta.command import CommandFiller, MISSING_VALUE_TEMPLATE
@@ -288,7 +289,9 @@ def main():
     v.prioritize(args.c + PRIORITIES_FILENAME)
     v.parse_config()
     v.output_config(args.o, OUTPUT_FILE_OWNER)
-    system(FRR_RELOAD + " --reload /etc/vyatta-routing/frr.conf")
+    ret = subprocess.run([ FRR_RELOAD, "--reload", "/etc/vyatta-routing/frr.conf" ],
+                         stdout=sys.stdout, stderr=sys.stderr)
+    sys.exit(ret.returncode)
 
 
 if __name__ == "__main__":
