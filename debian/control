@@ -82,7 +82,10 @@ Description: BGP Yang module which supports Routing Instance
 Package: vyatta-frr-vci
 Architecture: any
 Priority: extra
-Depends: frr-pythontools, python3 (>= 3.6), ${misc:Depends}, ${shlibs:Depends}
+Depends: frr-pythontools (>= 7.3.1-0vyatta3),
+ python3 (>= 3.6),
+ ${misc:Depends},
+ ${shlibs:Depends}
 Conflicts:
  vyatta-bgp-vci,
  vyatta-ospf-vci,

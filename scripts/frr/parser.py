@@ -289,7 +289,8 @@ def main():
     v.prioritize(args.c + PRIORITIES_FILENAME)
     v.parse_config()
     v.output_config(args.o, OUTPUT_FILE_OWNER)
-    ret = subprocess.run([ FRR_RELOAD, "--reload", "/etc/vyatta-routing/frr.conf" ],
+    ret = subprocess.run([ FRR_RELOAD, "--stdout", "--reload", "--log-level", "warning",
+                           "/etc/vyatta-routing/frr.conf" ],
                          stdout=sys.stdout, stderr=sys.stderr)
     sys.exit(ret.returncode)
 

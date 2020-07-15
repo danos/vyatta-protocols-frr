@@ -49,15 +49,26 @@ func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 		return err
 	}
 
-	err = exec.Command("/opt/vyatta/sbin/parser.py").Run()
-	if err != nil {
-		msg := "Failed to run FRR translation: " + err.Error()
-		log.Errorln(msg)
-		return errors.New(msg)
+	var err_msg string
+	out, err := exec.Command("/opt/vyatta/sbin/parser.py").CombinedOutput()
+	if err == nil {
+		log.Infoln("FRR translation successful")
+	} else {
+		err_msg = "Failed to run FRR translation: " + err.Error()
+		log.Errorln(err_msg)
 	}
 
-	log.Infoln("FRR translation successful")
-	return nil
+	debugOn := log.IsLevelEnabled(log.DebugLevel)
+
+	if (err != nil || debugOn) && len(out) > 0 {
+		// If debug is enabled or there was an error, and output was collected
+		// from the parser, return it instead of any generic error.
+		err = errors.New(string(out))
+	} else if err != nil {
+		err = errors.New(err_msg)
+	}
+
+	return err
 }
 
 func main() {
