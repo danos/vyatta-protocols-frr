@@ -51,6 +51,14 @@ Depends:
 Description: BGP operational YANG module
  The YANG module package for vyatta-op-frr-bgp-v1-yang
 
+Package: vyatta-policy-route-deviation-danos-v1-yang
+Architecture: all
+Depends:
+ ${misc:Depends},
+ ${yang:Depends}
+Description: DANOS specific routing policy module
+ The YANG module package for vyatta-policy-route-deviation-danos-v1
+
 Package: vyatta-op-protocols-frr-bgp-routing-instance-v1-yang
 Architecture: all
 Depends:

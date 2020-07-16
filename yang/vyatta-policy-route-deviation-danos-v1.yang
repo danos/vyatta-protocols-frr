@@ -1,0 +1,168 @@
+module vyatta-policy-route-deviation-danos-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-policy-route-deviation-danos:1";
+	prefix vyatta-policy-route-deviation-danos-v1;
+
+	import configd-v1 {
+		prefix configd;
+	}
+	import vyatta-policy-v1 {
+		prefix policy;
+	}
+	import vyatta-policy-route-v1 {
+		prefix policy-route;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 25202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2020, AT&T Intellectual Property. All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 DANOS specific routing policy module";
+
+	revision 2020-07-31 {
+		description "Initial version.";
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/policy-route:rule/" +
+			"policy-route:match/policy-route:extcommunity/policy-route:exact-match" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:match/policy-route:ip/policy-route:source-protocol" {
+		description
+			"The source-protocol route-map configuration command in FRR is not AF-specific.
+			 On DANOS this configuration is replaced by source-protocol at the match level.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:match/policy-route:ipv6/policy-route:source-protocol" {
+		description
+			"The source-protocol route-map configuration command in FRR is not AF-specific.
+			 On DANOS this configuration is replaced by source-protocol at the match level.";
+		deviate not-supported;
+	}
+
+	augment "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:match" {
+		description
+			"The source-protocol route-map configuration command in FRR is not AF-specific.
+			 Therefore replace the AF-specific ip[v6]/source-protocol configurations";
+		leaf source-protocol {
+			description "This container is used to match nexthop based on source-protocol.";
+				type enumeration {
+					enum "bgp" {
+						configd:help "Border Gateway Protocol (BGP)";
+					}
+					enum "connected" {
+						configd:help "Connected";
+					}
+					enum "kernel" {
+						configd:help "Kernel";
+					}
+					enum "ospf" {
+						configd:help "Open Shortest Path First (OSPF)";
+					}
+					enum "ospfv3" {
+						configd:help "Open Shortest Path First (OSPF6)";
+					}
+					enum "rip" {
+						configd:help "Routing Information Protocol (RIP)";
+					}
+					enum "ripng" {
+						configd:help "Routing Information Protocol (RIPng)";
+					}
+					enum "static" {
+						configd:help "Static routes";
+					}
+				}
+			configd:help "Source protocol to be matched";
+		}
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:match/policy-route:ipv6/policy-route:nexthop" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:match/policy-route:ipv6/policy-route:peer" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:set/policy-route:delete-extcommunity" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:set/policy-route:prepend-as/policy-route:own-as" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:set/policy-route:prepend-as/policy-route:last-as" {
+		description "Maximum insertions supported by FRR is 10.
+			Remove must enforcing mutual exclusion with own-as, so long as own-as is not-supported.";
+		deviate replace {
+			type uint32 {
+				range 1..10;
+			}
+		}
+		deviate delete {
+			must "not(../own-as)";
+		}
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:set/policy-route:extcommunity/policy-route:rt" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+
+	deviation "/policy:policy/policy-route:route/policy-route:route-map/" +
+			"policy-route:rule/policy-route:set/policy-route:level" {
+		description "Not supported in DANOS/FRR as of latest module revision.";
+		deviate not-supported;
+	}
+}
