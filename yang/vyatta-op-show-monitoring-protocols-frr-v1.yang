@@ -16,11 +16,11 @@ module vyatta-op-show-monitoring-protocols-frr-v1 {
 	contact
 		"AT&T
 		 Postal: 208 S. Akard Street
-				 Dallas, TX 25202
+				 Dallas, TX 75202
 		 Web: www.att.com";
 
 	description
-		"Copyright (c) 2018-2019, AT&T Intellectual Property.
+		"Copyright (c) 2018-2020, AT&T Intellectual Property.
 		 All rights reserved.
 
 		 Redistribution and use in source and binary forms, with or
