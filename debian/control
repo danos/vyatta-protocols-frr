@@ -18,10 +18,10 @@ Standards-Version: 3.9.8
 Package: vyatta-protocols-frr
 Provides: vyatta-protocols
 Conflicts: vyatta-protocols-ipi
-Breaks: vyatta-protocols (<< 1.12.0), frr (<< 7.3-0vyatta4)
-Replaces: vyatta-protocols (<< 1.12.0), frr (<< 7.3-0vyatta4)
+Breaks: vyatta-protocols (<< 1.12.0), frr (<< 7.3.1-0vyatta4)
+Replaces: vyatta-protocols (<< 1.12.0), frr (<< 7.3.1-0vyatta4)
 Architecture: all
-Depends: frr (>= 7.3-0vyatta4), vyatta-protocols-common, ${misc:Depends}
+Depends: frr (>= 7.3.1-0vyatta4), vyatta-protocols-common, ${misc:Depends}
 Description: Common scripts & libs for FRR on Vyatta
 
 Package: vyatta-op-show-ip-ipv6-route-frr-v1-yang
