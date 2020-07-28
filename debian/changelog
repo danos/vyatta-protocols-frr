@@ -1,3 +1,12 @@
+vyatta-protocols-frr (1.12.7) unstable; urgency=medium
+
+  * Replace component-config with /etc hierarchy
+  * vyatta-protocols-frr.tmpfile: /var/run --> /run
+  * Add units and daemons config from DANOS/frr
+  * debian/control: Correct frr Breaks/Replaces/Depends
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Tue, 28 Jul 2020 12:22:27 +0100
+
 vyatta-protocols-frr (1.12.6) unstable; urgency=medium
 
   * policy.json: Add as-path-list translations
