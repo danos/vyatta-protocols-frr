@@ -18,7 +18,7 @@ GO_BUILD_DIR = golang_build
 	# Build all other packages
 	# There must be a --no-package argument for each --package argument
 	# in the above dh invocation
-	dh $@ --with=config_package,yang,python3        \
+	dh $@ --with=config_package,yang,python3,systemd \
 	      --no-package vyatta-frr-vci              
 
 override_dh_auto_build: vet
@@ -28,3 +28,7 @@ override_dh_auto_build: vet
 vet:
 	go tool vet $$(find . -type f -name \*.go | xargs dirname | \
 		sort -u | grep -v "/vendor/");
+
+override_dh_systemd_enable:
+	dh_systemd_enable -p vyatta-protocols-frr vyatta-routing-frr-early.target
+	dh_systemd_enable -p vyatta-protocols-frr vyatta-routing-frr.target
