@@ -1,3 +1,9 @@
+vyatta-protocols-frr (1.12.8) unstable; urgency=medium
+
+  * Call dh_systemd_enable for routing targets
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Wed, 05 Aug 2020 11:45:29 +0100
+
 vyatta-protocols-frr (1.12.7) unstable; urgency=medium
 
   * Replace component-config with /etc hierarchy
