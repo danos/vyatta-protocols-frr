@@ -216,6 +216,25 @@ module vyatta-protocols-frr-bgp-v1 {
 		}
 	}
 
+	grouping parameters-multiple-paths {
+		container multiple-paths {
+			description "Forward packets over multiple paths";
+			configd:help "Forward packets over multiple paths";
+			leaf ebgp {
+				type uint32 {
+					range 2..256;
+				}
+				configd:help "Maximum number of parallel eBGP paths to consider, default is 1.";
+			}
+			leaf ibgp {
+				type uint32 {
+					range 2..256;
+				}
+				configd:help "Maximum number of parallel iBGP paths to consider, default is 1.";
+			}
+		}
+	}
+
 	grouping network-ipv4 {
 		list network {
 			description "BGP network";
@@ -1045,7 +1064,9 @@ module vyatta-protocols-frr-bgp-v1 {
 	   - unsuppress-map
 	   - capability orf prefix-list (both|receive|send))
 	   - route-server-client
-	   - nexthop-self*/
+	   - nexthop-self
+	   - addpath-tx-all-paths
+	   - addpath-tx-bestpath-per-AS*/
 	/*
        This grouping contains relative path to nodes outside the group scope.
        It can only be used at a specific config level matching the relative path.
@@ -1206,6 +1227,18 @@ module vyatta-protocols-frr-bgp-v1 {
 			description "Peer-group as route server client";
 			type empty;
 			configd:help "Peer-group as route server client";
+		}
+
+		leaf addpath-tx-all-paths {
+			description "Advertise all paths to this peer-group";
+			type empty;
+			configd:help "Advertise all paths to this peer-group";
+		}
+
+		leaf addpath-tx-bestpath-per-AS {
+			description "Advertise the bestpath per each neighboring AS";
+			type empty;
+			configd:help "Advertise the bestpath per each neighboring AS";
 		}
 	}
 
@@ -1625,6 +1658,7 @@ module vyatta-protocols-frr-bgp-v1 {
 						configd:help "BGP parameters for the ipv4-unicast address family";
 						uses parameters-distance;
 						uses parameters-dampening;
+						uses parameters-multiple-paths;
 					}
 					uses ipv4-aggregate-address;
 					uses network-ipv4;
@@ -1640,6 +1674,7 @@ module vyatta-protocols-frr-bgp-v1 {
 						configd:help "BGP parameters for the ipv6-unicast address family";
 						uses parameters-distance;
 						uses parameters-dampening;
+						uses parameters-multiple-paths;
 					}
 					uses ipv6-aggregate-address;
 					uses network-ipv6;

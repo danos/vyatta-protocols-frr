@@ -37,6 +37,7 @@
     "/policy/route/route-map/@element/rule/@element/set/ip-next-hop":"set ip next-hop {/@text}",
     "/policy/route/route-map/@element/rule/@element/set/weight":"set weight {/@text}",
     "/policy/route/route-map/@element/rule/@element/set/metric":"set metric {/@text}",
+    "/policy/route/route-map/@element/rule/@element/set/src":"set src {/@text}",
     "/policy/route/prefix-list/@element/rule/@element":"ip prefix-list {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} {/prefix/@text} [ge {/ge/@text},] [le {/le/@text},]",
     "/policy/route/prefix-list/@element/description":"ip prefix-list {/../tagnode/@text} description {/@text}",
     "/policy/route/prefix-list6/@element/rule/@element":"ipv6 prefix-list {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} {/prefix/@text} [ge {/ge/@text},] [le {/le/@text},]",

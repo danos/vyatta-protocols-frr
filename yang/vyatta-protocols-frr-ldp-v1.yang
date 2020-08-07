@@ -103,7 +103,7 @@ module vyatta-protocols-frr-ldp-v1 {
 			"Basic discovery timer attributes.";
 		leaf hello-holdtime {
 			type uint16 {
-				range 15..3600;
+				range 3..3600;
 			}
 			units seconds;
 			default 15;
@@ -115,7 +115,7 @@ module vyatta-protocols-frr-ldp-v1 {
 		}
 		leaf hello-interval {
 			type uint16 {
-				range 5..1200;
+				range 1..1200;
 			}
 			units seconds;
 			default 5;
@@ -130,7 +130,7 @@ module vyatta-protocols-frr-ldp-v1 {
 		description "Neighbor configuration attributes.";
 		leaf session-ka-holdtime {
 			type uint16 {
-				range 30..3600;
+				range 15..3600;
 			}
 			units seconds;
 			default 30;
