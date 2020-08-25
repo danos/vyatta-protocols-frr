@@ -1,3 +1,14 @@
+vyatta-protocols-frr (1.12.9) unstable; urgency=medium
+
+  * policy.json: add missing route-map translations
+  * policy.json: rmap add-community lacks "additive"
+  * policy.json: rmap community local-as --> local-AS
+  * policy.json: rmap "prepend-as last-as" not handled
+  * Deviations for DANOS route-map configuration
+  * yang: Correct contact ZIP code
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Tue, 25 Aug 2020 14:33:57 +0100
+
 vyatta-protocols-frr (1.12.8) unstable; urgency=medium
 
   * Call dh_systemd_enable for routing targets
