@@ -11,6 +11,7 @@ import (
 	"eng.vyatta.net/protocols/static"
 	"errors"
 	log "github.com/Sirupsen/logrus"
+	multierr "github.com/hashicorp/go-multierror"
 	"os/exec"
 )
 
@@ -68,7 +69,14 @@ func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 		err = errors.New(err_msg)
 	}
 
-	return err
+	ret_err := protocols.NewMultiError()
+	ret_err = multierr.Append(ret_err, err)
+
+	// Restart static arp service
+	err = protocols.NewProtocolsDaemon("vyatta-static-arp").Restart()
+	ret_err = multierr.Append(ret_err, err)
+
+	return ret_err.ErrorOrNil()
 }
 
 func main() {
