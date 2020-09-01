@@ -1,3 +1,9 @@
+vyatta-protocols-frr (1.12.10) unstable; urgency=medium
+
+  * Ensure static ARP configuration is applied
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Tue, 01 Sep 2020 12:11:08 +0100
+
 vyatta-protocols-frr (1.12.9) unstable; urgency=medium
 
   * policy.json: add missing route-map translations
