@@ -132,12 +132,24 @@ class CommandFiller:
         if "any" in target:
             return "any"
         if "network" in target and (target["network"] is not None and target["network"] != ""):
-            return "{0} {1}".format(target["network"], target["inverse-mask"])
+            return "{0} {1} {2}".format(
+                target["network"],
+                target.get("inverse-mask", ""), # IPv4 ACL only
+                "exact-match" if "exact-match" in target else "")  # IPv6 ACL only
         if "host" in target and (target["host"] is not None and target["host"] != ""):
             return "host {0}".format(target["host"])
 
     @staticmethod
-    def execute_acl(acl_dict):
+    def is_extended_acl(id):
+        try:
+            acl_number = int(id)
+        except ValueError:
+            return False
+
+        return (acl_number >= 100 and acl_number <= 199) or (acl_number >= 2000 and acl_number <= 2699)
+
+    @staticmethod
+    def execute_acl(acl_dict, ipv6=False):
         """
         Function to generate config for an access control list
 
@@ -148,11 +160,14 @@ class CommandFiller:
         """
         json_dict = ast.literal_eval(acl_dict.replace("&", ","))
         result = ""
-        acl_number = int(json_dict["tagnode"])
-        prefix_string = "access-list {0}".format(str(acl_number))
-        extended = False
-        if (acl_number >= 100 and acl_number <= 199) or (acl_number >= 2000 and acl_number <= 2699):
-            extended = True
+
+        prefix_string = "access-list {0}".format(json_dict["tagnode"])
+        if ipv6:
+            prefix_string = "ipv6 " + prefix_string
+            extended = False
+        else:
+            extended = CommandFiller.is_extended_acl(json_dict["tagnode"])
+
         for rule in json_dict.get("rule", dict()):
             result += prefix_string+" seq {0} {1}".format(rule["tagnode"],
                                                           rule["action"])
@@ -179,6 +194,8 @@ class CommandFiller:
                 result = CommandFiller.execute_code(function[1])
             elif function[0] == 'acl':
                 result = CommandFiller.execute_acl(function[1])
+            elif function[0] == 'acl6':
+                result = CommandFiller.execute_acl(function[1], ipv6=True)
             self.command = self.command.replace(function[-1], result)
 
     def discard_command(self):
