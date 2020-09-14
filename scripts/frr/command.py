@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2019 AT&T Intellectual Property. All rights reserved.
+# Copyright (c) 2018-2020 AT&T Intellectual Property. All rights reserved.
 #
 # SPDX-License-Identifier: GPL-2.0-only
 
@@ -154,7 +154,8 @@ class CommandFiller:
         if (acl_number >= 100 and acl_number <= 199) or (acl_number >= 2000 and acl_number <= 2699):
             extended = True
         for rule in json_dict.get("rule", dict()):
-            result += prefix_string+" {0}".format(rule["action"])
+            result += prefix_string+" seq {0} {1}".format(rule["tagnode"],
+                                                          rule["action"])
             if extended:
                 result += " ip"
             result += " "+CommandFiller.get_acl_target(rule["source"])
