@@ -1,3 +1,12 @@
+vyatta-protocols-frr (1.12.11) unstable; urgency=medium
+
+  * policy.json: s/ip/bgp/ in community-list commands
+  * command.py: Configure ACL seq
+  * Configure IPv6 ACLs in FRR
+  * policy.json: community-list local-as --> local-AS
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Wed, 16 Sep 2020 10:33:03 +0100
+
 vyatta-protocols-frr (1.12.10) unstable; urgency=medium
 
   * Ensure static ARP configuration is applied
