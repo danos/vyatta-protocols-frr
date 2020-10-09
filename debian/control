@@ -100,7 +100,8 @@ Conflicts:
  vyatta-bgp-vci,
  vyatta-ospf-vci,
  vyatta-policy-route-vci,
- vyatta-rib-vci
+ vyatta-rib-vci,
+ vyatta-isis-vci
 Built-Using: ${misc:Built-Using}
 Description: FRR Service
  Service for FRR using the Vyatta Component Infrastructure
@@ -200,3 +201,22 @@ Depends:
 Conflicts: vyatta-protocols-mpls-ldp-v1-yang
 Description: FRR ldp yang module package
  The YANG module package for vyatta-protocols-frr-ldp-v1
+
+Package: vyatta-op-protocols-frr-isis-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}
+Description: ISIS operational YANG module
+ The YANG module package for vyatta-op-frr-isis-v1-yang
+
+
+Package: vyatta-protocols-frr-isis-v1-yang
+Architecture: all
+Depends:frr,
+	vyatta-cfg (>= 0.18.56),vyatta-frr-vci,
+	vyatta-protocols-frr (>= ${source:Version}),
+	${misc:Depends},
+	${yang:Depends}
+Conflicts: vyatta-protocols-isis-v1-yang
+Description: FRR ISIS yang module package
+ The YANG module package for vyatta-protocols-frr-isis-v1
+
