@@ -67,7 +67,7 @@ module vyatta-protocols-frr-isis-v1 {
         value 1;
         configd:help "This enum indicates L1-only capability.";
         description "This enum indicates L1-only capability.";
-      }		
+      }
       enum "level-2-only" {
         value 2;
         configd:help "This enum indicates L2-only capability.";
@@ -81,7 +81,7 @@ module vyatta-protocols-frr-isis-v1 {
     }
     configd:help "This type defines IS-IS level of an object.";
     description "This type defines IS-IS level of an object.";
-  } 
+  }
 
   typedef isis-level {
     type enumeration {
@@ -114,7 +114,7 @@ module vyatta-protocols-frr-isis-v1 {
       }
       enum "point-to-point" {
         value 2;
-        configd:help "Point-to-point circuit network-type."; 
+        configd:help "Point-to-point circuit network-type.";
         description "Point-to-point circuit network-type.";
       }
       enum "loopback" {
@@ -131,7 +131,7 @@ module vyatta-protocols-frr-isis-v1 {
     }
     configd:help "This type defines the Subnetwork Point of Attachment (SNPA) format.
     The SNPA should be encoded according to the rules specified for the particular type
-    of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is 
+    of subnetwork being used. As an example, for an ethernet subnetwork, the SNPA is
     encoded as a MAC address like '00aa.bbcc.ddee'.";
 
     description "This type defines the Subnetwork Point of Attachment (SNPA) format.
@@ -460,13 +460,13 @@ module vyatta-protocols-frr-isis-v1 {
     list isis {
       configd:help "Intermediate System to Intermediate System (ISIS) parameters";
       description "Intermediate System to Intermediate System (ISIS) parameters";
-      
+
       key "area-tag";
       leaf area-tag {
         configd:help "Area-tag associated to this routing instance";
         description "Area-tag associated to this routing instance";
         type string;
-      }				
+      }
       uses isis-redistribute;
       uses isis-net;
       uses isis-area-domain-password;
@@ -531,7 +531,7 @@ module vyatta-protocols-frr-isis-v1 {
       }
 
       container priority {
-        configd:help "Priority for Designated Router election."; 
+        configd:help "Priority for Designated Router election.";
         description "Priority for Designated Router election.";
         leaf level-1 {
           type uint8 {
@@ -565,7 +565,7 @@ module vyatta-protocols-frr-isis-v1 {
       leaf network {
         type network-type;
         must "(. = 'point-to-point') or (. = 'broadcast')";
-        configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point)."; 
+        configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
         description "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
       }
     }
@@ -573,7 +573,7 @@ module vyatta-protocols-frr-isis-v1 {
 
   augment /if:interfaces/interfaces-dataplane:dataplane {
     uses isis;
-  }	
+  }
   augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:ip {
     uses itf-ip-router-isis;
   }

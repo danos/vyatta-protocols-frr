@@ -92,7 +92,7 @@ module vyatta-op-protocols-frr-isis-v1 {
         opd:help "Show ISIS interface";
         opd:on-enter 'vtysh -c "show isis interface"';
         opd:privileged true;
-        opd:argument interface {	
+        opd:argument interface {
           opd:help "Show ISIS interface";
           opd:on-enter 'vtysh -c "show isis interface $4"';
           opd:allowed "allowed-nodes interfaces dataplane";
@@ -125,7 +125,7 @@ module vyatta-op-protocols-frr-isis-v1 {
           opd:privileged true;
         }
       }
-      opd:command neighbor {	
+      opd:command neighbor {
         opd:help "Show ISIS neighbor adjacencies";
         opd:on-enter 'vtysh -c "show isis neighbor"';
         opd:privileged true;
@@ -177,11 +177,11 @@ module vyatta-op-protocols-frr-isis-v1 {
       }
     }
   }
-  
+
   opd:augment /op-monitor:monitor/op-monitor-protocols:protocol {
     opd:command isis {
       opd:help "Monitor ISIS Information";
-      opd:inherit "Using vtysh requires raised privileges" { 
+      opd:inherit "Using vtysh requires raised privileges" {
         opd:privileged true;
       }
       opd:command enable {
