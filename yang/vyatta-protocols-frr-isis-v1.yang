@@ -14,6 +14,9 @@ module vyatta-protocols-frr-isis-v1 {
   import vyatta-interfaces-dataplane-v1 {
     prefix interfaces-dataplane;
   }
+  import vyatta-interfaces-loopback-v1 {
+    prefix interfaces-loopback;
+  }
 
   organization "Niral Networks Private Limited";
   contact
@@ -55,6 +58,10 @@ module vyatta-protocols-frr-isis-v1 {
 
     SPDX-License-Identifier: BSD-3-Clause
     The YANG module package for vyatta-protocols-frr-isis-v1";
+
+  revision 2020-10-10 {
+    description "Added ISIS under loopback interface";
+  }
 
   revision 2020-03-30 {
     description "Initial revision of version 1";
@@ -102,25 +109,10 @@ module vyatta-protocols-frr-isis-v1 {
 
   typedef network-type {
     type enumeration {
-      enum "unknown" {
-        value 0;
-        configd:help "Unknown network type. Only valid as a state.";
-        description "Unknown network type. Only valid as a state.";
-      }
-      enum "broadcast" {
-        value 1;
-        configd:help "Broadcast circuit network-type.";
-        description "Broadcast circuit network-type.";
-      }
       enum "point-to-point" {
-        value 2;
+        value 0;
         configd:help "Point-to-point circuit network-type.";
         description "Point-to-point circuit network-type.";
-      }
-      enum "loopback" {
-        value 3;
-        configd:help "Loopback circuit network-type. Only valid as a state.";
-        description "Loopback circuit network-type. Only valid as a state.";
       }
     }
   }
@@ -475,6 +467,7 @@ module vyatta-protocols-frr-isis-v1 {
 
   grouping itf-ip-router-isis {
     container isis {
+      configd:help "IS-IS routing protocol";
       leaf instance {
         type string;
           configd:help "Extended isis-id of the ISIS instance";
@@ -580,6 +573,11 @@ module vyatta-protocols-frr-isis-v1 {
   augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ip {
     uses itf-ip-router-isis;
   }
-
+  augment /if:interfaces/interfaces-loopback:loopback {
+   uses isis;
+  }
+  augment /if:interfaces/interfaces-loopback:loopback/interfaces-loopback:ip {
+    uses itf-ip-router-isis;
+  }
 
 }
