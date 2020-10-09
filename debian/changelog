@@ -1,3 +1,15 @@
+vyatta-protocols-frr (1.13.0) unstable; urgency=medium
+
+  [ kaushik ]
+  [ harios ]
+  * Integration of FRR ISIS Routing protocol to DANOS
+
+  [ Duncan Eastoe ]
+  * daemons.danos: Enable isisd by default
+  * yang/*isis*: strip trailing whitespace
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 09 Oct 2020 12:46:24 +0100
+
 vyatta-protocols-frr (1.12.11) unstable; urgency=medium
 
   * policy.json: s/ip/bgp/ in community-list commands
