@@ -1,3 +1,10 @@
+vyatta-protocols-frr (1.13.1) unstable; urgency=medium
+
+  [ harios_niral ]
+  * Fixups to integration of FRR ISIS Routing protocol to DANOS
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Mon, 12 Oct 2020 10:44:16 +0100
+
 vyatta-protocols-frr (1.13.0) unstable; urgency=medium
 
   [ kaushik ]
