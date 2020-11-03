@@ -66,7 +66,7 @@ module vyatta-protocols-frr-bgp-v1 {
 
 	revision 2020-11-03 {
 		description
-			"Add ebgp-requires-policy parameter.
+			"Add ebgp-requires-policy and network import-check parameters.
 			 Global parameters container no longer has presence.";
 	}
 	revision 2018-10-30 {
@@ -815,6 +815,23 @@ module vyatta-protocols-frr-bgp-v1 {
 		}
 	}
 
+	grouping bgp-params-global-network {
+		container network {
+			configd:help "BGP network";
+			description "BGP network";
+
+			leaf import-check {
+				configd:help "Only advertise networks which are present in the RIB";
+				description "Only advertise networks which are present in the RIB";
+				default enabled;
+				type enumeration {
+					enum enabled;
+					enum disabled;
+				}
+			}
+		}
+	}
+
 	grouping bgp-params-timers {
 		container timers {
 			description "BGP protocol timers";
@@ -1243,6 +1260,7 @@ module vyatta-protocols-frr-bgp-v1 {
 			uses bgp-params-global-deterministic-med;
 			uses bgp-params-global-router-id;
 			uses bgp-params-global-ebgp-requires-policy;
+			uses bgp-params-global-network;
 		}
 		uses bgp-params-timers;
 	}

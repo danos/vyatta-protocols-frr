@@ -57,7 +57,7 @@ module vyatta-protocols-frr-bgp-routing-instance-v1 {
 
 	revision 2020-11-03 {
 		description
-			"Add ebgp-requires-policy parameter.
+			"Add ebgp-requires-policy and network import-check parameters.
 			 Global parameters container no longer has presence.";
 	}
 	revision 2018-11-02 {
@@ -117,6 +117,7 @@ module vyatta-protocols-frr-bgp-routing-instance-v1 {
 			uses protocols-bgp:bgp-params-global-router-id;
 			uses protocols-bgp:bgp-params-global-graceful-restart;
 			uses protocols-bgp:bgp-params-global-ebgp-requires-policy;
+			uses protocols-bgp:bgp-params-global-network;
 		}
 		uses protocols-bgp:bgp-params-timers;
 	}

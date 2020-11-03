@@ -18,6 +18,7 @@
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/graceful-restart/restart-time": "bgp graceful-restart restart-time {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/graceful-restart/stalepath-time": "bgp graceful-restart stalepath-time {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/log-neighbor-changes": "bgp log-neighbor-changes",
+    "/routing/routing-instance/@element/protocols/bgp/@element/parameters/network/import-check": "$if|no,|{/@text} == disabled$ bgp network import-check",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/router-id": "bgp router-id {/@text}",
 
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element": "[neighbor {/../../tagnode/@text} peer-group {/peer-group/@text},]", 
