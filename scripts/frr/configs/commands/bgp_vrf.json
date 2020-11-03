@@ -13,6 +13,7 @@
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/confederation/peers": "bgp confederation peers {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/default/local-pref": "bgp default local-preference {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/deterministic-med": "bgp deterministic-med",
+    "/routing/routing-instance/@element/protocols/bgp/@element/parameters/ebgp-requires-policy": "$if|no,|{/@text} == disabled$ bgp ebgp-requires-policy",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/graceful-restart": "bgp graceful-restart",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/graceful-restart/restart-time": "bgp graceful-restart restart-time {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/graceful-restart/stalepath-time": "bgp graceful-restart stalepath-time {/@text}",
