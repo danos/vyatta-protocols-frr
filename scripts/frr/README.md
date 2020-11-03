@@ -174,7 +174,7 @@ For example a conditional can be formed as follows:
 ## Enter and exit commands
 
 You can specify a command to include in the output config before including the translations of a node and all its children, and/or an exit command after that.  
-Enter and exit commands are tagged with an `@enter` and `@exit` appropriately and currently can have no references in them.  
+Enter and exit commands are tagged with an `@enter` and `@exit` appropriately.
 They are useful when in need to enter a submode.
 
 E.g.  

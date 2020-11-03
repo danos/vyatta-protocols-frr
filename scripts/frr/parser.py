@@ -114,6 +114,17 @@ class VyattaJSONParser:
         # clear commands triggering from traversing the tree
         self.output.clear()
 
+    def _process_commands(self, node, path):
+        for command in self.retrieve_commands(path):
+            # command template exists for this node
+            commandf = CommandFiller(command, self.debug)
+            pattern_values = commandf.find_all_path_refs()
+            # print(command, pattern_values)
+            pattern_values = self.retrieve_values(node, pattern_values)
+            command = commandf.fill_command(pattern_values)
+            if command != '':
+                self.output.append(command)
+
     def parse_config(self):
         """Retrieves each node's command and puts it in the output CLI config
         Returns list of command strings.
@@ -124,16 +135,8 @@ class VyattaJSONParser:
                     self.output.append(line.strip())
 
         for node, path in self.depth_first_traverse(self.tree):
-            self.on_enter(path)
-            for command in self.retrieve_commands(path):
-                # command template exists for this node
-                commandf = CommandFiller(command, self.debug)
-                pattern_values = commandf.find_all_path_refs()
-                # print(command, pattern_values)
-                pattern_values = self.retrieve_values(node, pattern_values)
-                command = commandf.fill_command(pattern_values)
-                if not command == '':
-                    self.output.append(command)
+            self.on_enter(node, path)
+            self._process_commands(node, path)
         return self.output
 
     def retrieve_commands(self, path):
@@ -162,24 +165,20 @@ class VyattaJSONParser:
             for elem in node:
                 child_path = path+'/' + LIST_ELEM_LABEL
                 yield from self.depth_first_traverse(elem, child_path)
-        self.on_exit(path)
+        self.on_exit(node, path)
         self.parent_stack.pop()
 
-    def on_enter(self, path):
+    def on_enter(self, node, path):
         """Executed when node is just visited.
         Used for enter commands.
         """
-        enter_command = self.syntax.get(path+'/'+ENTER_LABEL)
-        if enter_command is not None:
-            self.output.append(enter_command)
+        self._process_commands(node, path+'/'+ENTER_LABEL)
 
-    def on_exit(self, path):
+    def on_exit(self, node, path):
         """Executed when we visited node in path and all its children.
         Removes node from the parent stack and checks if there are any exit commands.
         """
-        exit_command = self.syntax.get(path+'/'+EXIT_LABEL)
-        if exit_command is not None:
-            self.output.append(exit_command)
+        self._process_commands(node, path+'/'+EXIT_LABEL)
 
     def find_origin_node(self, node, target_steps):
         """Traverses up the tree as many levels as indicated by the steps list,
