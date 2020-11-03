@@ -1,5 +1,4 @@
 {
-    "/interfaces/@element": "interface {/tagnode/@text}",
     "/interfaces/@element/ip/isis/instance": "ip router isis {/@text}",
     "/interfaces/@element/isis/circuit-type": "isis circuit-type {/@text}",
     "/interfaces/@element/isis/hello-interval/level-1": "isis hello-interval {/@text} level-1",

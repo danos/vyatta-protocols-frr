@@ -1,5 +1,4 @@
 {
-    "/interfaces/@element/ipv6/ospfv3": "interface {/../../tagnode/@text}",
     "/interfaces/@element/ipv6/ospfv3/cost": "ipv6 ospf6 cost {/@text}",
     "/interfaces/@element/ipv6/ospfv3/dead-interval": "ipv6 ospf6 dead-interval {/@text}",
     "/interfaces/@element/ipv6/ospfv3/hello-interval": "ipv6 ospf6 hello-interval {/@text}",
