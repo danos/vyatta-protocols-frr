@@ -5,7 +5,7 @@
 
 from argparse import ArgumentParser
 from collections import OrderedDict
-from json import loads, load
+import json
 import os
 from os import listdir
 import shutil
@@ -57,7 +57,7 @@ class VyattaJSONParser:
 
     def decode_vyatta_config(self, config_string):
         """Decodes the json with OrderedDicts instead of dicts"""
-        return loads(config_string, object_pairs_hook=OrderedDict)
+        return json.loads(config_string, object_pairs_hook=OrderedDict)
 
     def read_syntax_files(self, dir_path):
         """Reads all files syntax files and merges them to one big
@@ -67,7 +67,7 @@ class VyattaJSONParser:
             lambda x: x.lower().endswith('.json'), listdir(dir_path))
         for filename in command_files:
             with open(dir_path+'/'+filename, 'r') as syntax_json:
-                self.syntax = {**self.syntax, **load(syntax_json)}
+                self.syntax = {**self.syntax, **json.load(syntax_json)}
 
     def output_config(self, path, owner):
         """Write the already parsed config to a file"""
@@ -95,7 +95,7 @@ class VyattaJSONParser:
     def prioritize(self, filepath):
         """Reads priorities file and sorts the configuration tree"""
         with open(filepath, 'r') as priorities_json:
-            priorities = load(priorities_json)
+            priorities = json.load(priorities_json)
         self.sort_tree(priorities)
 
     def sort_tree(self, priorities):
