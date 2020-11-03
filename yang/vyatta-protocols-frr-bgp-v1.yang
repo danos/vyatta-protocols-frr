@@ -64,6 +64,11 @@ module vyatta-protocols-frr-bgp-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 		 The YANG module package for vyatta-protocols-frr-bgp-v1";
 
+	revision 2020-11-03 {
+		description
+			"Add ebgp-requires-policy parameter.
+			 Global parameters container no longer has presence.";
+	}
 	revision 2018-10-30 {
 		description "Inital version.";
 	}
@@ -798,6 +803,18 @@ module vyatta-protocols-frr-bgp-v1 {
 		}
 	}
 
+	grouping bgp-params-global-ebgp-requires-policy {
+		leaf ebgp-requires-policy {
+			configd:help "Require import and export policies for EBGP peers (RFC 8212)";
+			description "Require import and export policies for EBGP peers (RFC 8212)";
+			default enabled;
+			type enumeration {
+				enum enabled;
+				enum disabled;
+			}
+		}
+	}
+
 	grouping bgp-params-timers {
 		container timers {
 			description "BGP protocol timers";
@@ -1213,7 +1230,6 @@ module vyatta-protocols-frr-bgp-v1 {
 	grouping bgp-params-global-default-vrf {
 		container parameters {
 			description "BGP Global parameters that can be configured under Default BGP Routing Instance";
-			presence "Enables BGP parameters";
 			configd:help "BGP parameters";
 			uses bgp-params-global-cluster-id;
 			uses bgp-params-global-always-compare-med;
@@ -1226,6 +1242,7 @@ module vyatta-protocols-frr-bgp-v1 {
 			uses bgp-params-global-no-client-to-client-reflection;
 			uses bgp-params-global-deterministic-med;
 			uses bgp-params-global-router-id;
+			uses bgp-params-global-ebgp-requires-policy;
 		}
 		uses bgp-params-timers;
 	}

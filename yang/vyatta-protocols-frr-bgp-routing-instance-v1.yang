@@ -55,6 +55,11 @@ module vyatta-protocols-frr-bgp-routing-instance-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 		 The YANG module for vyatta-protocols-frr-bgp-routing-instance-v1";
 
+	revision 2020-11-03 {
+		description
+			"Add ebgp-requires-policy parameter.
+			 Global parameters container no longer has presence.";
+	}
 	revision 2018-11-02 {
 		description "Initial revision";
 	}
@@ -99,7 +104,6 @@ module vyatta-protocols-frr-bgp-routing-instance-v1 {
 	grouping bgp-params-global-vrf {
 		container parameters {
 			description "BGP Global parameters that can be configured under Non-default BGP Routing Instance";
-			presence "Enables BGP parameters";
 			configd:help "BGP parameters";
 			uses protocols-bgp:bgp-params-global-always-compare-med;
 			uses protocols-bgp:bgp-params-global-default;
@@ -112,6 +116,7 @@ module vyatta-protocols-frr-bgp-routing-instance-v1 {
 			uses protocols-bgp:bgp-params-global-deterministic-med;
 			uses protocols-bgp:bgp-params-global-router-id;
 			uses protocols-bgp:bgp-params-global-graceful-restart;
+			uses protocols-bgp:bgp-params-global-ebgp-requires-policy;
 		}
 		uses protocols-bgp:bgp-params-timers;
 	}
