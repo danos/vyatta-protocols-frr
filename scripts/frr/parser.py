@@ -40,9 +40,23 @@ class VyattaJSONParser:
     keys referenced in the commands
     """
 
+    class SyntaxFile:
+        """ Represents a single syntax (translation) file """
+
+        def __init__(self, path, name):
+            self.processed = False
+            self._path = path
+            self._name = name
+
+        def load(self):
+            with open(os.path.join(self._path, self._name), 'r') as syntax_json:
+                return json.load(syntax_json)
+
+
     def __init__(self, vyatta_config=None, syntax=None, debug=False):
         self.tree = vyatta_config
         self.syntax = syntax
+        self.syntax_files = {}
         # holds the parent of each node in the json. Used to traverse up the tree
         self.parent_stack = []
         # holds the CLI commands as a list of strings
@@ -59,15 +73,19 @@ class VyattaJSONParser:
         """Decodes the json with OrderedDicts instead of dicts"""
         return json.loads(config_string, object_pairs_hook=OrderedDict)
 
+    def discover_syntax(self, dir):
+        command_files = filter(
+            lambda x: x.lower().endswith('.json'), listdir(dir))
+        self.syntax_files = dict(
+            [(x, self.SyntaxFile(dir, x)) for x in command_files])
+
     def read_syntax_files(self, dir_path):
         """Reads all files syntax files and merges them to one big
         dict with all the syntax commands"""
         self.syntax = {}
-        command_files = filter(
-            lambda x: x.lower().endswith('.json'), listdir(dir_path))
-        for filename in command_files:
-            with open(dir_path+'/'+filename, 'r') as syntax_json:
-                self.syntax = {**self.syntax, **json.load(syntax_json)}
+        self.discover_syntax(dir_path)
+        for syntax_file in self.syntax_files:
+            self.syntax = {**self.syntax, **syntax_file.load()}
 
     def output_config(self, path, owner):
         """Write the already parsed config to a file"""
