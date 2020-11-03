@@ -1,5 +1,4 @@
 {
-    "/interfaces/@element/ip/ospf": "interface {/../../tagnode/@text}",
     "/interfaces/@element/ip/ospf/authentication/md5": "ip ospf authentication message-digest",
     "/interfaces/@element/ip/ospf/authentication/md5-key-id/@element": "ip ospf message-digest-key {/tagnode/@text} md5 {/md5-key/@text}",
     "/interfaces/@element/ip/ospf/authentication/plaintext": "ip ospf authentication",
