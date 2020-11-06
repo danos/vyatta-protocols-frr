@@ -1,5 +1,9 @@
 [
     {
+        "config": [
+            "log syslog",
+            "no zebra nexthop kernel enable"
+        ],
         "translate": "remaining"
     }
 ]
