@@ -24,6 +24,7 @@ DIR_TRAVERSE_UP_LABEL = "¬"
 
 CONFIGS_DIR = '/etc/vyatta-routing/configs'
 PRIORITIES_FILENAME = '/priorities.json'
+STEPS_FILENAME = '/steps.json'
 COMMANDS_DIRNAME = '/commands'
 BASE_CONF_FILE = f"{CONFIGS_DIR}/base.conf"
 VYATTA_JSON_FILE = "/etc/vyatta-routing/frr.json"
@@ -39,6 +40,38 @@ class VyattaJSONParser:
     """Traverses the json config, visits every node and extracts the values of
     keys referenced in the commands
     """
+
+    class Step:
+        """
+        An individual parsing step, defined by an object in steps.json.
+
+        A Step contains a list of static configuration lines and a list
+        of SyntaxFile objects. When executed the static configuration is
+        appended to the parser output, and the specified syntax files are
+        loaded and the configuration parsed against that syntax. Any
+        SyntaxFile which has already been used (ie. in a previous step) is
+        ignored.
+        """
+
+        def __init__(self, lines, translations):
+            self._lines = lines
+            self._translations = translations
+
+        def execute(self, parser):
+            parser.output.extend(self._lines)
+
+            if not self._translations:
+                return
+
+            syntax = {}
+            for syntax_file in self._translations:
+                if not syntax_file.processed:
+                    syntax = {**syntax, **syntax_file.load()}
+                    syntax_file.processed = True
+
+            parser.syntax = syntax
+            parser.parse_config()
+
 
     class SyntaxFile:
         """ Represents a single syntax (translation) file """
@@ -57,6 +90,7 @@ class VyattaJSONParser:
         self.tree = vyatta_config
         self.syntax = {} if syntax is None else syntax
         self.syntax_files = {}
+        self.steps = []
         # holds the parent of each node in the json. Used to traverse up the tree
         self.parent_stack = []
         # holds the CLI commands as a list of strings
@@ -86,6 +120,28 @@ class VyattaJSONParser:
         self.discover_syntax(dir_path)
         for syntax_file in self.syntax_files:
             self.syntax = {**self.syntax, **syntax_file.load()}
+
+    def load_steps(self, path):
+        with open(path, 'r') as f:
+            steps = json.load(f)
+
+        for step in steps:
+            syntax = step.get("translate", [])
+            if syntax == "remaining":
+                # Special case - use all discovered syntax files.
+                # When the step is executed we ignore any files which
+                # have already been processed, ie. we will only process
+                # any remaining syntax files.
+                syntax = self.syntax_files.values()
+            else:
+                syntax = [self.syntax_files[f] for f in syntax]
+            self.steps.append(self.Step(step.get("config", []), syntax))
+
+    def execute_steps(self):
+        for step in self.steps:
+            self.parent_stack = []
+            self.syntax = {}
+            step.execute(self)
 
     def output_config(self, path, owner):
         """Write the already parsed config to a file"""
@@ -303,8 +359,9 @@ def main():
     v = VyattaJSONParser(debug=args.d)
     v.read_vyatta_config(args.i)
     v.prioritize(args.c + PRIORITIES_FILENAME)
-    v.read_syntax_files(args.c + COMMANDS_DIRNAME)
-    v.parse_config()
+    v.discover_syntax(args.c + COMMANDS_DIRNAME)
+    v.load_steps(args.c + STEPS_FILENAME)
+    v.execute_steps()
     v.output_config(args.o, OUTPUT_FILE_OWNER)
     ret = subprocess.run([ FRR_RELOAD, "--stdout", "--reload", "--log-level", "warning",
                            "/etc/vyatta-routing/frr.conf" ],
