@@ -4,6 +4,9 @@
             "log syslog",
             "no zebra nexthop kernel enable"
         ],
+        "translate": ["static.json"]
+    },
+    {
         "translate": "remaining"
     }
 ]
