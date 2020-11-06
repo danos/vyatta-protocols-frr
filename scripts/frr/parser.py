@@ -26,7 +26,6 @@ CONFIGS_DIR = '/etc/vyatta-routing/configs'
 PRIORITIES_FILENAME = '/priorities.json'
 STEPS_FILENAME = '/steps.json'
 COMMANDS_DIRNAME = '/commands'
-BASE_CONF_FILE = f"{CONFIGS_DIR}/base.conf"
 VYATTA_JSON_FILE = "/etc/vyatta-routing/frr.json"
 OUTPUT_FILE = "/etc/vyatta-routing/frr.conf"
 OUTPUT_FILE_OWNER = "routing"
@@ -203,11 +202,6 @@ class VyattaJSONParser:
         """Retrieves each node's command and puts it in the output CLI config
         Returns list of command strings.
         """
-        if (os.path.exists(BASE_CONF_FILE)):
-            with open(BASE_CONF_FILE) as base_conf:
-                for line in base_conf:
-                    self.output.append(line.strip())
-
         for node, path in self.depth_first_traverse(self.tree):
             self.on_enter(node, path)
             self._process_commands(node, path)

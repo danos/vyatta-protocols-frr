@@ -2,6 +2,5 @@
 etc/modules-load.d/* etc/modules-load.d
 scripts/frr/command.py usr/lib/python3/dist-packages/vyatta
 scripts/frr/configs/* etc/vyatta-routing/configs
-scripts/frr/configs/base.conf => etc/vyatta-routing/frr.conf
 scripts/frr/parser.py opt/vyatta/sbin
 usr/bin/frr opt/vyatta/sbin
