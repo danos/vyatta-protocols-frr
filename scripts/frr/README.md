@@ -26,6 +26,21 @@
 }
 ```
 
+* **steps file**: JSON file defining the logical steps required to complete
+parsing of the input configuration. This file must be located at
+\<configDir>/steps.json. The format is as follows:
+
+```json
+[
+    {
+        'translate': ['static.json']
+    },
+    {
+        'translate: 'remaining'
+    }
+]
+```
+
 * **priority file**: Flat JSON file dictating nodes that have ordering requirements. Should be stored under \<configDir> directory. The format is as follows:
 
 ```json
@@ -212,3 +227,57 @@ e.g.
 ```
 
 Specifies that when visiting children of /protocols/ospf, child 'a' will be retrieved first (if exists), then b, then any other children in random order and finally 'y' and then 'z'.
+
+## Steps
+
+In some cases it might be necessary to inject additional static configuration,
+for which there is no translation, or to control the ordering of the output
+configuration by adjusting the syntax (translations) which are loaded at
+any one time.
+
+This is possible using the steps.json configuration which defines a JSON array
+of objects with each object representing a parsing "step". To complete the full
+parsing operation steps are executed sequentially.
+
+Two properties are currently supported for each step object:
+
+* **'config'**: Defines static configuration lines which are simply appended to
+the output configuration. This is optional and, if defined, is run first during
+each step.
+
+* **'translate'**: Defines a list of syntax (translation) files, by name, which are
+loaded prior to parsing the input configuration during the step execution.
+If a syntax file is specified in multiple steps it will be ignored in all steps except
+the first.
+As a special case, the value may also be set to "remaining" (not in a list), which
+causes all syntax files to be loaded (so long as they have not been loaded by a
+previous step).
+
+By defining multiple steps and choosing which syntax is loaded for
+those steps we can influence the ordering of the resulting output
+configuration in ways not previously possible with the existing
+priorities.json configuration.
+
+## Example
+
+```json
+[
+    {
+        "config": [
+            "log syslog",
+            "no zebra nexthop kernel enable"
+        ],
+        "translate": ["static.json"]
+    },
+    {
+        "translate": "remaining"
+    }
+]
+```
+
+In the above example we define an intial step which outputs some static
+FRR configuration and then generates all static route configuration (across
+all routing instances, as defined by static.json).
+
+In the subsequent step we load the remaining syntax files (ie. all but
+static.json) and generate all configuration for that loaded syntax.
