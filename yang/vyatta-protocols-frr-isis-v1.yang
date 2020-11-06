@@ -5,6 +5,9 @@ module vyatta-protocols-frr-isis-v1 {
   import vyatta-protocols-v1 {
     prefix protocols;
   }
+  import vyatta-types-v1 {
+    prefix types;
+  }
   import configd-v1 {
     prefix configd;
   }
@@ -58,6 +61,10 @@ module vyatta-protocols-frr-isis-v1 {
 
     SPDX-License-Identifier: BSD-3-Clause
     The YANG module package for vyatta-protocols-frr-isis-v1";
+
+  revision 2020-11-06 {
+    description "Added ISIS topology and mpls-te configuration";
+  }
 
   revision 2020-10-10 {
     description "Added ISIS under loopback interface";
@@ -396,6 +403,90 @@ module vyatta-protocols-frr-isis-v1 {
       configd:help "MTU of an LSP.";
       description "MTU of an LSP.";
     }
+
+    container mpls-te {
+      presence "Enable MPLS-TE";
+      configd:help "MPLS-TE specific commands.";
+      leaf router-address {
+        type types:ipv4-address;
+        configd:help "Stable IP address of the advertising router.";
+        description "Stable IP address of the advertising router.";
+      }
+    }
+
+    container topology {
+      configd:help "Configure IS-IS topologies.";
+      description "Configure IS-IS topologies.";
+      container ipv4-multicast {
+        presence "IPv4-multicast topology is configured for this area.";
+        description "IPv4 multicast topology.";
+        configd:help "IPv4 multicast topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv4-unicast {
+        presence "IPv4-unicast topology is configured for this area.";
+        description "IPv4 unicast topology.";
+        configd:help "IPv4 unicast topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv4-mgmt {
+        presence "IPv4-management topology is configured for this area.";
+        description "IPv4 management topology.";
+        configd:help "IPv4 management topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv6-unicast {
+        presence "IPv6-unicast topology is configured for this area.";
+        description "IPv6 unicast topology.";
+        configd:help "IPv6 unicast topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv6-multicast {
+        presence "IPv6-multicast topology is configured for this area.";
+        description "IPv6 multicast topology.";
+        configd:help "IPv6 multicast topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv6-mgmt {
+        presence "IPv6-management topology is configured for this area.";
+        description "IPv6 management topology.";
+        configd:help "IPv6 management topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+
+      container ipv6-dstsrc {
+        presence "IPv6 destination-source topology is configured for this area.";
+        description "IPv6 destination-source topology.";
+        configd:help "IPv6 destination-source topology.";
+        leaf overload {
+          type empty;
+          configd:help "Set overload bit for topology.";
+        }
+      }
+    }
   }
 
   grouping redistribute-protocol {
@@ -560,6 +651,56 @@ module vyatta-protocols-frr-isis-v1 {
         must "(. = 'point-to-point') or (. = 'broadcast')";
         configd:help "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
         description "Explicitly configured type of IS-IS circuit (broadcast or point-to-point).";
+      }
+      container topology {
+        configd:help "Configure IS-IS topologies.";
+        leaf ipv4-unicast {
+          type empty;
+          description
+            "IPv4 unicast topology.";
+          configd:help "IPv4 unicast topology.";
+        }
+
+        leaf ipv4-multicast {
+          type empty;
+          description "IPv4 multicast topology.";
+          configd:help "IPv4 multicast topology.";
+        }
+
+        leaf ipv4-mgmt {
+          type empty;
+          description
+            "IPv4 management topology.";
+          configd:help "IPv4 management topology.";
+        }
+
+        leaf ipv6-unicast {
+          type empty;
+          description
+            "IPv6 unicast topology.";
+          configd:help "IPv6 unicast topology.";
+        }
+
+        leaf ipv6-multicast {
+          type empty;
+          description
+            "IPv6 multicast topology.";
+          configd:help "IPv6 multicast topology.";
+        }
+
+        leaf ipv6-mgmt {
+          type empty;
+          description
+            "IPv6 management topology.";
+          configd:help "IPv6 management topology.";
+        }
+
+        leaf ipv6-dstsrc {
+          type empty;
+          description
+            "IPv6 destination-source topology.";
+          configd:help "IPv6 destination-source topology.";
+        }
       }
     }
   }
