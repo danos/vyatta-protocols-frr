@@ -8,6 +8,12 @@
     "/protocols/bgp/@element/peer-group/@element": {
         "first": ["remote-as"]
     },
+    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element": {
+        "first": ["remote-as"]
+    },
+    "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element": {
+        "first": ["remote-as"]
+    },
     "/protocols/mpls-ldp": {
         "last": ["address-family"]
     },
