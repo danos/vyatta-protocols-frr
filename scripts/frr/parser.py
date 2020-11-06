@@ -55,7 +55,7 @@ class VyattaJSONParser:
 
     def __init__(self, vyatta_config=None, syntax=None, debug=False):
         self.tree = vyatta_config
-        self.syntax = syntax
+        self.syntax = {} if syntax is None else syntax
         self.syntax_files = {}
         # holds the parent of each node in the json. Used to traverse up the tree
         self.parent_stack = []
@@ -302,8 +302,8 @@ def main():
 
     v = VyattaJSONParser(debug=args.d)
     v.read_vyatta_config(args.i)
-    v.read_syntax_files(args.c + COMMANDS_DIRNAME)
     v.prioritize(args.c + PRIORITIES_FILENAME)
+    v.read_syntax_files(args.c + COMMANDS_DIRNAME)
     v.parse_config()
     v.output_config(args.o, OUTPUT_FILE_OWNER)
     ret = subprocess.run([ FRR_RELOAD, "--stdout", "--reload", "--log-level", "warning",
