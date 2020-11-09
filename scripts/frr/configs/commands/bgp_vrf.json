@@ -21,7 +21,7 @@
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/network/import-check": "$if|no,|{/@text} == disabled$ bgp network import-check",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/router-id": "bgp router-id {/@text}",
 
-    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element": "[neighbor {/../../tagnode/@text} peer-group {/peer-group/@text},]", 
+    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family": "neighbor {/../tagnode/@text} peer-group [{/ipv4-unicast/peer-group/@text},{/ipv6-unicast/peer-group/@text}]",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/advertisement-interval": "neighbor {/../tagnode/@text} advertisement-interval {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/capability/dynamic": "neighbor {/../../tagnode/@text} capability dynamic",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/description": "neighbor {/../tagnode/@text} description {/@text}",
@@ -75,7 +75,7 @@
 
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/@enter": "address-family ipv4 unicast",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/@exit": "exit-address-family",
-    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast": ["[neighbor {/../../tagnode/@text} peer-group {/peer-group/@text},]", "neighbor {/../../tagnode/@text} activate"],
+    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast": "neighbor {/../../tagnode/@text} activate",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/allowas-in": "neighbor {/../../../tagnode/@text} allowas-in",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/allowas-in/number": "neighbor {/../../../../tagnode/@text} allowas-in {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv4-unicast/attribute-unchanged": "neighbor {/../../../tagnode/@text} attribute-unchanged $if|as-path,|as-path in {/@dict}$ $if|med,|med in {/@dict}$ $if|next-hop,|next-hop in {/@dict}$",
@@ -104,7 +104,7 @@
 
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/@enter": "address-family ipv6 unicast",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/@exit": "exit-address-family",
-    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast": ["[neighbor {/../../tagnode/@text} peer-group {/peer-group/@text},]", "neighbor {/../../tagnode/@text} activate"],
+    "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast": "neighbor {/../../tagnode/@text} activate",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/allowas-in": "neighbor {/../../../tagnode/@text} allowas-in",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/allowas-in/number": "neighbor {/../../../../tagnode/@text} allowas-in {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/attribute-unchanged": "neighbor {/../../../tagnode/@text} attribute-unchanged $if|as-path,|as-path in {/@dict}$ $if|med,|med in {/@dict}$ $if|next-hop,|next-hop in {/@dict}$",
@@ -130,7 +130,7 @@
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/route-map/export": "neighbor {/../../../../tagnode/@text} route-map {/@text} out",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/unsuppress-map": "neighbor {/../../../tagnode/@text} unsuppress-map {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/neighbor/@element/address-family/ipv6-unicast/weight": "neighbor {/../../../tagnode/@text} weight {/@text}",
-    
+
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element": "neighbor {/tagnode/@text} peer-group",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/advertisement-interval": "neighbor {/../tagnode/@text} advertisement-interval {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/capability/dynamic": "neighbor {/../../tagnode/@text} capability dynamic",
@@ -155,7 +155,7 @@
 
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast/@enter": "address-family ipv4 unicast",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast/@exit": "exit-address-family",
-    "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast": ["[neighbor {/../../tagnode/@text} neighbor {/neighbor/@text},]", "neighbor {/../../tagnode/@text} activate"],
+    "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast": "neighbor {/../../tagnode/@text} activate",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast/allowas-in": "neighbor {/../../../tagnode/@text} allowas-in",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast/allowas-in/number": "neighbor {/../../../../tagnode/@text} allowas-in {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv4-unicast/attribute-unchanged": "neighbor {/../../../tagnode/@text} attribute-unchanged $if|as-path,|as-path in {/@dict}$ $if|med,|med in {/@dict}$ $if|next-hop,|next-hop in {/@dict}$",
@@ -184,7 +184,7 @@
 
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast/@enter": "address-family ipv6 unicast",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast/@exit": "exit-address-family",
-    "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast": ["[neighbor {/../../tagnode/@text} neighbor {/neighbor/@text},]", "neighbor {/../../tagnode/@text} activate"],
+    "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast": "neighbor {/../../tagnode/@text} activate",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast/allowas-in": "neighbor {/../../../tagnode/@text} allowas-in",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast/allowas-in/number": "neighbor {/../../../../tagnode/@text} allowas-in {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/peer-group/@element/address-family/ipv6-unicast/attribute-unchanged": "neighbor {/../../../tagnode/@text} attribute-unchanged $if|as-path,|as-path in {/@dict}$ $if|med,|med in {/@dict}$ $if|next-hop,|next-hop in {/@dict}$",
