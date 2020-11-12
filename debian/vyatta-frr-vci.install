@@ -1,4 +1,3 @@
-#!/usr/bin/dh-exec
 etc/modules-load.d/* etc/modules-load.d
 scripts/frr/command.py usr/lib/python3/dist-packages/vyatta
 scripts/frr/configs/* etc/vyatta-routing/configs
