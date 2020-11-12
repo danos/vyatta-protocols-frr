@@ -1,3 +1,18 @@
+vyatta-protocols-frr (1.14.1) unstable; urgency=medium
+
+  * priorities.json: Fix BGP remote-as in rt. instance
+  * bgp.json: Improve peer-group translations
+  * parser.py: do subst. on enter/exit translations
+  * Add common translations for interface config
+  * parser.py: re-factor json imports
+  * parser.py: Add SyntaxFile class
+  * parser.py: prioritise config before reading syntax
+  * parser.py: Add steps support
+  * parser.py: Replace base.conf with step config
+  * steps.json: Apply static translations first
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Thu, 12 Nov 2020 16:27:47 +0000
+
 vyatta-protocols-frr (1.14.0) unstable; urgency=medium
 
   * BGP: Add ebgp-requires-policy global parameter
