@@ -348,6 +348,8 @@ def main():
                         default=CONFIGS_DIR)
     parser.add_argument('-d', help='show debugging messages', action='store_const',
                         const=True, default=False)
+    parser.add_argument('--no-reload', help='do not trigger FRR reload', action='store_const',
+                        const=False, default=True, dest='reload')
     args = parser.parse_args()
 
     v = VyattaJSONParser(debug=args.d)
@@ -357,10 +359,12 @@ def main():
     v.load_steps(args.c + STEPS_FILENAME)
     v.execute_steps()
     v.output_config(args.o, OUTPUT_FILE_OWNER)
-    ret = subprocess.run([ FRR_RELOAD, "--stdout", "--reload", "--log-level", "warning",
-                           "/etc/vyatta-routing/frr.conf" ],
-                         stdout=sys.stdout, stderr=sys.stderr)
-    sys.exit(ret.returncode)
+
+    if args.reload:
+        ret = subprocess.run([ FRR_RELOAD, "--stdout", "--reload", "--log-level", "warning",
+                               "/etc/vyatta-routing/frr.conf" ],
+                             stdout=sys.stdout, stderr=sys.stderr)
+        sys.exit(ret.returncode)
 
 
 if __name__ == "__main__":
