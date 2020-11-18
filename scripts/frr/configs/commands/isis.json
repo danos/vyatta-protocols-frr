@@ -1,5 +1,6 @@
 {
     "/interfaces/@element/ip/isis/instance": "ip router isis {/@text}",
+    "/interfaces/@element/ipv6/isis/instance": "ipv6 router isis {/@text}",
     "/interfaces/@element/isis/circuit-type": "isis circuit-type {/@text}",
     "/interfaces/@element/isis/hello-interval/level-1": "isis hello-interval {/@text} level-1",
     "/interfaces/@element/isis/hello-interval/level-2": "isis hello-interval {/@text} level-2",

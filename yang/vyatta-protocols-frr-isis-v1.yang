@@ -62,7 +62,7 @@ module vyatta-protocols-frr-isis-v1 {
     SPDX-License-Identifier: BSD-3-Clause
     The YANG module package for vyatta-protocols-frr-isis-v1";
 
-  revision 2020-11-06 {
+  revision 2020-11-17 {
     description "Added ISIS topology and mpls-te configuration";
   }
 
@@ -73,7 +73,6 @@ module vyatta-protocols-frr-isis-v1 {
   revision 2020-03-30 {
     description "Initial revision of version 1";
   }
-
 
   typedef level {
     type enumeration {
@@ -714,10 +713,19 @@ module vyatta-protocols-frr-isis-v1 {
   augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ip {
     uses itf-ip-router-isis;
   }
+  augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:ipv6 {
+    uses itf-ip-router-isis;
+  }
+  augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane:ipv6 {
+    uses itf-ip-router-isis;
+  }
   augment /if:interfaces/interfaces-loopback:loopback {
    uses isis;
   }
   augment /if:interfaces/interfaces-loopback:loopback/interfaces-loopback:ip {
+    uses itf-ip-router-isis;
+  }
+  augment /if:interfaces/interfaces-loopback:loopback/interfaces-loopback:ipv6 {
     uses itf-ip-router-isis;
   }
 
