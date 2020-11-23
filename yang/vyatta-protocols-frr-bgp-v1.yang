@@ -64,7 +64,7 @@ module vyatta-protocols-frr-bgp-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 		 The YANG module package for vyatta-protocols-frr-bgp-v1";
 
-	revision 2020-11-03 {
+	revision 2020-11-23 {
 		description
 			"Add ebgp-requires-policy and network import-check parameters.
 			 Global parameters container no longer has presence.";
@@ -809,8 +809,14 @@ module vyatta-protocols-frr-bgp-v1 {
 			description "Require import and export policies for EBGP peers (RFC 8212)";
 			default enabled;
 			type enumeration {
-				enum enabled;
-				enum disabled;
+				enum enabled {
+					configd:help "Require import and export policies";
+					description "Require import and export policies";
+				}
+				enum disabled {
+					configd:help "Do not require import and export policies";
+					description "Do not require import and export policies";
+				}
 			}
 		}
 	}
@@ -825,8 +831,14 @@ module vyatta-protocols-frr-bgp-v1 {
 				description "Only advertise networks which are present in the RIB";
 				default enabled;
 				type enumeration {
-					enum enabled;
-					enum disabled;
+					enum enabled {
+						configd:help "Do not advertise networks which are not present in the RIB";
+						description "Do not advertise networks which are not present in the RIB";
+					}
+					enum disabled {
+						configd:help "Advertise networks which are not present in the RIB";
+						description "Advertise networks which are not present in the RIB";
+					}
 				}
 			}
 		}
