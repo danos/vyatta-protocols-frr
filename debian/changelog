@@ -1,3 +1,13 @@
+vyatta-protocols-frr (1.14.3) unstable; urgency=medium
+
+  [ Jan Novak ]
+  * VRVDR-53646 Add interface ipv6 isis instance CLI
+
+  [ Duncan Eastoe ]
+  * BGP: import-check & ebgp-requires-policy help text
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 27 Nov 2020 15:09:18 +0000
+
 vyatta-protocols-frr (1.14.2) unstable; urgency=medium
 
   * vyatta-frr-vci.postinst expects frr.conf
