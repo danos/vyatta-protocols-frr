@@ -22,7 +22,7 @@ Breaks: vyatta-protocols (<< 1.12.0), frr (<< 7.3.1-0vyatta4)
 Replaces: vyatta-protocols (<< 1.12.0), frr (<< 7.3.1-0vyatta4)
 Architecture: all
 Depends:
- frr (>= 7.3.1-0vyatta4),
+ frr (>= 7.5-0danos1),
  frr-snmp,
  vyatta-protocols-common,
  ${misc:Depends}
