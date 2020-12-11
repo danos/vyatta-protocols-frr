@@ -45,8 +45,8 @@
     "/policy/route/prefix-list6/@element/description":"ipv6 prefix-list {/../tagnode/@text} description {/@text}",
     "/policy/route/access-list/@element":"$acl|{/@dict}$",
     "/policy/route/access-list6/@element":"$acl6|{/@dict}$",
-    "/policy/route/community-list/standard/@element/rule/@element":"bgp community-list standard {/../../tagnode/@text} {/action/@text} $if|local-AS,{community/@text}|{community/@text}==local-as$",
-    "/policy/route/community-list/expanded/@element/rule/@element":"bgp community-list expanded {/../../tagnode/@text} {/action/@text} {regex/@text}",
-    "/policy/route/extcommunity-list/standard/@element/rule/@element":"bgp extcommunity-list standard {/../../tagnode/@text} {/action/@text} [rt {rt/@text},] [soo {soo/@text},]",
-    "/policy/route/extcommunity-list/expanded/@element/rule/@element":"bgp extcommunity-list expanded {/../../tagnode/@text} {/action/@text} {regex/@text}"
+    "/policy/route/community-list/standard/@element/rule/@element":"bgp community-list standard {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} $if|local-AS,{community/@text}|{community/@text}==local-as$",
+    "/policy/route/community-list/expanded/@element/rule/@element":"bgp community-list expanded {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} {regex/@text}",
+    "/policy/route/extcommunity-list/standard/@element/rule/@element":"bgp extcommunity-list standard {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} [rt {rt/@text},] [soo {soo/@text},]",
+    "/policy/route/extcommunity-list/expanded/@element/rule/@element":"bgp extcommunity-list expanded {/../../tagnode/@text} seq {/tagnode/@text} {/action/@text} {regex/@text}"
 }
