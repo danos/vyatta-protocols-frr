@@ -1,3 +1,11 @@
+vyatta-protocols-frr (1.14.4) unstable; urgency=medium
+
+  [ harios_niral ]
+  * Fix first 2 issues of DAN-170: Added ISIS topology and mpls-te configuration
+  * Fix 3rd issues of DAN-170
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Wed, 16 Dec 2020 11:36:53 +0000
+
 vyatta-protocols-frr (1.14.3) unstable; urgency=medium
 
   [ Jan Novak ]
