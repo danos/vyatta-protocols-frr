@@ -20,6 +20,9 @@ module vyatta-protocols-frr-isis-v1 {
   import vyatta-interfaces-loopback-v1 {
     prefix interfaces-loopback;
   }
+  import vyatta-interfaces-switch-v1 {
+    prefix interfaces-switch;
+  }
 
   organization "Niral Networks Private Limited";
   contact
@@ -62,10 +65,11 @@ module vyatta-protocols-frr-isis-v1 {
     SPDX-License-Identifier: BSD-3-Clause
     The YANG module package for vyatta-protocols-frr-isis-v1";
 
-  revision 2020-11-17 {
+  revision 2020-12-18 {
     description 
       "Add IPv6 ISIS interface config option.
-      Added ISIS topology and mpls-te configuration";
+      Added ISIS topology and mpls-te configuration.
+      Added ISIS under vif interface";
   }
 
   revision 2020-10-10 {
@@ -730,5 +734,13 @@ module vyatta-protocols-frr-isis-v1 {
   augment /if:interfaces/interfaces-loopback:loopback/interfaces-loopback:ipv6 {
     uses itf-ip-router-isis;
   }
-
+  augment /if:interfaces/interfaces-switch:switch/interfaces-switch:vif {
+    uses isis;
+  }
+  augment /if:interfaces/interfaces-switch:switch/interfaces-switch:vif/interfaces-switch:ip {
+    uses itf-ip-router-isis;
+  }
+  augment /if:interfaces/interfaces-switch:switch/interfaces-switch:vif/interfaces-switch:ipv6 {
+    uses itf-ip-router-isis;
+  }
 }
