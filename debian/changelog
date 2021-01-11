@@ -1,3 +1,9 @@
+vyatta-protocols-frr (1.14.6) unstable; urgency=medium
+
+  * debian/control: Add dependency on frr-snmp
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Mon, 11 Jan 2021 11:58:29 +0000
+
 vyatta-protocols-frr (1.14.5) unstable; urgency=medium
 
   [ harios_niral ]
