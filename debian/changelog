@@ -1,3 +1,11 @@
+vyatta-protocols-frr (1.15.0) unstable; urgency=medium
+
+  * static.json: Update translated default VRF name
+  * Switch to dplane_fpm_nl FPM implementation
+  * policy.json: Configure community-list seq
+
+ -- Duncan Eastoe <duncan.eastoe@att.com>  Fri, 22 Jan 2021 14:37:30 +0000
+
 vyatta-protocols-frr (1.14.6) unstable; urgency=medium
 
   * debian/control: Add dependency on frr-snmp
