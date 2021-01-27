@@ -1,6 +1,6 @@
 Source: vyatta-protocols-frr
 Section: contrib/net
-Priority: extra
+Priority: optional
 Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
 Build-Depends:
  config-package-dev,
@@ -26,7 +26,8 @@ Depends:
  frr-snmp,
  vyatta-protocols-common,
  ${misc:Depends}
-Description: Common scripts & libs for FRR on Vyatta
+Description: common package for FRR
+ Common scripts & libraries for FRR on Vyatta
 
 Package: vyatta-op-show-ip-ipv6-route-frr-v1-yang
 Architecture: all
@@ -94,7 +95,8 @@ Description: BGP Yang module which supports Routing Instance
 
 Package: vyatta-frr-vci
 Architecture: any
-Priority: extra
+Priority: optional
+Pre-Depends: adduser
 Depends: frr-pythontools (>= 7.3.1-0vyatta3),
  python3 (>= 3.6),
  ${misc:Depends},
