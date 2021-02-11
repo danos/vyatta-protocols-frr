@@ -1,4 +1,4 @@
-// Copyright (c) 2018-2020, AT&T Intellectual Property.
+// Copyright (c) 2018-2021, AT&T Intellectual Property.
 // All rights reserved.
 //
 // SPDX-License-Identifier: GPL-2.0-only
@@ -20,6 +20,36 @@ const (
 	componentName = "net.vyatta.vci.frr"
 	v1Component   = componentName + ".v1"
 )
+
+func doReload() error {
+	var err_msg string
+	out, err := exec.Command("/opt/vyatta/sbin/parser.py").CombinedOutput()
+	if err == nil {
+		log.Infoln("FRR translation successful")
+	} else {
+		err_msg = "Failed to run FRR translation: " + err.Error()
+		log.Errorln(err_msg)
+	}
+
+	debugOn := log.IsLevelEnabled(log.DebugLevel)
+
+	if (err != nil || debugOn) && len(out) > 0 {
+		// If debug is enabled or there was an error, and output was collected
+		// from the parser, return it instead of any generic error.
+		err = errors.New(string(out))
+	} else if err != nil {
+		err = errors.New(err_msg)
+	}
+
+	ret_err := protocols.NewMultiError()
+	ret_err = multierr.Append(ret_err, err)
+
+	// Restart static arp service
+	err = protocols.NewProtocolsDaemon("vyatta-static-arp").Restart()
+	ret_err = multierr.Append(ret_err, err)
+
+	return ret_err.ErrorOrNil()
+}
 
 func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 	var frontend_interface, old_frontend_interface interface{}
@@ -50,33 +80,8 @@ func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 		return err
 	}
 
-	var err_msg string
-	out, err := exec.Command("/opt/vyatta/sbin/parser.py").CombinedOutput()
-	if err == nil {
-		log.Infoln("FRR translation successful")
-	} else {
-		err_msg = "Failed to run FRR translation: " + err.Error()
-		log.Errorln(err_msg)
-	}
 
-	debugOn := log.IsLevelEnabled(log.DebugLevel)
-
-	if (err != nil || debugOn) && len(out) > 0 {
-		// If debug is enabled or there was an error, and output was collected
-		// from the parser, return it instead of any generic error.
-		err = errors.New(string(out))
-	} else if err != nil {
-		err = errors.New(err_msg)
-	}
-
-	ret_err := protocols.NewMultiError()
-	ret_err = multierr.Append(ret_err, err)
-
-	// Restart static arp service
-	err = protocols.NewProtocolsDaemon("vyatta-static-arp").Restart()
-	ret_err = multierr.Append(ret_err, err)
-
-	return ret_err.ErrorOrNil()
+	return doReload()
 }
 
 func main() {
