@@ -11,7 +11,9 @@ import (
 	"eng.vyatta.net/protocols/static"
 	"errors"
 	log "github.com/Sirupsen/logrus"
+	"github.com/danos/encoding/rfc7951"
 	multierr "github.com/hashicorp/go-multierror"
+	"os"
 	"os/exec"
 )
 
@@ -20,6 +22,14 @@ const (
 	componentName = "net.vyatta.vci.frr"
 	v1Component   = componentName + ".v1"
 )
+
+// Un-provisioned VRFs (routing instances) the current configuration depends on.
+// Configuring FRR is deferred while len(unprovisionedVrfs) > 0.
+var unprovisionedVrfs map[string]interface{} = make(map[string]interface{})
+
+type routingInstanceAdded struct {
+	Name string `rfc7951:"vyatta-routing-v1:name"`
+}
 
 func doReload() error {
 	var err_msg string
@@ -51,8 +61,45 @@ func doReload() error {
 	return ret_err.ErrorOrNil()
 }
 
+func routingInstanceAddedCallback(data string) {
+	var instanceAdded routingInstanceAdded
+
+	err := rfc7951.Unmarshal([]byte(data), &instanceAdded)
+	if err != nil {
+		log.Errorln(err)
+		return
+	}
+
+	// Silently ignore routing instances we aren't interested in.
+	if _, depends := unprovisionedVrfs[instanceAdded.Name]; !depends {
+		return
+	}
+
+	log.Debugf("Received provisioned notification for routing instance %v",
+		instanceAdded.Name)
+
+	delete(unprovisionedVrfs, instanceAdded.Name)
+	if len(unprovisionedVrfs) == 0 {
+		log.Infoln("Running deferred FRR reload")
+		doReload()
+	} else {
+		log.Debugf("Provisioning notifications outstanding for %v routing instance(s)",
+			len(unprovisionedVrfs))
+	}
+}
+
+func registerSubscriptions(pmc *protocols.ProtocolsModelComponent, cfg []byte) {
+	pmc.CreateSubscription("vyatta-routing-v1", "instance-added",
+		routingInstanceAddedCallback)
+}
+
 func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 	var frontend_interface, old_frontend_interface interface{}
+
+	pmc_cfg, err := protocols.ParseJsonComponentConfig(cfg)
+	if err != nil {
+		return err
+	}
 
 	old_cfg := pmc.Get()
 	old_conv_cfg, err := protocols.ConvertConfigToInternalJson(old_cfg)
@@ -80,13 +127,37 @@ func Set(pmc *protocols.ProtocolsModelComponent, cfg []byte) error {
 		return err
 	}
 
+	// Defer the FRR configuration reload until all referenced routing instances
+	// are provisioned on the system. This ensures the FRR configuration in those
+	// instances is provisioned correctly.
+	reload := true
+	unprovisionedVrfs = map[string]interface{}{}
+	for _, routingInstance := range pmc_cfg.Routing.RoutingInstance {
+		_, err := os.Stat("/sys/class/net/vrf" + routingInstance.InstanceName)
+		if os.IsNotExist(err) {
+			log.Debugf("Dependency on unprovisioned routing instance %v",
+				routingInstance.InstanceName)
+			unprovisionedVrfs[routingInstance.InstanceName] = nil
+			reload = false
+		}
+	}
 
-	return doReload()
+	if reload {
+		return doReload()
+	}
+	log.Infoln("Deferring FRR reload until routing instances are provisioned")
+	return nil
 }
 
 func main() {
 	pmc := protocols.NewProtocolsModelComponent(
 		componentName, v1Component, cfgFileName)
 	pmc.SetSetFunction(Set)
+	pmc.SetRegisterSubsFunction(registerSubscriptions)
+	pmc.SetCancelSubsFunction(
+		// Never cancel our subscriptions
+		func(_ *protocols.ProtocolsModelComponent) {
+			return
+		})
 	pmc.Run()
 }
