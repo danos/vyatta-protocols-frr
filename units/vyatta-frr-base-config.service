@@ -1,0 +1,11 @@
+[Unit]
+Description=Write base FRR configuration
+ConditionPathExists=!/etc/frr/frr.conf
+After=systemd-tmpfiles-setup.service
+Before=frr.service vyatta-routing-frr.target
+
+[Service]
+Type=oneshot
+StandardInput=data
+StandardInputText={}
+ExecStart=/opt/vyatta/sbin/parser.py -i /dev/stdin -o /etc/frr/frr.conf --no-reload
