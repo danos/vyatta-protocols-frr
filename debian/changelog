@@ -1,3 +1,16 @@
+vyatta-protocols-frr (1.15.1) unstable; urgency=medium
+
+  [ Mark Gillott ]
+  * frr: use kernel nexthop (Fixes: VRVDR-53780)
+  * debian: cleanup lintian warnings
+
+  [ Duncan Eastoe ]
+  * vci: extract config reload logic into doReload()
+  * vci: defer FRR config until VRFs are provisioned
+  * Generate base FRR config on boot
+
+ -- Mark Gillott <mgillott@vyatta.att-mail.com>  Tue, 23 Feb 2021 11:16:09 +0000
+
 vyatta-protocols-frr (1.15.0) unstable; urgency=medium
 
   * static.json: Update translated default VRF name
