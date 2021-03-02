@@ -1,0 +1,227 @@
+module vyatta-protocols-frr-zebra-v1 {
+  namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-zebra:1";
+  prefix vyatta-protocols-frr-zebra-v1;
+
+  import vyatta-protocols-v1 {
+    prefix protocols;
+  }
+  import vyatta-types-v1 {
+    prefix types;
+  }
+  import configd-v1 {
+    prefix configd;
+  }
+  import vyatta-interfaces-v1 {
+    prefix if;
+  }
+  import vyatta-interfaces-dataplane-v1 {
+    prefix interfaces-dataplane;
+  }
+  import vyatta-interfaces-loopback-v1 {
+    prefix interfaces-loopback;
+  }
+  import vyatta-interfaces-switch-v1 {
+    prefix interfaces-switch;
+  }
+
+  organization "Niral Networks Private Limited";
+  contact
+    "Niral Networks
+    Postal: Sigma Soft Tech Park, Whitefield Main Road,
+    Bengaluru, India 560066
+    Web: www.niralnetworks.com";
+
+  description
+    "Copyright (c) 2019-2020, Niral Networks Intellectual Property.
+    All rights reserved.
+
+    Redistribution and use in source and binary forms, with or
+    without modification, are permitted provided that the following
+    conditions are met:
+
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above
+    copyright notice, this list of conditions and the following
+    disclaimer in the documentation and/or other materials provided
+    with the distribution.
+    3. Neither the name of the copyright holder nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+    FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+    COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+    CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+    LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+    ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+    POSSIBILITY OF SUCH DAMAGE.
+
+    SPDX-License-Identifier: BSD-3-Clause
+    The YANG module package for vyatta-protocols-frr-zebra-v1";
+
+  revision 2021-03-02 {
+    description 
+      "Added link-params option.
+  }
+  
+	typedef ieee-float {
+  	type string {
+    	pattern
+      	'0[xX](0((\.0?)?[pP](\+)?0?|(\.0?))|'
+    	+ '1(\.([0-9a-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+    	+ '1[01][0-9]|0?[0-9]?[0-9])?)';
+  	}
+    configd:help "IEEE floating point format";
+	}
+	
+	typedef float {
+  	type string {
+    	pattern
+      	'(0((\.0?)?[pP](\+)?0?|(\.0?))|'
+    	+ '1(\.([0-9a-fA-F]{0,5}[02468aAcCeE]?)?)?[pP](\+)?(12[0-7]|'
+    	+ '1[01][0-9]|0?[0-9]?[0-9])?)';
+  	}
+    configd:help "floating point format";
+	}
+
+
+  grouping link-params {
+    container link-params {
+      configd:help "Configure interface link parameters";
+			leaf admin-grp {
+				type string {
+      		pattern "0[Xx][a-fA-F0-9]+";
+    		}
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Administrative group membership";
+				description "Administrative group membership";
+			}
+			leaf enable {
+				type empty;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Activate link parameters on this interface";
+				description "Activate link parameters on this interface";
+			}
+
+			leaf ava-bw {
+				type ieee-float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unidirectional Available Bandwidth";
+				description "Unidirectional Available Bandwidth";
+			}
+			leaf delay {
+				type uint32 {
+  				range "0..16777215";
+				}
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unidirectional Average Link Delay";
+				description "Unidirectional Average Link Delay";
+			}
+			leaf delay-variation {
+				type uint32 {
+  				range "0..16777215";
+				}
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unidirectional Link Delay Variation";
+				description "Unidirectional Link Delay Variation";
+			}
+			leaf max-bw {
+				type ieee-float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Maximum bandwidth that can be used";
+				description "Maximum bandwidth that can be used";
+			}
+			leaf max-rsv-bw {
+				type ieee-float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Maximum bandwidth that may be reserved";
+				description "Maximum bandwidth that may be reserved";
+			}
+			leaf metric {
+				type uint32 {
+  				range "1..4294967295";
+				}
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Link metric for MPLS-TE purpose";
+				description "Link metric for MPLS-TE purpose";
+			}
+			leaf neighbor {
+				type types:ipv4-address;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
+				description "Configure remote ASBR information (Neighbor IP address and AS number)";
+			}
+			leaf packet-loss {
+				type float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
+				description "Configure remote ASBR information (Neighbor IP address and AS number)";
+
+			}
+			leaf res-bw {
+				type float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unidirectional Residual Bandwidth";
+				description "Unidirectional Residual Bandwidth";
+			}
+			leaf unrsv-bw {
+				type float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unreserved bandwidth at each priority level";
+				description "Unreserved bandwidth at each priority level";
+			}
+			leaf use-bw {
+				type float;
+				must "(../enable)" {
+					error-message "link-params enable must be set."
+				}
+      	configd:help "Unidirectional Utilised Bandwidth";
+				description "Unidirectional Utilised Bandwidth";
+
+			}
+    }
+  }
+
+  augment /if:interfaces/interfaces-dataplane:dataplane {
+    uses link-params;
+  }
+  augment /if:interfaces/interfaces-dataplane:dataplane/interfaces-dataplane:vif/interfaces-dataplane {
+    uses link-params;
+  }
+  augment /if:interfaces/interfaces-loopback:loopback {
+   uses link-params;
+  }
+  augment /if:interfaces/interfaces-switch:switch/interfaces-switch:vif {
+    uses link-params;
+  }
+}

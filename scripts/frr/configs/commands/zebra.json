@@ -1,0 +1,16 @@
+{
+    "/interfaces/@element/link-params/@enter": "link-params",
+    "/interfaces/@element/link-params/@exit": "exit-link-params",
+    "/interfaces/@element/link-params/enable": "enable",
+    "/interfaces/@element/link-params/admin-grp": "admin-grp {/@text}",
+    "/interfaces/@element/link-params/ava-bw": "ava-bw {/@text}",
+    "/interfaces/@element/link-params/delay": "delay {/@text}",
+    "/interfaces/@element/link-params/delay-variation": "delay-variation {/@text}",
+    "/interfaces/@element/link-params/max-bw": "max-bw {/@text}",
+    "/interfaces/@element/link-params/max-rsv-bw": "max-rsv-bw {/@text}",
+    "/interfaces/@element/link-params/metric": "metric {/@text}",
+    "/interfaces/@element/link-params/packet-loss": "packet-loss {/@text}",
+    "/interfaces/@element/link-params/res-bw": "res-bw {/@text}",
+    "/interfaces/@element/link-params/unrsv-bw": "unrsv-bw {/@text}",
+    "/interfaces/@element/link-params/use-bw": "use-bw {/@text}"
+}
