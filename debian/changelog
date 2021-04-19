@@ -1,3 +1,13 @@
+vyatta-protocols-frr (1.15.2) unstable; urgency=medium
+
+  [ Nicholas Brown ]
+  * 'go tool vet' now 'go vet'
+
+  [ James Wheatley ]
+  * Allow configuring BGP bestpath missing-as-worst (Closes: VRVDR-54708)
+
+ -- James Wheatley <jammy@att.com>  Mon, 19 Apr 2021 15:56:48 +0100
+
 vyatta-protocols-frr (1.15.1) unstable; urgency=medium
 
   [ Mark Gillott ]
