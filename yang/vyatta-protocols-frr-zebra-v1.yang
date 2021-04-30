@@ -67,7 +67,7 @@ module vyatta-protocols-frr-zebra-v1 {
 
   revision 2021-03-02 {
     description 
-      "Added link-params option.
+      "Added link-params option.";
   }
   
 	typedef ieee-float {
@@ -99,7 +99,7 @@ module vyatta-protocols-frr-zebra-v1 {
       		pattern "0[Xx][a-fA-F0-9]+";
     		}
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Administrative group membership";
 				description "Administrative group membership";
@@ -107,7 +107,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf enable {
 				type empty;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Activate link parameters on this interface";
 				description "Activate link parameters on this interface";
@@ -116,7 +116,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf ava-bw {
 				type ieee-float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unidirectional Available Bandwidth";
 				description "Unidirectional Available Bandwidth";
@@ -126,7 +126,7 @@ module vyatta-protocols-frr-zebra-v1 {
   				range "0..16777215";
 				}
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unidirectional Average Link Delay";
 				description "Unidirectional Average Link Delay";
@@ -136,7 +136,7 @@ module vyatta-protocols-frr-zebra-v1 {
   				range "0..16777215";
 				}
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unidirectional Link Delay Variation";
 				description "Unidirectional Link Delay Variation";
@@ -144,7 +144,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf max-bw {
 				type ieee-float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Maximum bandwidth that can be used";
 				description "Maximum bandwidth that can be used";
@@ -152,7 +152,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf max-rsv-bw {
 				type ieee-float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Maximum bandwidth that may be reserved";
 				description "Maximum bandwidth that may be reserved";
@@ -162,7 +162,7 @@ module vyatta-protocols-frr-zebra-v1 {
   				range "1..4294967295";
 				}
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Link metric for MPLS-TE purpose";
 				description "Link metric for MPLS-TE purpose";
@@ -170,7 +170,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf neighbor {
 				type types:ipv4-address;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
 				description "Configure remote ASBR information (Neighbor IP address and AS number)";
@@ -178,7 +178,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf packet-loss {
 				type float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
 				description "Configure remote ASBR information (Neighbor IP address and AS number)";
@@ -187,7 +187,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf res-bw {
 				type float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unidirectional Residual Bandwidth";
 				description "Unidirectional Residual Bandwidth";
@@ -195,7 +195,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf unrsv-bw {
 				type float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unreserved bandwidth at each priority level";
 				description "Unreserved bandwidth at each priority level";
@@ -203,7 +203,7 @@ module vyatta-protocols-frr-zebra-v1 {
 			leaf use-bw {
 				type float;
 				must "(../enable)" {
-					error-message "link-params enable must be set."
+					error-message "link-params enable must be set.";
 				}
       	configd:help "Unidirectional Utilised Bandwidth";
 				description "Unidirectional Utilised Bandwidth";
