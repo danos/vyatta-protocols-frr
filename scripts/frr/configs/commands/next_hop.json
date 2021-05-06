@@ -1,0 +1,6 @@
+{
+    "/protocols/next-hop/resolve-via-default": ["$if|ip nht resolve-via-default,|{/@text} == enabled$", "$if|ipv6 nht resolve-via-default,|{/@text} == enabled$"],
+    "/routing/routing-instance/@element/protocols/next-hop": "vrf vrf{/../../instance-name/@text}",
+    "/routing/routing-instance/@element/protocols/next-hop/@exit": "exit-vrf",
+    "/routing/routing-instance/@element/protocols/next-hop/resolve-via-default": ["$if|ip nht resolve-via-default,|{/@text} == enabled$", "$if|ipv6 nht resolve-via-default,|{/@text} == enabled$"]
+}
