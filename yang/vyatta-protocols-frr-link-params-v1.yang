@@ -74,105 +74,81 @@ module vyatta-protocols-frr-link-params-v1 {
 				type string {
 					pattern "0[Xx][a-fA-F0-9]+";
 				}
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
 				configd:help "Administrative group membership";
 				description "Administrative group membership";
 			}
 			leaf available-bandwidth {
 				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Unidirectional Available Bandwidth";
+				units "Bytes/second";
+				configd:help "Unidirectional Available Bandwidth (Bytes/second)";
 				description "Unidirectional Available Bandwidth";
 			}
 			leaf delay {
 				type uint32 {
 					range "0..16777215";
 				}
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Unidirectional Average Link Delay";
+				units "micro-second";
+				configd:help "Unidirectional Average Link Delay (micro-second)";
 				description "Unidirectional Average Link Delay";
 			}
 			leaf delay-variation {
 				type uint32 {
 					range "0..16777215";
 				}
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Unidirectional Link Delay Variation";
+				units "micro-second";
+				configd:help "Unidirectional Link Delay Variation (micro-second)";
 				description "Unidirectional Link Delay Variation";
 			}
 			leaf max-bandwidth {
 				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Maximum bandwidth that can be used";
+				units "Bytes/second";
+				configd:help "Maximum bandwidth that can be used (Bytes/second)";
 				description "Maximum bandwidth that can be used";
 			}
 			leaf max-reserved-bandwidth {
 				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Maximum bandwidth that may be reserved";
+				units "Bytes/second";
+				configd:help "Maximum bandwidth that may be reserved (Bytes/second)";
 				description "Maximum bandwidth that may be reserved";
 			}
 			leaf metric {
 				type uint32 {
 					range "1..4294967295";
 				}
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
 				configd:help "Link metric for MPLS-TE purpose";
 				description "Link metric for MPLS-TE purpose";
 			}
 			leaf neighbor {
 				type types:ipv4-address;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
 				configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
 				description "Configure remote ASBR information (Neighbor IP address and AS number)";
 			}
 			leaf packet-loss {
-				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
+				type uint32 {
+					range 0..100;
 				}
-				configd:help "Configure remote ASBR information (Neighbor IP address and AS number)";
+				units "Percentage";
+				configd:help "Configure remote ASBR information (Neighbor IP address and AS number) in percentage";
 				description "Configure remote ASBR information (Neighbor IP address and AS number)";
 
 			}
 			leaf residual-bandwidth {
 				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Unidirectional Residual Bandwidth";
+				units "Bytes/second";
+				configd:help "Unidirectional Residual Bandwidth (Bytes/second)";
 				description "Unidirectional Residual Bandwidth";
 			}
 			leaf unreserved-bandwidth {
-				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
+				type uint32 {
+					range "0..7";
 				}
 				configd:help "Unreserved bandwidth at each priority level";
 				description "Unreserved bandwidth at each priority level";
 			}
 			leaf utilised-bandwidth {
 				type uint32;
-				must "(../enable)" {
-					error-message "link-params enable must be set.";
-				}
-				configd:help "Unidirectional Utilised Bandwidth";
+				units "Bytes/second";
+				configd:help "Unidirectional Utilised Bandwidth (Bytes/second)";
 				description "Unidirectional Utilised Bandwidth";
 
 			}
