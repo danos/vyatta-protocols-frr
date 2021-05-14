@@ -8,6 +8,7 @@
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/bestpath/as-path/ignore": "bgp bestpath as-path ignore",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/bestpath/compare-routerid": "bgp bestpath compare-routerid",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/bestpath/med/confed": "bgp bestpath med confed $if|missing-as-worst,|missing-as-worst in {/@dict}$",
+    "/routing/routing-instance/@element/protocols/bgp/@element/parameters/bestpath/med/missing-as-worst": "bgp bestpath med missing-as-worst",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/cluster-id": "bgp cluster-id {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/confederation/identifier": "bgp confederation identifier {/@text}",
     "/routing/routing-instance/@element/protocols/bgp/@element/parameters/confederation/peers": "bgp confederation peers {/@text}",

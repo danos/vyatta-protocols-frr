@@ -15,6 +15,8 @@ Modules=vyatta-protocols-frr-bgp-v1,                      \
     vyatta-protocols-frr-switch-vif-ospf-v1,              \
     vyatta-protocols-frr-ospfv3-v1,                       \
     vyatta-protocols-frr-switch-vif-ospfv3-v1,            \
+    vyatta-protocols-frr-next-hop-v1,                     \
+    vyatta-protocols-frr-next-hop-routing-instance-v1,    \
     vyatta-policy-route-v1,                               \
     vyatta-policy-route-deviation-danos-v1,               \
     vyatta-protocols-static-v1,                           \
