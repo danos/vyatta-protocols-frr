@@ -213,7 +213,6 @@ Depends: ${misc:Depends}, ${yang:Depends}
 Description: ISIS operational YANG module
  The YANG module package for vyatta-op-frr-isis-v1-yang
 
-
 Package: vyatta-protocols-frr-isis-v1-yang
 Architecture: all
 Depends:frr,
@@ -225,6 +224,30 @@ Conflicts: vyatta-protocols-isis-v1-yang
 Description: FRR ISIS yang module package
  The YANG module package for vyatta-protocols-frr-isis-v1
 
+Package: vyatta-protocols-frr-next-hop-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Description: FRR next hop parameters YANG package
+ The YANG module package for vyatta-protocols-frr-next-hop-v1
+
+Package: vyatta-protocols-frr-next-hop-routing-instance-v1-yang
+Architecture: all
+Depends:
+ frr,
+ vyatta-cfg (>= 0.18.56),
+ vyatta-frr-vci,
+ vyatta-protocols-frr (>= ${source:Version}),
+ ${misc:Depends},
+ ${yang:Depends}
+Description: FRR next hop parameters for routing instances YANG package
+ The YANG module package for vyatta-protocols-frr-next-hop-routing-instance-v1
+
 Package: vyatta-protocols-frr-link-params-v1-yang
 Architecture: all
 Depends:frr,
@@ -235,4 +258,3 @@ Depends:frr,
 Conflicts: vyatta-protocols-link-params-v1-yang
 Description: FRR LINK-PARAMS yang module package
  The YANG module package for vyatta-protocols-frr-link-params-v1
-

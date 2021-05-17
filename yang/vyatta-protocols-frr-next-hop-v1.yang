@@ -1,0 +1,92 @@
+module vyatta-protocols-frr-next-hop-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-protocols-frr-next-hop:1";
+	prefix vyatta-protocols-frr-next-hop-v1;
+
+	import configd-v1 {
+		prefix configd;
+	}
+
+	import vyatta-protocols-v1 {
+		prefix protocols;
+	}
+
+	organization "AT&T, Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2021, AT&T Intellectual Property. All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or
+		 without modification, are permitted provided that the following
+		 conditions are met:
+
+		 1. Redistributions of source code must retain the above copyright
+			notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+			copyright notice, this list of conditions and the following
+			disclaimer in the documentation and/or other materials provided
+			with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+			contributors may be used to endorse or promote products derived
+			from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+		 
+		 Next hop configuation parameters for FRR-based platforms.";
+
+	revision 2021-05-06 {
+		description "Initial revision.";
+	}
+
+	grouping next-hop {
+		container next-hop {
+			description "Parameters to control next hop behavior";
+			configd:help "Next hop behavior";
+			leaf resolve-via-default {
+				type enumeration {
+					enum enabled {
+						description "Install routes even where the next hop " +
+							"is only resolvable via the default route.";
+						configd:help "Resolve via the default route";
+					}
+					enum disabled {
+						description "Install routes only where the next hop " +
+							"is resolvable through a route more specific " +
+							"than the default route.";
+						configd:help "Do not resolve via the default route";
+					}
+				}
+				default enabled;
+				description "Recursively resolve next hop addresses via the " +
+					"default route. When enabled, a route will be installed " +
+					"even if its next hop is only resolvable through the " +
+					"default route. When disabled, routes will only be " +
+					"installed if their next hop is resolvable through a " +
+					"route that is more specific than the default.\n\n" +
+					"This setting is configured per VRF.";
+				configd:help "Resolve next hop address via default route";
+			}
+		}
+	}
+
+	augment /protocols:protocols {
+		uses next-hop;
+	}
+}
