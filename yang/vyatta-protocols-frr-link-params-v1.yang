@@ -81,7 +81,18 @@ module vyatta-protocols-frr-link-params-v1 {
 				type uint64;
 				units "Bytes/second";
 				configd:help "Unidirectional Available Bandwidth (Bytes/second)";
-				description "Unidirectional Available Bandwidth";
+				description "Unidirectional Available Bandwidth. This field carries the available bandwidth on a
+					link, forwarding adjacency, or bundled link. For a link or forwarding adjacency, available
+					bandwidth is defined to be residual bandwidth minus the measured bandwidth used for the actual
+					forwarding of non-RSVP-TE LSP packets.  For a bundled link, available bandwidth is defined to be
+					the sum of the component link available bandwidths minus the measured bandwidth used for the actual
+					forwarding of non-RSVP-TE Label Switched Paths packets [draft-ietf-isis-te-metrics-extension-03].";
+				must "../max-bandwidth" {
+					error-message "Maximum Bandwidth must be set";
+				}
+				must "../available-bandwidth <= ../max-bandwidth" {
+					error-message "Available Bandwidth cannot be greater than Maximum Bandwidth";
+				}
 			}
 			leaf delay {
 				type uint32 {
@@ -109,7 +120,14 @@ module vyatta-protocols-frr-link-params-v1 {
 				type uint64;
 				units "Bytes/second";
 				configd:help "Maximum bandwidth that may be reserved (Bytes/second)";
-				description "Maximum bandwidth that may be reserved";
+				description "Maximum bandwidth that may be reserved. It is the bandwidth that can
+					theoretically be reserved";
+				must "../max-bandwidth" {
+					error-message "Maximum Bandwidth must be set";
+				}
+				must "../max-reserved-bandwidth <= ../max-bandwidth" {
+					error-message "Maximum Reservable Bandwidth cannot be greater than Maximum Bandwidth";
+				}
 			}
 			leaf mpls-te-metric {
 				type uint32 {
@@ -128,28 +146,69 @@ module vyatta-protocols-frr-link-params-v1 {
 					range 0..100;
 				}
 				units "Percentage";
-				configd:help "Configure remote ASBR information (Neighbor IP address and AS number) in percentage";
-				description "Configure remote ASBR information (Neighbor IP address and AS number)";
-
+				configd:help "Unidirectional Link Packet Loss (Percentage)";
+				description "Unidirectional Link Packet Loss (Percentage)";
 			}
 			leaf residual-bandwidth {
 				type uint64;
 				units "Bytes/second";
 				configd:help "Unidirectional Residual Bandwidth (Bytes/second)";
-				description "Unidirectional Residual Bandwidth";
-			}
-			leaf unreserved-bandwidth {
-				type uint32 {
-					range "0..7";
+				description "Unidirectional Residual Bandwidth. For a link or forwarding adjacency, residual
+					bandwidth is defined to be Maximum Bandwidth [RFC3630] minus the bandwidth currently allocated
+					to RSVP-TE LSPs. For a bundled link, residual bandwidth is defined to be the sum of the
+					component link residual bandwidths [draft-ietf-isis-te-metrics-extension-03.txt].";
+				must "../max-bandwidth" {
+					error-message "Maximum Bandwidth must be set";
 				}
-				configd:help "Unreserved bandwidth at each priority level";
-				description "Unreserved bandwidth at each priority level";
+				must "../residual-bandwidth <= ../max-bandwidth" {
+					error-message "Residual Bandwidth cannot be greater than Maximum Bandwidth";
+				}
 			}
+			container unreserved-bandwidth {
+                                configd:help "Unreserved bandwidth at each priority level";
+                                description "Unreserved bandwidth at each priority level. Unreserved Bandwidth [RFC3630], is
+					subtracted from the Maximum Reservable Bandwidth (the bandwidth that can theoretically
+					be reserved) [RFC3630] and provides per-QoS-class [draft-ietf-isis-te-metrics-extension-03]";
+                                list priority {
+                                        configd:help "Priority";
+                                        description "8 sets of priority levels";
+                                        key "tagnode";
+                                        leaf tagnode {
+                                                type uint32 {
+                                                        range "0..7";
+                                                }
+                                                configd:help "Priority";
+                                                description "8 sets of priority levels";
+                                        }
+                                        leaf bandwidth {
+                                                type uint64;
+                                                units "Bytes/second";
+                                                configd:help "Bandwidth (Bytes/second)";
+                                                description "Bandwidth (Bytes/second) for each priority levels";
+						must "../../../max-bandwidth" {
+							error-message "Maximum Bandwidth must be set";
+						}
+						must "../bandwidth <= ../../../max-bandwidth" {
+							error-message "Unreserved Bandwidth cannot be greater than Maximum Bandwidth";
+						}
+                                        }
+                                }
+                        }
 			leaf utilised-bandwidth {
 				type uint64;
 				units "Bytes/second";
 				configd:help "Unidirectional Utilised Bandwidth (Bytes/second)";
-				description "Unidirectional Utilised Bandwidth";
+				description "Unidirectional Utilised Bandwidth. This field carries the bandwidth utilization
+					on a link, forwarding adjacency, or bundled link. For a link or forwarding adjacency, bandwidth
+					utilization represent the actual utilization of the link (i.e.: as measured in the router). For a
+					bundled link, bandwidth utilization is defined to be the sum of the component link bandwidth utilization
+					[draft-ietf-isis-te-metrics-extension-03.txt].";
+				must "../max-bandwidth" {
+					error-message "Maximum Bandwidth must be set";
+				}
+				must "../utilised-bandwidth <= ../max-bandwidth" {
+					error-message "Utilised Bandwidth cannot be greater than Maximum Bandwidth";
+				}
 
 			}
 		}
