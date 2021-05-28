@@ -168,36 +168,36 @@ module vyatta-protocols-frr-link-params-v1 {
 				}
 			}
 			container unreserved-bandwidth {
-                                configd:help "Unreserved bandwidth at each priority level";
-                                description
+				configd:help "Unreserved bandwidth at each priority level";
+				description
 					"Unreserved bandwidth at each priority level. Unreserved Bandwidth [RFC3630], is
 					subtracted from the Maximum Reservable Bandwidth (the bandwidth that can theoretically
 					be reserved) [RFC3630] and provides per-QoS-class [draft-ietf-isis-te-metrics-extension-03]";
-                                list priority {
-                                        configd:help "Priority";
-                                        description "8 sets of priority levels";
-                                        key "tagnode";
-                                        leaf tagnode {
-                                                type uint32 {
-                                                        range "0..7";
-                                                }
-                                                configd:help "Priority";
-                                                description "8 sets of priority levels";
-                                        }
-                                        leaf bandwidth {
-                                                type uint64;
-                                                units "Bytes/second";
-                                                configd:help "Bandwidth (Bytes/second)";
-                                                description "Bandwidth (Bytes/second) for each priority levels";
+				list priority {
+					configd:help "Priority";
+					description "8 sets of priority levels";
+					key "tagnode";
+					leaf tagnode {
+						type uint32 {
+							range "0..7";
+						}
+						configd:help "Priority";
+						description "8 sets of priority levels";
+					}
+					leaf bandwidth {
+						type uint64;
+						units "Bytes/second";
+						configd:help "Bandwidth (Bytes/second)";
+						description "Bandwidth (Bytes/second) for each priority levels";
 						must "../../../max-bandwidth" {
 							error-message "Maximum Bandwidth must be set";
 						}
 						must "../bandwidth <= ../../../max-bandwidth" {
 							error-message "Unreserved Bandwidth cannot be greater than Maximum Bandwidth";
 						}
-                                        }
-                                }
-                        }
+					}
+				}
+			}
 			leaf utilised-bandwidth {
 				type uint64;
 				units "Bytes/second";
