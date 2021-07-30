@@ -214,6 +214,8 @@ class CommandFiller:
         If none is satisfied, the command is discarded.
         Set members are comma separated. Optional sets have an empty member
         """
+        if("bgp as-path access-list" in self.command):
+            return
         for pattern in findall(self.PATTERN_REGEX, self.command):
             replacement = None
             for member in pattern[1:-1].split(','):
