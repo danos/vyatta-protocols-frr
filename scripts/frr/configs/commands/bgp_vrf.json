@@ -1,5 +1,6 @@
 {
     "/routing/routing-instance/@element/protocols/bgp/@enter": "!",
+    "/routing/routing-instance/@element/protocols/bgp/@exit": "exit",
     "/routing/routing-instance/@element/protocols/bgp/@element": ["router bgp {/tagnode/@text} vrf vrf{/../../../instance-name/@text}", "no bgp default ipv4-unicast"],
     "/routing/routing-instance/@element/protocols/bgp/@element/timers": "timers bgp {/keepalive/@text} {/holdtime/@text}",
 
