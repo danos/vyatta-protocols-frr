@@ -1,9 +1,3 @@
-vyatta-protocols-frr (1.15.3) unstable; urgency=medium
-
-  * Provide config for ip nht resolve-via-default
-
- -- James Wheatley <jammy@att.com>  Mon, 10 May 2021 11:42:30 +0100
-
 vyatta-protocols-frr (1.15.2) unstable; urgency=medium
 
   [ Nicholas Brown ]
